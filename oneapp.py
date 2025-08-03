@@ -9,6 +9,8 @@ from io import BytesIO
 from auth import validar_login
 from google_sheets import conectar_sit_hh
 from registro import registrar_handheld  # función externa
+from jornadas import mostrar_jornadas  # 👈 Importar el módulo
+
 
 # 🎛️ Configuración de la aplicación
 st.set_page_config(
@@ -77,9 +79,15 @@ if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
         unsafe_allow_html=True
     )
 
-# 🧭 Interfaz principal post-login
-if st.session_state.logueado_handheld:
-    tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
+from jornadas import mostrar_jornadas  # 👈 Importar el módulo
+
+# Dentro del bloque post-login
+tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo", "🕒 Jornadas"])
+
+# Nueva pestaña para mostrar jornadas
+if st.session_state.rol_handheld == "admin":
+    with tabs[2]:
+        mostrar_jornadas(conectar_sit_hh)
 
     # 📦 Registro
     with tabs[0]:
@@ -165,3 +173,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
