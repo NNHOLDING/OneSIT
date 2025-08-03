@@ -35,4 +35,10 @@ if st.query_params.get("salida") == "true":
 # 🖼️ Mostrar logo en login
 if not st.session_state.logueado_handheld:
     url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
-    response
+    response = requests.get(url_logo)
+
+    if response.status_code == 200:
+        image = Image.open(BytesIO(response.content))
+        st.image(image, use_container_width=True)
+    else:
+        st.warning("⚠️ No se pudo cargar el logo.")
