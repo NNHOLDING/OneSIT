@@ -11,7 +11,7 @@ from google_sheets import conectar_sit_hh
 from registro import registrar_handheld
 from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
-from modulo_alisto import mostrar_formulario_alisto  # 👉 nuevo módulo integrado
+from modulo_alisto import mostrar_formulario_alisto  # 👉 módulo integrado
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
@@ -32,12 +32,19 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
+
 def cargar_handhelds():
     hoja = conectar_sit_hh().worksheet("HH")
     datos = hoja.get_all_values()
-    df = pd.DataFrame(datos[1:], columns=datos[0])
-    df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-    return df
+    if datos and len(datos[0]) > 0:
+        df = pd.DataFrame(datos[1:], columns=datos[0])
+        df.columns = df.columns.str.strip().str.lower()
+        df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+        return df
+    else:
+        st.warning("⚠️ No se pudieron cargar datos desde la hoja HH.")
+        return pd.DataFrame()
+
 
 # 🔐 Login
 if not st.session_state.logueado_handheld:
@@ -85,7 +92,7 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada"
     ])
 
-    # 📦 Registro — todos los usuarios
+    # 📦 Registro
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -108,53 +115,65 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion")
 
-    # 📋 Panel Administrativo — solo admin
+    # 📋 Panel Administrativo
     with tabs[1]:
         if st.session_state.rol_handheld == "admin":
             st.title("📋 Panel Administrativo")
             df = cargar_handhelds()
 
-            usuarios = sorted(df["Nombre"].dropna().unique())
-            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
+            if not df.empty and "nombre" in df.columns:
+                usuarios = sorted(df["nombre"].dropna().unique())
+                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+                usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
 
-            df_filtrado = df[
-                (df["Fecha"].dt.date >= fecha_ini) &
-                (df["Fecha"].dt.date <= fecha_fin)
-            ]
-            if usuario_sel != "Todos":
-                df_filtrado = df_filtrado[df_filtrado["Nombre"] == usuario_sel]
+                df_filtrado = df[
+                    (df["fecha"].dt.date >= fecha_ini) &
+                    (df["fecha"].dt.date <= fecha_fin)
+                ]
+                if usuario_sel != "Todos":
+                    df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
 
-            st.subheader("📑 Registros")
-            st.dataframe(df_filtrado)
+                st.subheader("📑 Registros")
+                st.dataframe(df_filtrado)
 
-            csv = df_filtrado.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
+                csv = df_filtrado.to_csv(index=False).encode("utf-8")
+                st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
-            st.subheader("📊 Actividad por Usuario")
-            resumen = df_filtrado.groupby("Nombre").size().reset_index(name="Registros")
-            st.dataframe(resumen)
-            st.bar_chart(resumen.set_index("Nombre"))
+                # Actividad por Usuario
+                st.subheader("📊 Actividad por Usuario")
+                if "nombre" in df_filtrado.columns:
+                    resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+                    st.dataframe(resumen)
+                    st.bar_chart(resumen.set_index("nombre"))
 
-            st.subheader("🔧 Actividad por Equipo")
-            resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
-            st.dataframe(resumen_eq)
-            st.bar_chart(resumen_eq.set_index("Equipo"))
+                # Actividad por Equipo
+                st.subheader("🔧 Actividad por Equipo")
+                if "equipo" in df_filtrado.columns:
+                    resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
+                    st.dataframe(resumen_eq)
+                    st.bar_chart(resumen_eq.set_index("equipo"))
+                else:
+                    st.warning("⚠️ No se encuentra la columna 'equipo'.")
+
+            else:
+                st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
     # 🕒 Productividad
     with tabs[2]:
-        if st.session_state.rol_handheld != "admin":
+        st.title("🕒 Productividad")
+        if st.session_state.rol_handheld == "admin":
+            mostrar_jornadas(conectar_sit_hh)
+        else:
             mostrar_formulario_alisto(
-                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",  # 👉 cambia si usas otro ID
+                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
                 service_account_info=st.secrets["gcp_service_account"],
                 nombre_empleado=st.session_state.nombre_empleado,
                 codigo_empleado=st.session_state.codigo_empleado
             )
-        else:
-            mostrar_jornadas(conectar_sit_hh)
 
-      with tabs[3]:
+    # 📝 Gestión de Jornada (todos los usuarios)
+    with tabs[3]:
         st.title("📝 Gestión de Jornada")
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
 
@@ -185,6 +204,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
-
-
