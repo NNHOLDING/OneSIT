@@ -78,7 +78,7 @@ def cargar_handhelds():
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
-# 🧼 Inicializar estado
+# 🧼 Estado inicial
 if "logueado_handheld" not in st.session_state:
     st.session_state.logueado_handheld = False
 if "rol_handheld" not in st.session_state:
@@ -88,12 +88,15 @@ if "nombre_empleado" not in st.session_state:
 if "codigo_empleado" not in st.session_state:
     st.session_state.codigo_empleado = ""
 
-# 👋 Mostrar mensaje de salida si corresponde
-if st.session_state.get("mensaje_salida", False):
+# 👋 Mensaje de despedida
+if st.query_params.get("salida") == "true":
+    st.session_state.logueado_handheld = False
+    st.session_state.rol_handheld = None
+    st.session_state.nombre_empleado = ""
+    st.session_state.codigo_empleado = ""
     st.success("👋 ¡Hasta pronto!")
-    st.session_state.mensaje_salida = False
 
-# 🔐 Pantalla de login
+# 🔐 Login
 if not st.session_state.logueado_handheld:
     st.title("🔐 Acceso al Sistema Handheld")
     usuario = st.text_input("Usuario (Código o Admin)")
@@ -109,32 +112,11 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🧭 Interfaz con pestañas
+# 🧭 Pestañas principales
 if st.session_state.logueado_handheld:
-    st.markdown("""
-        <style>
-            .boton-salir-container {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                z-index: 9999;
-            }
-            .boton-salir-container button {
-                background-color: #28a745;
-                color: white;
-                font-weight: bold;
-                border-radius: 8px;
-                padding: 0.6em 1.2em;
-                font-size: 16px;
-                border: none;
-                cursor: pointer;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
 
-    # 📦 Registro de entrega/devolución
+    # 📦 Pestaña usuario
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -151,7 +133,34 @@ if st.session_state.logueado_handheld:
             if st.button("✅ Guardar Devolución"):
                 registrar_handheld(st.session_state.codigo_empleado, st.session_state.nombre_empleado, equipo, "devolucion")
 
-    # 📋 Panel administrativo
+        # 🚪 Botón salir fijo para usuario
+        st.markdown("""
+            <style>
+                .boton-salir-container {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                }
+                .boton-salir-container button {
+                    background-color: #28a745;
+                    color: white;
+                    font-weight: bold;
+                    border-radius: 8px;
+                    padding: 0.6em 1.2em;
+                    font-size: 16px;
+                    border: none;
+                    cursor: pointer;
+                }
+            </style>
+            <div class="boton-salir-container">
+                <form action="#">
+                    <button onclick="window.location.href='?salida=true'; return confirm('¿Estás seguro que deseas salir?')">🚪 Salir</button>
+                </form>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # 📋 Pestaña administrador
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -181,21 +190,18 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-    # 🚪 Botón Salir fijo con confirmación
-    salir_container = st.empty()
-    with salir_container:
-        st.markdown('<div class="boton-salir-container">', unsafe_allow_html=True)
-        if st.button("🚪 Salir"):
-            st.session_state.mostrar_confirmacion_salida = True
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    if st.session_state.get("mostrar_confirmacion_salida", False):
-        confirmar = st.confirm("¿Estás seguro que deseas salir?")
-        if confirmar:
-            st.session_state.logueado_handheld = False
-            st.session_state.rol_handheld = None
-            st.session_state.nombre_empleado = ""
-            st.session_state.codigo_empleado = ""
-            st.session_state.mostrar_confirmacion_salida = False
-            st.session_state.mensaje_salida = True
-            st.rerun()
+            # 🚪 Botón salir fijo para administrador
+            st.markdown("""
+                <style>
+                    .boton-salir-container {
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        z-index: 9999;
+                    }
+                    .boton-salir-container button {
+                        background-color: #28a745;
+                        color: white;
+                        font-weight: bold;
+                        border-radius: 8px;
+                        padding: 0.6em 1.2em;
