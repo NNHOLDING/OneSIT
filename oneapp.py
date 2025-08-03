@@ -2,46 +2,15 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import pytz
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import requests
 from PIL import Image
 from io import BytesIO
 
+from auth import validar_login
+from google_sheets import conectar_sit_hh
+
 # 🌎 Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
-
-# 🔗 Conexión con Google Sheets - Libro actualizado
-def conectar_sit_hh():
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/drive"
-    ]
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        st.secrets["gcp_service_account"], scope)
-    client = gspread.authorize(creds)
-    return client.open_by_url(
-        "https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit"
-    )
-
-# 🔍 Obtener nombre por código desde hoja "Empleados"
-def obtener_nombre(codigo):
-    hoja = conectar_sit_hh().worksheet("Empleados")
-    datos = hoja.get_all_values()
-    for fila in datos:
-        if fila[0] == codigo:
-            return fila[1]
-    return None
-
-# 🔐 Validar credenciales
-def validar_login(usuario, contraseña):
-    if usuario == "Admin" and contraseña == "Administrador":
-        return "admin", "Administrador"
-    elif contraseña == f"numar{usuario}":
-        nombre = obtener_nombre(usuario)
-        if nombre:
-            return "estandar", nombre
-    return None, None
 
 # 📋 Buscar fila existente en hoja "HH"
 def buscar_fila(codigo, fecha):
