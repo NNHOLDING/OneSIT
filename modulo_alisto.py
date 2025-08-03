@@ -3,10 +3,9 @@ from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 
-# 👉 Autenticación y conexión con Google Sheets
+# 🔐 Conexión con hoja de cálculo
 def conectar_hoja_productividad():
     GOOGLE_SHEET_ID = "1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0"
-
     service_account_info = {
         "type": "service_account",
         "project_id": "tu-proyecto",
@@ -29,23 +28,12 @@ def conectar_hoja_productividad():
         credentials = Credentials.from_service_account_info(service_account_info, scopes=scope)
         gc = gspread.authorize(credentials)
         libro = gc.open_by_key(GOOGLE_SHEET_ID)
-        nombre_hoja = "Productividad"
-        if nombre_hoja in [hoja.title for hoja in libro.worksheets()]:
-            return libro.worksheet(nombre_hoja)
-        else:
-            hoja_nueva = libro.add_worksheet(title=nombre_hoja, rows="1000", cols="20")
-            encabezados = [
-                "ID", "Hora de registro", "Fecha", "Código empleado", "Nombre del empleado",
-                "Placa", "Tipo de tarea", "Cantidad líneas - Unidades", "Cantidad líneas - Cajas",
-                "Hora de inicio", "Hora de fin", "Eficiencia", "Hora fin de registro"
-            ]
-            hoja_nueva.insert_row(encabezados, index=1)
-            return hoja_nueva
+        return libro.worksheet("Productividad")  # ✅ Tu hoja ya existe
     except Exception as e:
-        print(f"❌ Error de conexión: {e}")
+        st.error(f"❌ Error técnico: {e}")
         return None
 
-# 👉 Función para calcular eficiencia
+# 🧮 Eficiencia básica
 def calcular_eficiencia(hora_inicio, hora_fin, unidades):
     try:
         t1 = datetime.combine(datetime.today(), hora_inicio)
@@ -55,7 +43,7 @@ def calcular_eficiencia(hora_inicio, hora_fin, unidades):
     except:
         return 0
 
-# 📝 Formulario Streamlit para registrar productividad
+# 📋 Formulario principal
 def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empleado, codigo_empleado):
     st.title("🕒 Registro de Productividad")
 
@@ -72,19 +60,16 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
         "DEMASA", "INOLASA", "EXPORTACION UNIMAR", "HILLTOP", "SAM", "CARTAINESA", "AUTODELI", "WALMART", "PRICSMART"
     ]
 
-    # Inputs estándar
     placa = st.selectbox("🚚 Placa del vehículo", placas)
     tipo_tarea = st.selectbox("🛠️ Tipo de tarea", ["Alisto", "Despacho", "Picking", "Otro"])
     unidades = st.number_input("📦 Cantidad de líneas - Unidades", min_value=0, step=1)
     cajas = st.number_input("📦 Cantidad de líneas - Cajas", min_value=0, step=1)
 
-    # Inicializar estados de sesión
     if "hora_inicio" not in st.session_state:
         st.session_state.hora_inicio = None
     if "hora_fin" not in st.session_state:
         st.session_state.hora_fin = None
 
-    # Botones para registrar hora
     col1, col2 = st.columns(2)
     with col1:
         if st.session_state.hora_inicio is None:
@@ -98,24 +83,26 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
                 st.session_state.hora_fin = datetime.now().time()
                 st.success(f"Hora de fin: {st.session_state.hora_fin.strftime('%H:%M:%S')}")
 
-    # Botón para guardar registro
     if st.session_state.hora_inicio and st.session_state.hora_fin:
         if st.button("💾 Guardar registro"):
             hoja = conectar_hoja_productividad()
             if hoja:
-                ahora = datetime.now().strftime("%H:%M:%S")
                 fecha = datetime.now().strftime("%Y-%m-%d")
                 eficiencia = calcular_eficiencia(st.session_state.hora_inicio, st.session_state.hora_fin, unidades)
                 fila = [
-                    "", ahora, fecha, codigo_empleado, nombre_empleado,
-                    placa, tipo_tarea, unidades, cajas,
+                    fecha,
+                    placa,
+                    codigo_empleado,
+                    nombre_empleado,
+                    tipo_tarea,
+                    unidades,
+                    cajas,
                     st.session_state.hora_inicio.strftime("%H:%M:%S"),
                     st.session_state.hora_fin.strftime("%H:%M:%S"),
-                    eficiencia, ahora
+                    eficiencia
                 ]
                 hoja.append_row(fila)
                 st.success("✅ Registro guardado correctamente.")
-                # Resetear horas si deseas
                 st.session_state.hora_inicio = None
                 st.session_state.hora_fin = None
             else:
