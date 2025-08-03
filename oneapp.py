@@ -40,21 +40,6 @@ def cargar_handhelds():
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
-# 👋 Mensaje al salir
-if st.query_params.get("salida") == "true":
-    for key in defaults:
-        st.session_state[key] = defaults[key]
-    st.success("👋 ¡Hasta pronto!")
-
-# 🖼️ Logo institucional si está logueado
-if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
-    st.markdown(
-        "<div style='text-align: center;'>"
-        "<img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>"
-        "</div>",
-        unsafe_allow_html=True
-    )
-
 # 🔐 Login
 if not st.session_state.logueado_handheld:
     url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
@@ -82,6 +67,15 @@ if not st.session_state.logueado_handheld:
             st.rerun()
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
+
+# 🖼️ Logo institucional si está logueado
+if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
+    st.markdown(
+        "<div style='text-align: center;'>"
+        "<img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>"
+        "</div>",
+        unsafe_allow_html=True
+    )
 
 # 🧭 Interfaz principal post-login
 if st.session_state.logueado_handheld:
@@ -144,37 +138,30 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-    # 🚪 Botón de salida flotante
-    st.markdown("""
-        <style>
-            .boton-salir-container {
-                position: fixed;
-                bottom: 80px;
-                right: 20px;
-                z-index: 9999;
-            }
-            .boton-salir-container button {
-                background-color: #28a745;
-                color: white;
-                font-weight: bold;
-                border-radius: 8px;
-                padding: 0.6em 1.2em;
-                font-size: 16px;
-                border: none;
-                cursor: pointer;
-            }
-        </style>
-        <div class="boton-salir-container">
-            <form action="#">
-                <button onclick="window.location.href='?salida=true'; return confirm('¿Estás seguro que deseas salir?')">🚪 Salir</button>
-            </form>
-        </div>
-    """, unsafe_allow_html=True)
+    # 🚪 Opción para cerrar sesión con confirmación
+    if not st.session_state.confirmar_salida:
+        st.markdown("---")
+        st.markdown("### 🚪 Cerrar sesión")
+        if st.button("Salir", key="boton_salir"):
+            st.session_state.confirmar_salida = True
 
-    # 🧾 Footer institucional
-    st.markdown("""
-        <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
-        <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
-            NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
-        </div>
-    """, unsafe_allow_html=True)
+    elif st.session_state.confirmar_salida:
+        st.markdown("## ¿Estás seguro que deseas cerrar sesión?")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅ Sí, cerrar sesión", key="boton_confirmar_salir"):
+                st.success("¡Hasta pronto! 👋 La sesión se ha cerrado correctamente.")
+                for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado", "confirmar_salida"]:
+                    st.session_state[key] = False if key == "logueado_handheld" else ""
+                st.rerun()
+        with col2:
+            if st.button("↩️ No, regresar", key="boton_cancelar_salir"):
+                st.session_state.confirmar_salida = False
+
+# 🧾 Footer institucional
+st.markdown("""
+    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
+        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+    </div>
+""", unsafe_allow_html=True)
