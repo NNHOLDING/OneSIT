@@ -32,7 +32,6 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-
 def cargar_handhelds():
     hoja = conectar_sit_hh().worksheet("HH")
     datos = hoja.get_all_values()
@@ -44,7 +43,6 @@ def cargar_handhelds():
     else:
         st.warning("⚠️ No se pudieron cargar datos desde la hoja HH.")
         return pd.DataFrame()
-
 
 # 🔐 Login
 if not st.session_state.logueado_handheld:
@@ -161,7 +159,7 @@ if st.session_state.logueado_handheld:
 
     # 🕒 Productividad
     with tabs[2]:
-        st.title("🕒 Productividad")
+        # Título eliminado para evitar duplicación
         if st.session_state.rol_handheld == "admin":
             mostrar_jornadas(conectar_sit_hh)
         else:
@@ -172,9 +170,9 @@ if st.session_state.logueado_handheld:
                 codigo_empleado=st.session_state.codigo_empleado
             )
 
-    # 📝 Gestión de Jornada (todos los usuarios)
+    # 📝 Gestión de Jornada
     with tabs[3]:
-        st.title(" ")
+        # Título eliminado para evitar duplicación
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
 
     # 🚪 Cierre de sesión
@@ -204,4 +202,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
