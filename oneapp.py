@@ -5,12 +5,15 @@ import pytz
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# 🌎 Hora local
+# 🌎 Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 # 🔗 Conexión con Google Sheets
 def conectar_sit_hh():
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive"
+    ]
     creds = ServiceAccountCredentials.from_json_keyfile_dict(
         st.secrets["gcp_service_account"], scope)
     client = gspread.authorize(creds)
@@ -36,7 +39,7 @@ def validar_login(usuario, contraseña):
             return "estandar", nombre
     return None, None
 
-# 📋 Buscar si ya hay registro
+# 📋 Buscar fila existente
 def buscar_fila(codigo, fecha):
     hoja = conectar_sit_hh().worksheet("ENTREGA")
     datos = hoja.get_all_values()
@@ -45,7 +48,7 @@ def buscar_fila(codigo, fecha):
             return idx, fila
     return None, None
 
-# 📝 Registrar entrega o devolución
+# 📝 Registrar actividad
 def registrar_handheld(codigo, nombre, equipo, tipo):
     hoja = conectar_sit_hh().worksheet("ENTREGA")
     fecha = datetime.now(cr_timezone).strftime("%Y-%m-%d")
@@ -72,7 +75,7 @@ def registrar_handheld(codigo, nombre, equipo, tipo):
             hoja.append_row([fecha, codigo, nombre, equipo, "", hora, "Devuelto"])
         st.success("✅ Devolución registrada correctamente.")
 
-# 📊 Cargar registros
+# 📊 Cargar datos a DataFrame
 def cargar_handhelds():
     hoja = conectar_sit_hh().worksheet("ENTREGA")
     datos = hoja.get_all_values()
@@ -87,13 +90,11 @@ for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empl
 
 # 👋 Mensaje al salir
 if st.query_params.get("salida") == "true":
-    st.session_state.logueado_handheld = False
-    st.session_state.rol_handheld = ""
-    st.session_state.nombre_empleado = ""
-    st.session_state.codigo_empleado = ""
+    for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado"]:
+        st.session_state[key] = ""
     st.success("👋 ¡Hasta pronto!")
 
-# 🔐 Login
+# 🔐 Pantalla de login
 if not st.session_state.logueado_handheld:
     st.title("🔐 Acceso al Sistema Handheld")
     usuario = st.text_input("Usuario (Código o Admin)")
@@ -109,11 +110,11 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🧭 Pestañas principales
+# 🧭 Interfaz si está logueado
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
 
-    # 📦 Registro
+    # 📦 Registro de entregas
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -125,16 +126,18 @@ if st.session_state.logueado_handheld:
         col1, col2 = st.columns(2)
         with col1:
             if st.button("📌 Guardar Entrega"):
-                registrar_handheld(st.session_state.codigo_empleado,
-                                   st.session_state.nombre_empleado,
-                                   equipo, "entrega")
+                registrar_handheld(
+                    st.session_state.codigo_empleado,
+                    st.session_state.nombre_empleado,
+                    equipo, "entrega")
         with col2:
             if st.button("✅ Guardar Devolución"):
-                registrar_handheld(st.session_state.codigo_empleado,
-                                   st.session_state.nombre_empleado,
-                                   equipo, "devolucion")
+                registrar_handheld(
+                    st.session_state.codigo_empleado,
+                    st.session_state.nombre_empleado,
+                    equipo, "devolucion")
 
-        # 🚪 Botón salir (usuario)
+        # 🚪 Botón salir
         st.markdown("""
             <style>
                 .boton-salir-container {
@@ -172,7 +175,10 @@ if st.session_state.logueado_handheld:
             fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
             usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
 
-            df_filtrado = df[(df["Fecha"].dt.date >= fecha_ini) & (df["Fecha"].dt.date <= fecha_fin)]
+            df_filtrado = df[
+                (df["Fecha"].dt.date >= fecha_ini) &
+                (df["Fecha"].dt.date <= fecha_fin)
+            ]
             if usuario_sel != "Todos":
                 df_filtrado = df_filtrado[df_filtrado["Nombre"] == usuario_sel]
 
@@ -191,7 +197,7 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-            # 🚪 Botón salir (admin)
+            # 🚪 Botón salir
             st.markdown("""
                 <style>
                     .boton-salir-container {
@@ -212,5 +218,4 @@ if st.session_state.logueado_handheld:
                     }
                 </style>
                 <div class="boton-salir-container">
-                    <form action="#">
-                        <button onclick="window.location.href='?
+                    <form action
