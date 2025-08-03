@@ -12,21 +12,24 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
     tipo_tarea = "Alisto de producto"
 
     try:
+        # 🔑 Autenticación
         scope = [
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive"
         ]
         credentials = Credentials.from_service_account_info(service_account_info, scopes=scope)
         gc = gspread.authorize(credentials)
-        libro = gc.open_by_key(GOOGLE_SHEET_ID)
 
-        # Verificar si la hoja "Productividad" existe
+        # 📖 Abrir el libro
+        libro = gc.open_by_key(GOOGLE_SHEET_ID)
         hojas = libro.worksheets()
         nombres_hojas = [hoja.title for hoja in hojas]
 
+        # 📄 Buscar o crear hoja Productividad
         if "Productividad" in nombres_hojas:
             sheet = libro.worksheet("Productividad")
         else:
+            st.warning("⚠️ La hoja 'Productividad' no existe. Se está creando...")
             sheet = libro.add_worksheet(title="Productividad", rows="1000", cols="20")
             encabezados = [
                 "ID", "Hora de registro", "Fecha", "Código empleado", "Nombre del empleado",
@@ -34,10 +37,11 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
                 "Hora de inicio", "Hora de fin", "Eficiencia", "Hora fin de registro"
             ]
             sheet.insert_row(encabezados, index=1)
+            st.success("✅ Hoja 'Productividad' creada correctamente.")
 
     except Exception as e:
         st.error("❌ Error al conectar o preparar la hoja Productividad.")
-        st.error(f"Detalles: {e}")
+        st.error(f"📛 Detalles técnicos: {type(e).__name__} — {e}")
         return
 
     # 📝 Formulario
@@ -50,22 +54,21 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
     unidades = st.number_input("📦 Cantidad líneas - Unidades", min_value=0, step=1)
     cajas = st.number_input("📦 Cantidad líneas - Cajas", min_value=0, step=1)
 
-    # ⏱️ Botones de hora
     if st.button("🕒 Marcar hora de inicio") and "alisto_hora_inicio" not in st.session_state:
         st.session_state["alisto_hora_inicio"] = datetime.now().time()
 
     if st.button("🕒 Marcar hora de fin") and "alisto_hora_fin" not in st.session_state:
         st.session_state["alisto_hora_fin"] = datetime.now().time()
 
-    hora_inicio = st.session_state.get("alisto_hora_inicio", None)
-    hora_fin = st.session_state.get("alisto_hora_fin", None)
+    hora_inicio = st.session_state.get("alisto_hora_inicio")
+    hora_fin = st.session_state.get("alisto_hora_fin")
 
     def calcular_eficiencia(u, c, inicio, fin):
-        total_lineas = u + c
+        total = u + c
         if not inicio or not fin:
             return 0
-        duracion = (datetime.combine(date.today(), fin) - datetime.combine(date.today(), inicio)).seconds / 3600
-        return round(total_lineas / duracion, 2) if duracion > 0 else 0
+        duracion_horas = (datetime.combine(date.today(), fin) - datetime.combine(date.today(), inicio)).seconds / 3600
+        return round(total / duracion_horas, 2) if duracion_horas > 0 else 0
 
     eficiencia = calcular_eficiencia(unidades, cajas, hora_inicio, hora_fin)
     hora_registro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -95,4 +98,4 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
             st.rerun()
         except Exception as e:
             st.error("❌ Error al guardar el registro.")
-            st.error(f"Detalles: {e}")
+            st.error(f"📛 Detalles técnicos: {type(e).__name__} — {e}")
