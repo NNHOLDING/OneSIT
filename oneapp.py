@@ -42,7 +42,7 @@ if not st.session_state.logueado_handheld:
             st.image(image, use_container_width=True)
         else:
             st.warning("⚠️ No se pudo cargar el logo.")
-    except:
+    except Exception as e:
         st.warning("⚠️ Error al cargar el logo.")
 
     st.title("🔐 Smart Intelligence Tools")
@@ -56,7 +56,7 @@ if not st.session_state.logueado_handheld:
             st.session_state.nombre_empleado = nombre
             st.session_state.codigo_empleado = usuario
             st.success(f"Bienvenido, {nombre}")
-            st.experimental_rerun()
+            st.rerun()  # ✅ método actualizado
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
@@ -146,3 +146,4 @@ if st.session_state.logueado_handheld:
             resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
+
