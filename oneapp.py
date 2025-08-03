@@ -119,6 +119,33 @@ if st.session_state.logueado_handheld:
             if st.button("✅ Guardar Devolución"):
                 registrar_handheld(st.session_state.codigo_empleado, st.session_state.nombre_empleado, equipo, "devolucion")
 
+  # 🚪 Botón salir (usuario)
+        st.markdown("""
+            <style>
+                .salir-boton {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    z-index: 1000;
+                }
+                .salir-boton button {
+                    background-color: #28a745;
+                    color: white;
+                    border: none;
+                    padding: 0.8em 1.2em;
+                    font-size: 16px;
+                    font-weight: bold;
+                    border-radius: 8px;
+                    cursor: pointer;
+                }
+            </style>
+            <div class="salir-boton">
+                <form action="" method="post">
+                    <button onclick="if(!confirm('¿Estás seguro que deseas salir?')){event.preventDefault();}">🚪 Salir</button>
+                </form>
+            </div>
+        """, unsafe_allow_html=True)
+
     # TAB 2: Panel Administrativo (solo Admin)
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
@@ -148,3 +175,38 @@ if st.session_state.logueado_handheld:
             resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
+
+            # 🚪 Botón salir (admin)
+            st.markdown("""
+                <style>
+                    .salir-boton {
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        z-index: 1000;
+                    }
+                    .salir-boton button {
+                        background-color: #28a745;
+                        color: white;
+                        border: none;
+                        padding: 0.8em 1.2em;
+                        font-size: 16px;
+                        font-weight: bold;
+                        border-radius: 8px;
+                        cursor: pointer;
+                    }
+                </style>
+                <div class="salir-boton">
+                    <form action="" method="post">
+                        <button onclick="if(!confirm('¿Estás seguro que deseas salir?')){event.preventDefault();}">🚪 Salir</button>
+                    </form>
+                </div>
+            """, unsafe_allow_html=True)
+
+# 🧼 Detectar y procesar cierre de sesión
+if st.query_params.get("salir") == "true":
+    st.session_state.logueado_handheld = False
+    st.session_state.rol_handheld = None
+    st.session_state.nombre_empleado = ""
+    st.session_state.codigo_empleado = ""
+    st.experimental_rerun()
