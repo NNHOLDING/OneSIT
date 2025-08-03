@@ -48,11 +48,23 @@ def mostrar_panel_alisto(conectar_funcion):
     df["cantidad"] = pd.to_numeric(df["cantidad"], errors="coerce")
     df["duracion"] = (df["fin"] - df["inicio"]).dt.total_seconds() / 3600
 
-    # Filtros
+    # Filtros con claves únicas
     empleados = sorted(df["empleado"].dropna().unique())
-    fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-    fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-    empleado_sel = st.selectbox("Filtrar por empleado", ["Todos"] + empleados)
+    fecha_ini = st.date_input(
+        "Desde",
+        value=datetime.now(cr_timezone).date(),
+        key="filtro_fecha_ini_alisto"
+    )
+    fecha_fin = st.date_input(
+        "Hasta",
+        value=datetime.now(cr_timezone).date(),
+        key="filtro_fecha_fin_alisto"
+    )
+    empleado_sel = st.selectbox(
+        "Filtrar por empleado",
+        ["Todos"] + empleados,
+        key="filtro_empleado_alisto"
+    )
 
     df_filtrado = df[
         (df["fecha"].dt.date >= fecha_ini) &
@@ -63,27 +75,33 @@ def mostrar_panel_alisto(conectar_funcion):
 
     # Mostrar registros
     st.subheader("🗂️ Registros de Alisto")
-    st.dataframe(df_filtrado)
+    st.dataframe(df_filtrado, use_container_width=True)
 
     # Totales por placa
     st.subheader("🔢 Unidades Alistadas por Placa")
     resumen_placa = df_filtrado.groupby("placa")["cantidad"].sum().reset_index(name="Total Unidades")
-    st.dataframe(resumen_placa)
+    st.dataframe(resumen_placa, use_container_width=True)
 
     # Ranking por horas
     st.subheader("⏱️ Ranking por Horas de Alisto")
     ranking = df_filtrado.groupby("empleado")["duracion"].sum().reset_index(name="Horas Totales")
     ranking = ranking.sort_values(by="Horas Totales", ascending=False)
-    st.dataframe(ranking)
-    st.bar_chart(ranking.set_index("empleado"))
+    st.dataframe(ranking, use_container_width=True)
+    st.bar_chart(ranking.set_index("empleado"), use_container_width=True)
 
     # Eficiencia por empleado
     st.subheader("💡 Unidades Alistadas por Hora")
     eficiencia = df_filtrado.groupby("empleado").apply(
         lambda x: x["cantidad"].sum() / x["duracion"].sum() if x["duracion"].sum() > 0 else 0
     ).reset_index(name="Unidades/Hora")
-    st.dataframe(eficiencia)
+    st.dataframe(eficiencia, use_container_width=True)
 
     # Exportación CSV
     csv = df_filtrado.to_csv(index=False).encode("utf-8")
-    st.download_button("📥 Descargar CSV", csv, "productividad_alisto.csv", "text/csv")
+    st.download_button(
+        "📥 Descargar CSV",
+        csv,
+        "productividad_alisto.csv",
+        "text/csv",
+        key="descarga_csv_alisto"
+    )
