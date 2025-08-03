@@ -11,9 +11,11 @@ cr_timezone = pytz.timezone("America/Costa_Rica")
 # 🔗 Conexión con Google Sheets
 def conectar_sit_hh():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gcp_service_account"], scope)
     client = gspread.authorize(creds)
-    return client.open_by_url("https://docs.google.com/spreadsheets/d/1yuorNrQVGojo1oK-QoVPF0KbipJ3q92LHAeG5_vrZX8/edit")
+    return client.open_by_url(
+        "https://docs.google.com/spreadsheets/d/1yuorNrQVGojo1oK-QoVPF0KbipJ3q92LHAeG5_vrZX8/edit")
 
 # 🔍 Obtener nombre por código
 def obtener_nombre(codigo):
@@ -78,25 +80,20 @@ def cargar_handhelds():
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
-# 🧼 Inicializar estado de sesión
-if "logueado_handheld" not in st.session_state:
-    st.session_state.logueado_handheld = False
-if "rol_handheld" not in st.session_state:
-    st.session_state.rol_handheld = None
-if "nombre_empleado" not in st.session_state:
-    st.session_state.nombre_empleado = ""
-if "codigo_empleado" not in st.session_state:
-    st.session_state.codigo_empleado = ""
+# 🧼 Inicializar sesión
+for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado"]:
+    if key not in st.session_state:
+        st.session_state[key] = ""
 
-# 👋 Despedida si se cerró sesión
+# 👋 Mensaje al salir
 if st.query_params.get("salida") == "true":
     st.session_state.logueado_handheld = False
-    st.session_state.rol_handheld = None
+    st.session_state.rol_handheld = ""
     st.session_state.nombre_empleado = ""
     st.session_state.codigo_empleado = ""
     st.success("👋 ¡Hasta pronto!")
 
-# 🔐 Login inicial
+# 🔐 Login
 if not st.session_state.logueado_handheld:
     st.title("🔐 Acceso al Sistema Handheld")
     usuario = st.text_input("Usuario (Código o Admin)")
@@ -112,11 +109,11 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🧭 Interfaz si está logueado
+# 🧭 Pestañas principales
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
 
-    # TAB 1: Registro de entrega/devolución
+    # 📦 Registro
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -128,10 +125,14 @@ if st.session_state.logueado_handheld:
         col1, col2 = st.columns(2)
         with col1:
             if st.button("📌 Guardar Entrega"):
-                registrar_handheld(st.session_state.codigo_empleado, st.session_state.nombre_empleado, equipo, "entrega")
+                registrar_handheld(st.session_state.codigo_empleado,
+                                   st.session_state.nombre_empleado,
+                                   equipo, "entrega")
         with col2:
             if st.button("✅ Guardar Devolución"):
-                registrar_handheld(st.session_state.codigo_empleado, st.session_state.nombre_empleado, equipo, "devolucion")
+                registrar_handheld(st.session_state.codigo_empleado,
+                                   st.session_state.nombre_empleado,
+                                   equipo, "devolucion")
 
         # 🚪 Botón salir (usuario)
         st.markdown("""
@@ -160,7 +161,7 @@ if st.session_state.logueado_handheld:
             </div>
         """, unsafe_allow_html=True)
 
-    # TAB 2: Panel Administrativo
+    # 📋 Panel administrativo
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -204,4 +205,12 @@ if st.session_state.logueado_handheld:
                         color: white;
                         font-weight: bold;
                         border-radius: 8px;
-                        padding: 0.6
+                        padding: 0.6em 1.2em;
+                        font-size: 16px;
+                        border: none;
+                        cursor: pointer;
+                    }
+                </style>
+                <div class="boton-salir-container">
+                    <form action="#">
+                        <button onclick="window.location.href='?
