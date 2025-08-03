@@ -8,20 +8,18 @@ from io import BytesIO
 
 from auth import validar_login
 from google_sheets import conectar_sit_hh
-from registro import registrar_handheld  # función externa
-from jornadas import mostrar_jornadas  # módulo de jornadas
+from registro import registrar_handheld
+from jornadas import mostrar_jornadas
+from registro_jornada import gestionar_jornada
 
-# 🎛️ Configuración de la aplicación
 st.set_page_config(
     page_title="Smart Intelligence Tools",
     page_icon="https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/NN25.ico",
     layout="centered"
 )
 
-# 🌎 Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
-# 🧼 Inicializar sesión con valores por defecto
 defaults = {
     "logueado_handheld": False,
     "rol_handheld": "",
@@ -33,7 +31,6 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# 📊 Cargar registros desde hoja "HH"
 def cargar_handhelds():
     hoja = conectar_sit_hh().worksheet("HH")
     datos = hoja.get_all_values()
@@ -69,7 +66,7 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🖼️ Logo institucional si está logueado
+# 🖼️ Logo institucional
 if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
     st.markdown(
         "<div style='text-align: center;'>"
@@ -80,9 +77,14 @@ if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
 
 # 🧭 Interfaz principal post-login
 if st.session_state.logueado_handheld:
-    tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo", "🕒 Jornadas"])
+    tabs = st.tabs([
+        "📦 Registro de Handhelds",
+        "📋 Panel Administrativo",
+        "🕒 Jornadas",
+        "📝 Gestión de Jornada"
+    ])
 
-    # 📦 Registro — Disponible para todos
+    # 📦 Registro — todos los usuarios
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -105,7 +107,7 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion")
 
-    # 📋 Panel Administrativo — Solo admin
+    # 📋 Panel Administrativo — solo admin
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -139,9 +141,14 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-        # 🕒 Jornadas — Solo admin
+        # 🕒 Jornadas — solo admin
         with tabs[2]:
             mostrar_jornadas(conectar_sit_hh)
+
+    # 📝 Gestión de Jornada — solo empleados
+    if st.session_state.rol_handheld != "admin":
+        with tabs[3]:
+            gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
 
     # 🚪 Cierre de sesión
     if not st.session_state.confirmar_salida:
