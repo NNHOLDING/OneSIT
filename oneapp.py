@@ -4,11 +4,14 @@ from datetime import datetime
 import pytz
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import requests
+from PIL import Image
+from io import BytesIO
 
 # 🌎 Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
-# 🔗 Conexión con Google Sheets
+# 🔗 Conexión con Google Sheets - Libro actualizado
 def conectar_sit_hh():
     scope = [
         "https://spreadsheets.google.com/feeds",
@@ -18,9 +21,10 @@ def conectar_sit_hh():
         st.secrets["gcp_service_account"], scope)
     client = gspread.authorize(creds)
     return client.open_by_url(
-        "https://docs.google.com/spreadsheets/d/1yuorNrQVGojo1oK-QoVPF0KbipJ3q92LHAeG5_vrZX8/edit")
+        "https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit"
+    )
 
-# 🔍 Obtener nombre por código
+# 🔍 Obtener nombre por código desde hoja "Empleados"
 def obtener_nombre(codigo):
     hoja = conectar_sit_hh().worksheet("Empleados")
     datos = hoja.get_all_values()
@@ -39,18 +43,18 @@ def validar_login(usuario, contraseña):
             return "estandar", nombre
     return None, None
 
-# 📋 Buscar fila existente
+# 📋 Buscar fila existente en hoja "HH"
 def buscar_fila(codigo, fecha):
-    hoja = conectar_sit_hh().worksheet("ENTREGA")
+    hoja = conectar_sit_hh().worksheet("HH")
     datos = hoja.get_all_values()
     for idx, fila in enumerate(datos[1:], start=2):
         if fila[1] == codigo and fila[0] == fecha:
             return idx, fila
     return None, None
 
-# 📝 Registrar actividad
+# 📝 Registrar entrega o devolución en hoja "HH"
 def registrar_handheld(codigo, nombre, equipo, tipo):
-    hoja = conectar_sit_hh().worksheet("ENTREGA")
+    hoja = conectar_sit_hh().worksheet("HH")
     fecha = datetime.now(cr_timezone).strftime("%Y-%m-%d")
     hora = datetime.now(cr_timezone).strftime("%H:%M:%S")
     fila_idx, fila = buscar_fila(codigo, fecha)
@@ -75,9 +79,9 @@ def registrar_handheld(codigo, nombre, equipo, tipo):
             hoja.append_row([fecha, codigo, nombre, equipo, "", hora, "Devuelto"])
         st.success("✅ Devolución registrada correctamente.")
 
-# 📊 Cargar datos a DataFrame
+# 📊 Cargar registros desde hoja "HH"
 def cargar_handhelds():
-    hoja = conectar_sit_hh().worksheet("ENTREGA")
+    hoja = conectar_sit_hh().worksheet("HH")
     datos = hoja.get_all_values()
     df = pd.DataFrame(datos[1:], columns=datos[0])
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
@@ -94,13 +98,8 @@ if st.query_params.get("salida") == "true":
         st.session_state[key] = ""
     st.success("👋 ¡Hasta pronto!")
 
-import requests
-from PIL import Image
-from io import BytesIO
-
-# 🔐 Pantalla de login
+# 🖼️ Mostrar logo en login
 if not st.session_state.logueado_handheld:
-    # 🖼️ Descargar y mostrar logo desde Google Drive
     url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
     response = requests.get(url_logo)
     if response.status_code == 200:
@@ -122,11 +121,12 @@ if not st.session_state.logueado_handheld:
             st.success(f"Bienvenido, {nombre}")
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
+
 # 🧭 Interfaz si está logueado
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
 
-    # 📦 Registro de entregas
+    # Registro de entregas
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -149,7 +149,7 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion")
 
-        # 🚪 Botón salir
+        # Botón salir
         st.markdown("""
             <style>
                 .boton-salir-container {
@@ -176,7 +176,7 @@ if st.session_state.logueado_handheld:
             </div>
         """, unsafe_allow_html=True)
 
-    # 📋 Panel administrativo
+    # Panel administrativo
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -208,37 +208,3 @@ if st.session_state.logueado_handheld:
             resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
-
-            st.markdown("""
-    <style>
-        .boton-salir-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-        }
-        .boton-salir-container button {
-            background-color: #28a745;
-            color: white;
-            font-weight: bold;
-            border-radius: 8px;
-            padding: 0.6em 1.2em;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
-    <div class="boton-salir-container">
-        <form action="#">
-            <button onclick="window.location.href='?salida=true'; return confirm('¿Estás seguro que deseas salir?')">
-                🚪 Salir
-            </button>
-        </form>
-    </div>
-""", unsafe_allow_html=True)
-
-
-
-
-
-
