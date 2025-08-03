@@ -197,25 +197,31 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-            # 🚪 Botón salir
             st.markdown("""
-                <style>
-                    .boton-salir-container {
-                        position: fixed;
-                        bottom: 20px;
-                        right: 20px;
-                        z-index: 9999;
-                    }
-                    .boton-salir-container button {
-                        background-color: #28a745;
-                        color: white;
-                        font-weight: bold;
-                        border-radius: 8px;
-                        padding: 0.6em 1.2em;
-                        font-size: 16px;
-                        border: none;
-                        cursor: pointer;
-                    }
-                </style>
-                <div class="boton-salir-container">
-                    <form action
+    <style>
+        .boton-salir-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .boton-salir-container button {
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 0.6em 1.2em;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+    <div class="boton-salir-container">
+        <form action="#">
+            <button onclick="window.location.href='?salida=true'; return confirm('¿Estás seguro que deseas salir?')">
+                🚪 Salir
+            </button>
+        </form>
+    </div>
+""", unsafe_allow_html=True)
+
