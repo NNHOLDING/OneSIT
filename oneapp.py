@@ -8,45 +8,10 @@ from io import BytesIO
 
 from auth import validar_login
 from google_sheets import conectar_sit_hh
+from registro import registrar_handheld  # ← nuevo import desde módulo separado
 
 # 🌎 Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
-
-# 📋 Buscar fila existente en hoja "HH"
-def buscar_fila(codigo, fecha):
-    hoja = conectar_sit_hh().worksheet("HH")
-    datos = hoja.get_all_values()
-    for idx, fila in enumerate(datos[1:], start=2):
-        if fila[1] == codigo and fila[0] == fecha:
-            return idx, fila
-    return None, None
-
-# 📝 Registrar entrega o devolución en hoja "HH"
-def registrar_handheld(codigo, nombre, equipo, tipo):
-    hoja = conectar_sit_hh().worksheet("HH")
-    fecha = datetime.now(cr_timezone).strftime("%Y-%m-%d")
-    hora = datetime.now(cr_timezone).strftime("%H:%M:%S")
-    fila_idx, fila = buscar_fila(codigo, fecha)
-
-    if tipo == "entrega":
-        if fila and fila[4]:
-            st.warning("❌ Ya se registró una entrega para hoy.")
-            return
-        if fila:
-            hoja.update_cell(fila_idx, 5, hora)
-        else:
-            hoja.append_row([fecha, codigo, nombre, equipo, hora, "", "Entregado"])
-        st.success("✅ Entrega registrada correctamente.")
-    elif tipo == "devolucion":
-        if fila and fila[5]:
-            st.warning("❌ Ya se registró una devolución para hoy.")
-            return
-        if fila:
-            hoja.update_cell(fila_idx, 6, hora)
-            hoja.update_cell(fila_idx, 7, "Devuelto")
-        else:
-            hoja.append_row([fecha, codigo, nombre, equipo, "", hora, "Devuelto"])
-        st.success("✅ Devolución registrada correctamente.")
 
 # 📊 Cargar registros desde hoja "HH"
 def cargar_handhelds():
@@ -70,110 +35,4 @@ if st.query_params.get("salida") == "true":
 # 🖼️ Mostrar logo en login
 if not st.session_state.logueado_handheld:
     url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
-    response = requests.get(url_logo)
-    if response.status_code == 200:
-        image = Image.open(BytesIO(response.content))
-        st.image(image, use_container_width=True)
-    else:
-        st.warning("⚠️ No se pudo cargar el logo.")
-
-    st.title("🔐 Smart Intelligence Tools")
-    usuario = st.text_input("Usuario (Código o Admin)")
-    contraseña = st.text_input("Contraseña", type="password")
-    if st.button("Ingresar"):
-        rol, nombre = validar_login(usuario, contraseña)
-        if rol:
-            st.session_state.logueado_handheld = True
-            st.session_state.rol_handheld = rol
-            st.session_state.nombre_empleado = nombre
-            st.session_state.codigo_empleado = usuario
-            st.success(f"Bienvenido, {nombre}")
-        else:
-            st.error("Credenciales incorrectas o usuario no válido.")
-
-# 🧭 Interfaz si está logueado
-if st.session_state.logueado_handheld:
-    tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
-
-    # Registro de entregas
-    with tabs[0]:
-        st.title("📦 Registro de Handhelds")
-        st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
-        if st.session_state.rol_handheld != "admin":
-            st.text_input("Código", value=st.session_state.codigo_empleado, disabled=True)
-
-        equipos = [f"Equipo {i}" for i in range(1, 25)]
-        equipo = st.selectbox("Selecciona el equipo", equipos)
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("📌 Guardar Entrega"):
-                registrar_handheld(
-                    st.session_state.codigo_empleado,
-                    st.session_state.nombre_empleado,
-                    equipo, "entrega")
-        with col2:
-            if st.button("✅ Guardar Devolución"):
-                registrar_handheld(
-                    st.session_state.codigo_empleado,
-                    st.session_state.nombre_empleado,
-                    equipo, "devolucion")
-
-        # Botón salir
-        st.markdown("""
-            <style>
-                .boton-salir-container {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                }
-                .boton-salir-container button {
-                    background-color: #28a745;
-                    color: white;
-                    font-weight: bold;
-                    border-radius: 8px;
-                    padding: 0.6em 1.2em;
-                    font-size: 16px;
-                    border: none;
-                    cursor: pointer;
-                }
-            </style>
-            <div class="boton-salir-container">
-                <form action="#">
-                    <button onclick="window.location.href='?salida=true'; return confirm('¿Estás seguro que deseas salir?')">🚪 Salir</button>
-                </form>
-            </div>
-        """, unsafe_allow_html=True)
-
-    # Panel administrativo
-    if st.session_state.rol_handheld == "admin":
-        with tabs[1]:
-            st.title("📋 Panel Administrativo")
-            df = cargar_handhelds()
-
-            usuarios = sorted(df["Nombre"].dropna().unique())
-            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
-
-            df_filtrado = df[
-                (df["Fecha"].dt.date >= fecha_ini) &
-                (df["Fecha"].dt.date <= fecha_fin)
-            ]
-            if usuario_sel != "Todos":
-                df_filtrado = df_filtrado[df_filtrado["Nombre"] == usuario_sel]
-
-            st.subheader("📑 Registros")
-            st.dataframe(df_filtrado)
-            csv = df_filtrado.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
-
-            st.subheader("📊 Actividad por Usuario")
-            resumen = df_filtrado.groupby("Nombre").size().reset_index(name="Registros")
-            st.dataframe(resumen)
-            st.bar_chart(resumen.set_index("Nombre"))
-
-            st.subheader("🔧 Actividad por Equipo")
-            resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
-            st.dataframe(resumen_eq)
-            st.bar_chart(resumen_eq.set_index("Equipo"))
+    response
