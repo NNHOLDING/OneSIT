@@ -94,13 +94,22 @@ if st.query_params.get("salida") == "true":
         st.session_state[key] = ""
     st.success("👋 ¡Hasta pronto!")
 
+import requests
+from PIL import Image
+from io import BytesIO
+
 # 🔐 Pantalla de login
 if not st.session_state.logueado_handheld:
-    # 🖼️ Logo en la parte superior
-    st.image("https://drive.google.com/uc?id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2", use_container_width=True)
-    
+    # 🖼️ Descargar y mostrar logo desde Google Drive
+    url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
+    response = requests.get(url_logo)
+    if response.status_code == 200:
+        image = Image.open(BytesIO(response.content))
+        st.image(image, use_container_width=True)
+    else:
+        st.warning("⚠️ No se pudo cargar el logo.")
+
     st.title("🔐 Smart Intelligence Tools")
-    
     usuario = st.text_input("Usuario (Código o Admin)")
     contraseña = st.text_input("Contraseña", type="password")
     if st.button("Ingresar"):
@@ -227,6 +236,7 @@ if st.session_state.logueado_handheld:
         </form>
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
