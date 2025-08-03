@@ -78,7 +78,7 @@ def cargar_handhelds():
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
-# 🧼 Estado inicial
+# 🧼 Inicializar estado de sesión
 if "logueado_handheld" not in st.session_state:
     st.session_state.logueado_handheld = False
 if "rol_handheld" not in st.session_state:
@@ -88,7 +88,7 @@ if "nombre_empleado" not in st.session_state:
 if "codigo_empleado" not in st.session_state:
     st.session_state.codigo_empleado = ""
 
-# 👋 Mensaje de despedida
+# 👋 Despedida si se cerró sesión
 if st.query_params.get("salida") == "true":
     st.session_state.logueado_handheld = False
     st.session_state.rol_handheld = None
@@ -96,7 +96,7 @@ if st.query_params.get("salida") == "true":
     st.session_state.codigo_empleado = ""
     st.success("👋 ¡Hasta pronto!")
 
-# 🔐 Login
+# 🔐 Login inicial
 if not st.session_state.logueado_handheld:
     st.title("🔐 Acceso al Sistema Handheld")
     usuario = st.text_input("Usuario (Código o Admin)")
@@ -112,11 +112,11 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🧭 Pestañas principales
+# 🧭 Interfaz si está logueado
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
 
-    # 📦 Pestaña usuario
+    # TAB 1: Registro de entrega/devolución
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -133,7 +133,7 @@ if st.session_state.logueado_handheld:
             if st.button("✅ Guardar Devolución"):
                 registrar_handheld(st.session_state.codigo_empleado, st.session_state.nombre_empleado, equipo, "devolucion")
 
-        # 🚪 Botón salir fijo para usuario
+        # 🚪 Botón salir (usuario)
         st.markdown("""
             <style>
                 .boton-salir-container {
@@ -160,7 +160,7 @@ if st.session_state.logueado_handheld:
             </div>
         """, unsafe_allow_html=True)
 
-    # 📋 Pestaña administrador
+    # TAB 2: Panel Administrativo
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -190,7 +190,7 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-            # 🚪 Botón salir fijo para administrador
+            # 🚪 Botón salir (admin)
             st.markdown("""
                 <style>
                     .boton-salir-container {
@@ -204,4 +204,4 @@ if st.session_state.logueado_handheld:
                         color: white;
                         font-weight: bold;
                         border-radius: 8px;
-                        padding: 0.6em 1.2em;
+                        padding: 0.6
