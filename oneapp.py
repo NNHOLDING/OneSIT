@@ -12,6 +12,7 @@ from registro import registrar_handheld
 from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
 from modulo_alisto import mostrar_formulario_alisto  # 👉 módulo integrado
+from panel_productividad_alisto import mostrar_panel_alisto
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
@@ -152,7 +153,10 @@ if st.session_state.logueado_handheld:
                 st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
     # 🕒 Productividad
-    with tabs[2]:
+with tabs[2]:
+    if st.session_state.rol_handheld == "admin":
+        mostrar_panel_alisto(conectar_sit_hh)
+    else:
         mostrar_formulario_alisto(
             GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
             service_account_info=st.secrets["gcp_service_account"],
@@ -195,3 +199,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
