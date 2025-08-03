@@ -8,7 +8,7 @@ from io import BytesIO
 
 from auth import validar_login
 from google_sheets import conectar_sit_hh
-from registro import registrar_handheld  # función movida a archivo separado
+from registro import registrar_handheld  # función separada
 
 # 🎛️ Configuración de la aplicación
 st.set_page_config(
@@ -40,7 +40,7 @@ def cargar_handhelds():
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
-# 🖼️ Logo institucional (solo si está logueado y no confirmó salida)
+# 🖼️ Logo institucional si está logueado y no confirmó salida
 if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
     st.markdown(
         "<div style='text-align: center;'>"
@@ -51,7 +51,7 @@ if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
 
 # 👋 Mensaje al salir
 if st.query_params.get("salida") == "true":
-    for key in defaults.keys():
+    for key in defaults:
         st.session_state[key] = defaults[key]
     st.success("👋 ¡Hasta pronto!")
 
@@ -65,7 +65,7 @@ if not st.session_state.logueado_handheld:
             st.image(image, use_container_width=True)
         else:
             st.warning("⚠️ No se pudo cargar el logo.")
-    except Exception:
+    except:
         st.warning("⚠️ Error al cargar el logo.")
 
     st.title("🔐 Smart Intelligence Tools")
@@ -79,15 +79,15 @@ if not st.session_state.logueado_handheld:
             st.session_state.nombre_empleado = nombre
             st.session_state.codigo_empleado = usuario
             st.success(f"Bienvenido, {nombre}")
-            st.rerun()  # método corregido
+            st.rerun()
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🧭 Interfaz post-login
+# 🧭 Interfaz principal post-login
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
 
-    # 📦 Registro
+    # 📦 Registro de entregas y devoluciones
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -110,34 +110,7 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion")
 
-        # 🚪 Botón salir
-        st.markdown("""
-            <style>
-                .boton-salir-container {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                }
-                .boton-salir-container button {
-                    background-color: #28a745;
-                    color: white;
-                    font-weight: bold;
-                    border-radius: 8px;
-                    padding: 0.6em 1.2em;
-                    font-size: 16px;
-                    border: none;
-                    cursor: pointer;
-                }
-            </style>
-            <div class="boton-salir-container">
-                <form action="#">
-                    <button onclick="window.location.href='?salida=true'; return confirm('¿Estás seguro que deseas salir?')">🚪 Salir</button>
-                </form>
-            </div>
-        """, unsafe_allow_html=True)
-
-    # 📋 Panel administrativo
+    # 📋 Panel Administrativo (solo admin)
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -157,6 +130,7 @@ if st.session_state.logueado_handheld:
 
             st.subheader("📑 Registros")
             st.dataframe(df_filtrado)
+
             csv = df_filtrado.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
@@ -164,17 +138,35 @@ if st.session_state.logueado_handheld:
             resumen = df_filtrado.groupby("Nombre").size().reset_index(name="Registros")
             st.dataframe(resumen)
             st.bar_chart(resumen.set_index("Nombre"))
-# Footer institucional
-st.markdown("""
-<hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
-<div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
-    NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
-</div>
-""", unsafe_allow_html=True)
-
 
             st.subheader("🔧 Actividad por Equipo")
             resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
+    # 🚪 Footer flotante con botón de salida
+    st.markdown("""
+        <style>
+            .boton-salir-container {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9999;
+            }
+            .boton-salir-container button {
+                background-color: #28a745;
+                color: white;
+                font-weight: bold;
+                border-radius: 8px;
+                padding: 0.6em 1.2em;
+                font-size: 16px;
+                border: none;
+                cursor: pointer;
+            }
+        </style>
+        <div class="boton-salir-container">
+            <form action="#">
+                <button onclick="window.location.href='?salida=true'; return confirm('¿Estás seguro que deseas salir?')">🚪 Salir</button>
+            </form>
+        </div>
+    """, unsafe_allow_html=True)
