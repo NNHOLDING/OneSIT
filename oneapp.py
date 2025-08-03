@@ -164,8 +164,17 @@ if st.session_state.logueado_handheld:
             resumen = df_filtrado.groupby("Nombre").size().reset_index(name="Registros")
             st.dataframe(resumen)
             st.bar_chart(resumen.set_index("Nombre"))
+# Footer institucional
+st.markdown("""
+<hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+<div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
+    NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+</div>
+""", unsafe_allow_html=True)
+
 
             st.subheader("🔧 Actividad por Equipo")
             resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
+
