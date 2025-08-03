@@ -3,21 +3,9 @@ from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 
-# 🔐 Conexión con hoja de cálculo
-def conectar_hoja_productividad():
+# 🔐 Conexión segura a Google Sheets usando st.secrets
+def conectar_hoja_productividad(service_account_info):
     GOOGLE_SHEET_ID = "1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0"
-    service_account_info = {
-        "type": "service_account",
-        "project_id": "tu-proyecto",
-        "private_key_id": "xxxx",
-        "private_key": "-----BEGIN PRIVATE KEY-----\nTU_LLAVE\n-----END PRIVATE KEY-----\n",
-        "client_email": "smartoneintelligence@onesit.iam.gserviceaccount.com",
-        "client_id": "xxxx",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/smartoneintelligence%40onesit.iam.gserviceaccount.com"
-    }
 
     scope = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -28,12 +16,12 @@ def conectar_hoja_productividad():
         credentials = Credentials.from_service_account_info(service_account_info, scopes=scope)
         gc = gspread.authorize(credentials)
         libro = gc.open_by_key(GOOGLE_SHEET_ID)
-        return libro.worksheet("Productividad")  # ✅ Tu hoja ya existe
+        return libro.worksheet("Productividad")  # Asegúrate de que ese sea el nombre exacto
     except Exception as e:
-        st.error(f"❌ Error técnico: {e}")
+        st.error(f"❌ Error técnico al conectar con la hoja: {e}")
         return None
 
-# 🧮 Eficiencia básica
+# 🧮 Cálculo de eficiencia
 def calcular_eficiencia(hora_inicio, hora_fin, unidades):
     try:
         t1 = datetime.combine(datetime.today(), hora_inicio)
@@ -85,10 +73,11 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
 
     if st.session_state.hora_inicio and st.session_state.hora_fin:
         if st.button("💾 Guardar registro"):
-            hoja = conectar_hoja_productividad()
+            hoja = conectar_hoja_productividad(service_account_info)
             if hoja:
                 fecha = datetime.now().strftime("%Y-%m-%d")
                 eficiencia = calcular_eficiencia(st.session_state.hora_inicio, st.session_state.hora_fin, unidades)
+
                 fila = [
                     fecha,
                     placa,
@@ -101,6 +90,7 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
                     st.session_state.hora_fin.strftime("%H:%M:%S"),
                     eficiencia
                 ]
+
                 hoja.append_row(fila)
                 st.success("✅ Registro guardado correctamente.")
                 st.session_state.hora_inicio = None
