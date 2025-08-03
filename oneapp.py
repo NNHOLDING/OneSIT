@@ -8,7 +8,7 @@ from io import BytesIO
 
 from auth import validar_login
 from google_sheets import conectar_sit_hh
-from registro import registrar_handheld  # ← función movida a archivo separado
+from registro import registrar_handheld  # función movida a archivo separado
 
 # 🎛️ Configuración de la aplicación
 st.set_page_config(
@@ -20,6 +20,18 @@ st.set_page_config(
 # 🌎 Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
+# 🧼 Inicializar sesión con valores por defecto
+defaults = {
+    "logueado_handheld": False,
+    "rol_handheld": "",
+    "nombre_empleado": "",
+    "codigo_empleado": "",
+    "confirmar_salida": False
+}
+for key, value in defaults.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
 # 📊 Cargar registros desde hoja "HH"
 def cargar_handhelds():
     hoja = conectar_sit_hh().worksheet("HH")
@@ -28,25 +40,22 @@ def cargar_handhelds():
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
-# 🧼 Inicializar sesión
-for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado"]:
-    if key not in st.session_state:
-        st.session_state[key] = ""
-# 🖼️ Logo institucional
-if st.session_state.logueado and not st.session_state.confirmar_salida:
+# 🖼️ Logo institucional (solo si está logueado y no confirmó salida)
+if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
     st.markdown(
         "<div style='text-align: center;'>"
         "<img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>"
         "</div>",
         unsafe_allow_html=True
     )
+
 # 👋 Mensaje al salir
 if st.query_params.get("salida") == "true":
-    for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado"]:
-        st.session_state[key] = ""
+    for key in defaults.keys():
+        st.session_state[key] = defaults[key]
     st.success("👋 ¡Hasta pronto!")
 
-# 🖼️ Mostrar logo y formulario de login
+# 🔐 Login
 if not st.session_state.logueado_handheld:
     url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
     try:
@@ -56,7 +65,7 @@ if not st.session_state.logueado_handheld:
             st.image(image, use_container_width=True)
         else:
             st.warning("⚠️ No se pudo cargar el logo.")
-    except Exception as e:
+    except Exception:
         st.warning("⚠️ Error al cargar el logo.")
 
     st.title("🔐 Smart Intelligence Tools")
@@ -70,15 +79,15 @@ if not st.session_state.logueado_handheld:
             st.session_state.nombre_empleado = nombre
             st.session_state.codigo_empleado = usuario
             st.success(f"Bienvenido, {nombre}")
-            st.rerun()  # ✅ método actualizado
+            st.rerun()  # método corregido
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🧭 Interfaz si está logueado
+# 🧭 Interfaz post-login
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
 
-    # Registro de entregas
+    # 📦 Registro
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -101,7 +110,7 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion")
 
-        # Botón salir
+        # 🚪 Botón salir
         st.markdown("""
             <style>
                 .boton-salir-container {
@@ -128,7 +137,7 @@ if st.session_state.logueado_handheld:
             </div>
         """, unsafe_allow_html=True)
 
-    # Panel administrativo
+    # 📋 Panel administrativo
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -160,5 +169,3 @@ if st.session_state.logueado_handheld:
             resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
-
-
