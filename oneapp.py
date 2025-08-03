@@ -96,7 +96,7 @@ if st.query_params.get("salida") == "true":
 
 # 🔐 Pantalla de login
 if not st.session_state.logueado_handheld:
-    st.title("🔐 Acceso al Sistema Handheld")
+    st.title("🔐 Smart Intelligence Tools")
     usuario = st.text_input("Usuario (Código o Admin)")
     contraseña = st.text_input("Contraseña", type="password")
     if st.button("Ingresar"):
@@ -224,4 +224,5 @@ if st.session_state.logueado_handheld:
         </form>
     </div>
 """, unsafe_allow_html=True)
+
 
