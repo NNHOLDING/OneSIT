@@ -9,7 +9,7 @@ from io import BytesIO
 from auth import validar_login
 from google_sheets import conectar_sit_hh
 from registro import registrar_handheld  # función externa
-from jornadas import mostrar_jornadas  # 👈 Importar módulo Jornadas
+from jornadas import mostrar_jornadas  # módulo de jornadas
 
 # 🎛️ Configuración de la aplicación
 st.set_page_config(
@@ -82,7 +82,7 @@ if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo", "🕒 Jornadas"])
 
-    # 📦 Registro — disponible para todos
+    # 📦 Registro — Disponible para todos
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -105,7 +105,7 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion")
 
-    # 📋 Panel administrativo — solo para admins
+    # 📋 Panel Administrativo — Solo admin
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -139,11 +139,11 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-        # 🕒 Jornadas — solo para admins
+        # 🕒 Jornadas — Solo admin
         with tabs[2]:
             mostrar_jornadas(conectar_sit_hh)
 
-    # 🚪 Opción para cerrar sesión con confirmación
+    # 🚪 Cierre de sesión
     if not st.session_state.confirmar_salida:
         st.markdown("---")
         st.markdown("### 🚪 Cerrar sesión")
