@@ -11,6 +11,7 @@ from google_sheets import conectar_sit_hh
 from registro import registrar_handheld
 from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
+from modulo_alisto import mostrar_formulario_alisto  # 👉 nuevo módulo integrado
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
@@ -108,8 +109,8 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion")
 
     # 📋 Panel Administrativo — solo admin
-    if st.session_state.rol_handheld == "admin":
-        with tabs[1]:
+    with tabs[1]:
+        if st.session_state.rol_handheld == "admin":
             st.title("📋 Panel Administrativo")
             df = cargar_handhelds()
 
@@ -141,8 +142,16 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-        # 🕒 Jornadas — solo admin
-        with tabs[2]:
+    # 🕒 Productividad
+    with tabs[2]:
+        if st.session_state.rol_handheld != "admin":
+            mostrar_formulario_alisto(
+                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",  # 👉 cambia si usas otro ID
+                service_account_info=st.secrets["gcp_service_account"],
+                nombre_empleado=st.session_state.nombre_empleado,
+                codigo_empleado=st.session_state.codigo_empleado
+            )
+        else:
             mostrar_jornadas(conectar_sit_hh)
 
     # 📝 Gestión de Jornada — solo empleados
@@ -177,4 +186,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
