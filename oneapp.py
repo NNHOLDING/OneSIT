@@ -9,8 +9,7 @@ from io import BytesIO
 from auth import validar_login
 from google_sheets import conectar_sit_hh
 from registro import registrar_handheld  # función externa
-from jornadas import mostrar_jornadas  # 👈 Importar el módulo
-
+from jornadas import mostrar_jornadas  # 👈 Importar módulo Jornadas
 
 # 🎛️ Configuración de la aplicación
 st.set_page_config(
@@ -79,17 +78,11 @@ if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
         unsafe_allow_html=True
     )
 
-from jornadas import mostrar_jornadas  # 👈 Importar el módulo
+# 🧭 Interfaz principal post-login
+if st.session_state.logueado_handheld:
+    tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo", "🕒 Jornadas"])
 
-# Dentro del bloque post-login
-tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo", "🕒 Jornadas"])
-
-# Nueva pestaña para mostrar jornadas
-if st.session_state.rol_handheld == "admin":
-    with tabs[2]:
-        mostrar_jornadas(conectar_sit_hh)
-
-    # 📦 Registro
+    # 📦 Registro — disponible para todos
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -112,7 +105,7 @@ if st.session_state.rol_handheld == "admin":
                     st.session_state.nombre_empleado,
                     equipo, "devolucion")
 
-    # 📋 Panel administrativo
+    # 📋 Panel administrativo — solo para admins
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -146,6 +139,10 @@ if st.session_state.rol_handheld == "admin":
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
+        # 🕒 Jornadas — solo para admins
+        with tabs[2]:
+            mostrar_jornadas(conectar_sit_hh)
+
     # 🚪 Opción para cerrar sesión con confirmación
     if not st.session_state.confirmar_salida:
         st.markdown("---")
@@ -173,4 +170,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
