@@ -10,6 +10,13 @@ from auth import validar_login
 from google_sheets import conectar_sit_hh
 from registro import registrar_handheld  # ← función movida a archivo separado
 
+# 🎛️ Configuración de la aplicación
+st.set_page_config(
+    page_title="Smart Intelligence Tools",
+    page_icon="https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/NN25.ico",
+    layout="centered"
+)
+
 # 🌎 Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
@@ -25,7 +32,14 @@ def cargar_handhelds():
 for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado"]:
     if key not in st.session_state:
         st.session_state[key] = ""
-
+# 🖼️ Logo institucional
+if st.session_state.logueado and not st.session_state.confirmar_salida:
+    st.markdown(
+        "<div style='text-align: center;'>"
+        "<img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>"
+        "</div>",
+        unsafe_allow_html=True
+    )
 # 👋 Mensaje al salir
 if st.query_params.get("salida") == "true":
     for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado"]:
@@ -146,4 +160,5 @@ if st.session_state.logueado_handheld:
             resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
+
 
