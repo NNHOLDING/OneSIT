@@ -1,101 +1,59 @@
-import streamlit as st
-from datetime import date, datetime
 import gspread
 from google.oauth2.service_account import Credentials
 
-def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empleado, codigo_empleado):
-    st.subheader("📝 Registro de Productividad - Alisto Unimar")
+def conectar_hoja_productividad():
+    # 📌 ID de tu hoja de cálculo
+    GOOGLE_SHEET_ID = "1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0"
 
-    placas = [
-        "200", "201", "202", "SIGMA", "WALMART", "PRICSMART"
+    # 📌 Datos de tu cuenta de servicio (ejemplo ficticio, reemplaza con los tuyos)
+    service_account_info = {
+        "type": "service_account",
+        "project_id": "tu-proyecto",
+        "private_key_id": "xxxx",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nTU_LLAVE\n-----END PRIVATE KEY-----\n",
+        "client_email": "smartoneintelligence@onesit.iam.gserviceaccount.com",
+        "client_id": "xxxx",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/smartoneintelligence%40onesit.iam.gserviceaccount.com"
+    }
+
+    # 🎯 Scopes recomendados
+    scope = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
     ]
-    tipo_tarea = "Alisto de producto"
 
     try:
-        # 🔑 Autenticación
-        scope = [
-            "https://spreadsheets.google.com/feeds",
-            "https://www.googleapis.com/auth/drive"
-        ]
+        # 🔐 Autenticación
         credentials = Credentials.from_service_account_info(service_account_info, scopes=scope)
         gc = gspread.authorize(credentials)
 
-        # 📖 Abrir el libro
+        # 📄 Abrir el libro
         libro = gc.open_by_key(GOOGLE_SHEET_ID)
-        hojas = libro.worksheets()
-        nombres_hojas = [hoja.title for hoja in hojas]
 
-        # 📄 Buscar o crear hoja Productividad
-        if "Productividad" in nombres_hojas:
-            sheet = libro.worksheet("Productividad")
+        # 🧾 Buscar o crear la hoja "Productividad"
+        nombre_hoja = "Productividad"
+        hojas = libro.worksheets()
+        nombres = [h.title for h in hojas]
+
+        if nombre_hoja in nombres:
+            sheet = libro.worksheet(nombre_hoja)
+            print("✅ Hoja 'Productividad' encontrada.")
         else:
-            st.warning("⚠️ La hoja 'Productividad' no existe. Se está creando...")
-            sheet = libro.add_worksheet(title="Productividad", rows="1000", cols="20")
+            sheet = libro.add_worksheet(title=nombre_hoja, rows="1000", cols="20")
             encabezados = [
                 "ID", "Hora de registro", "Fecha", "Código empleado", "Nombre del empleado",
                 "Placa", "Tipo de tarea", "Cantidad líneas - Unidades", "Cantidad líneas - Cajas",
                 "Hora de inicio", "Hora de fin", "Eficiencia", "Hora fin de registro"
             ]
             sheet.insert_row(encabezados, index=1)
-            st.success("✅ Hoja 'Productividad' creada correctamente.")
+            print("✅ Hoja 'Productividad' creada con encabezados.")
+
+        return sheet
 
     except Exception as e:
-        st.error("❌ Error al conectar o preparar la hoja Productividad.")
-        st.error(f"📛 Detalles técnicos: {type(e).__name__} — {e}")
-        return
-
-    # 📝 Formulario
-    fecha = st.date_input("📅 Fecha", value=date.today())
-    placa = st.selectbox("🚚 Placa", placas)
-    st.text_input("🧑‍💼 Código empleado", value=codigo_empleado, disabled=True)
-    st.text_input("👤 Nombre del empleado", value=nombre_empleado, disabled=True)
-    st.text_input("⚙️ Tipo de tarea", value=tipo_tarea, disabled=True)
-
-    unidades = st.number_input("📦 Cantidad líneas - Unidades", min_value=0, step=1)
-    cajas = st.number_input("📦 Cantidad líneas - Cajas", min_value=0, step=1)
-
-    if st.button("🕒 Marcar hora de inicio") and "alisto_hora_inicio" not in st.session_state:
-        st.session_state["alisto_hora_inicio"] = datetime.now().time()
-
-    if st.button("🕒 Marcar hora de fin") and "alisto_hora_fin" not in st.session_state:
-        st.session_state["alisto_hora_fin"] = datetime.now().time()
-
-    hora_inicio = st.session_state.get("alisto_hora_inicio")
-    hora_fin = st.session_state.get("alisto_hora_fin")
-
-    def calcular_eficiencia(u, c, inicio, fin):
-        total = u + c
-        if not inicio or not fin:
-            return 0
-        duracion_horas = (datetime.combine(date.today(), fin) - datetime.combine(date.today(), inicio)).seconds / 3600
-        return round(total / duracion_horas, 2) if duracion_horas > 0 else 0
-
-    eficiencia = calcular_eficiencia(unidades, cajas, hora_inicio, hora_fin)
-    hora_registro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    if st.button("💾 Guardar registro"):
-        try:
-            id_registro = len(sheet.get_all_values()) + 1
-            fila = [
-                id_registro,
-                hora_registro,
-                str(fecha),
-                codigo_empleado,
-                nombre_empleado,
-                placa,
-                tipo_tarea,
-                int(unidades),
-                int(cajas),
-                str(hora_inicio),
-                str(hora_fin),
-                eficiencia,
-                hora_registro
-            ]
-            sheet.append_row(fila)
-            st.success(f"✅ Registro #{id_registro} guardado correctamente.")
-            for key in ["alisto_hora_inicio", "alisto_hora_fin"]:
-                st.session_state.pop(key, None)
-            st.rerun()
-        except Exception as e:
-            st.error("❌ Error al guardar el registro.")
-            st.error(f"📛 Detalles técnicos: {type(e).__name__} — {e}")
+        print("❌ Error al conectar o preparar la hoja Productividad.")
+        print(f"📛 Detalles técnicos: {e}")
+        return None
