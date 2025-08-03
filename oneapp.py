@@ -174,7 +174,7 @@ if st.session_state.logueado_handheld:
 
     # 📝 Gestión de Jornada (todos los usuarios)
     with tabs[3]:
-        st.title("📝 Gestión de Jornada")
+        st.title(" ")
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
 
     # 🚪 Cierre de sesión
@@ -204,3 +204,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
