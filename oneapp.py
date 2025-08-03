@@ -97,7 +97,7 @@ if st.query_params.get("salida") == "true":
 # 🔐 Pantalla de login
 if not st.session_state.logueado_handheld:
     # 🖼️ Logo en la parte superior
-    st.image("https://tudominio.com/logo.png", use_container_width=True)  # ← reemplazado correctamente
+    st.image("https://drive.google.com/uc?id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2", use_container_width=True)
     
     st.title("🔐 Smart Intelligence Tools")
     
@@ -227,6 +227,7 @@ if st.session_state.logueado_handheld:
         </form>
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
