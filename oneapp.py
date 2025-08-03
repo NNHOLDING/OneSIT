@@ -80,7 +80,7 @@ if st.session_state.logueado_handheld:
     tabs = st.tabs([
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
-        "🕒 Jornadas",
+        "🕒 Productividad",
         "📝 Gestión de Jornada"
     ])
 
@@ -177,3 +177,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
