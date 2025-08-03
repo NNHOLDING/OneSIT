@@ -11,7 +11,7 @@ from google_sheets import conectar_sit_hh
 from registro import registrar_handheld
 from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
-from modulo_alisto import mostrar_formulario_alisto  # 👉 módulo integrado
+from modulo_alisto import mostrar_formulario_alisto
 from panel_productividad_alisto import mostrar_panel_alisto
 
 st.set_page_config(
@@ -22,6 +22,7 @@ st.set_page_config(
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
+# Inicializar variables de sesión
 defaults = {
     "logueado_handheld": False,
     "rol_handheld": "",
@@ -33,6 +34,7 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
+# Función para cargar datos de handhelds
 def cargar_handhelds():
     hoja = conectar_sit_hh().worksheet("HH")
     datos = hoja.get_all_values()
@@ -73,8 +75,9 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🖼️ Logo institucional
-if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
+# Interfaz principal post-login
+if st.session_state.logueado_handheld:
+
     st.markdown(
         "<div style='text-align: center;'>"
         "<img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>"
@@ -82,8 +85,6 @@ if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
         unsafe_allow_html=True
     )
 
-# 🧭 Interfaz principal post-login
-if st.session_state.logueado_handheld:
     tabs = st.tabs([
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
@@ -100,19 +101,22 @@ if st.session_state.logueado_handheld:
 
         equipos = [f"Equipo {i}" for i in range(1, 25)]
         equipo = st.selectbox("Selecciona el equipo", equipos)
+
         col1, col2 = st.columns(2)
         with col1:
             if st.button("📌 Guardar Entrega"):
                 registrar_handheld(
                     st.session_state.codigo_empleado,
                     st.session_state.nombre_empleado,
-                    equipo, "entrega")
+                    equipo, "entrega"
+                )
         with col2:
             if st.button("✅ Guardar Devolución"):
                 registrar_handheld(
                     st.session_state.codigo_empleado,
                     st.session_state.nombre_empleado,
-                    equipo, "devolucion")
+                    equipo, "devolucion"
+                )
 
     # 📋 Panel Administrativo
     with tabs[1]:
@@ -122,9 +126,9 @@ if st.session_state.logueado_handheld:
 
             if not df.empty and "nombre" in df.columns:
                 usuarios = sorted(df["nombre"].dropna().unique())
-                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-                usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
+                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date(), key="admin_fecha_ini")
+                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date(), key="admin_fecha_fin")
+                usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios, key="admin_usuario_sel")
 
                 df_filtrado = df[
                     (df["fecha"].dt.date >= fecha_ini) &
@@ -137,7 +141,7 @@ if st.session_state.logueado_handheld:
                 st.dataframe(df_filtrado)
 
                 csv = df_filtrado.to_csv(index=False).encode("utf-8")
-                st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
+                st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv", key="descarga_admin")
 
                 st.subheader("📊 Actividad por Usuario")
                 resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
@@ -148,21 +152,20 @@ if st.session_state.logueado_handheld:
                 resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
                 st.dataframe(resumen_eq)
                 st.bar_chart(resumen_eq.set_index("equipo"))
-
             else:
                 st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
     # 🕒 Productividad
-with tabs[2]:
-    if st.session_state.rol_handheld == "admin":
-        mostrar_panel_alisto(conectar_sit_hh)
-    else:
-        mostrar_formulario_alisto(
-            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-            service_account_info=st.secrets["gcp_service_account"],
-            nombre_empleado=st.session_state.nombre_empleado,
-            codigo_empleado=st.session_state.codigo_empleado
-        )
+    with tabs[2]:
+        if st.session_state.rol_handheld == "admin":
+            mostrar_panel_alisto(conectar_sit_hh)
+        else:
+            mostrar_formulario_alisto(
+                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+                service_account_info=st.secrets["gcp_service_account"],
+                nombre_empleado=st.session_state.nombre_empleado,
+                codigo_empleado=st.session_state.codigo_empleado
+            )
 
     # 📝 Gestión de Jornada
     with tabs[3]:
@@ -185,7 +188,7 @@ with tabs[2]:
         with col1:
             if st.button("✅ Sí, cerrar sesión", key="boton_confirmar_salir"):
                 st.success("¡Hasta pronto! 👋 La sesión se ha cerrado correctamente.")
-                for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado", "confirmar_salida"]:
+                for key in defaults.keys():
                     st.session_state[key] = False if key == "logueado_handheld" else ""
                 st.rerun()
         with col2:
@@ -199,4 +202,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
