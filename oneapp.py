@@ -97,7 +97,7 @@ if st.query_params.get("salida") == "true":
 # 🔐 Pantalla de login
 if not st.session_state.logueado_handheld:
     # 🖼️ Logo en la parte superior
-    st.image("https://tudominio.com/logo.png", use_column_width=True)  # <-- Cambia esto por la URL real de tu logo
+    st.image("https://tudominio.com/logo.png", use_container_width=True)  # ← reemplazado correctamente
     
     st.title("🔐 Smart Intelligence Tools")
     
@@ -113,7 +113,6 @@ if not st.session_state.logueado_handheld:
             st.success(f"Bienvenido, {nombre}")
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
-
 # 🧭 Interfaz si está logueado
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
@@ -228,6 +227,7 @@ if st.session_state.logueado_handheld:
         </form>
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
