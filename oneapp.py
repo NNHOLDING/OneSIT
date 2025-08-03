@@ -8,7 +8,7 @@ from io import BytesIO
 
 from auth import validar_login
 from google_sheets import conectar_sit_hh
-from registro import registrar_handheld  # función separada
+from registro import registrar_handheld  # función externa
 
 # 🎛️ Configuración de la aplicación
 st.set_page_config(
@@ -40,7 +40,13 @@ def cargar_handhelds():
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
-# 🖼️ Logo institucional si está logueado y no confirmó salida
+# 👋 Mensaje al salir
+if st.query_params.get("salida") == "true":
+    for key in defaults:
+        st.session_state[key] = defaults[key]
+    st.success("👋 ¡Hasta pronto!")
+
+# 🖼️ Logo institucional si está logueado
 if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
     st.markdown(
         "<div style='text-align: center;'>"
@@ -48,12 +54,6 @@ if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
         "</div>",
         unsafe_allow_html=True
     )
-
-# 👋 Mensaje al salir
-if st.query_params.get("salida") == "true":
-    for key in defaults:
-        st.session_state[key] = defaults[key]
-    st.success("👋 ¡Hasta pronto!")
 
 # 🔐 Login
 if not st.session_state.logueado_handheld:
@@ -87,7 +87,7 @@ if not st.session_state.logueado_handheld:
 if st.session_state.logueado_handheld:
     tabs = st.tabs(["📦 Registro de Handhelds", "📋 Panel Administrativo"])
 
-    # 📦 Registro de entregas y devoluciones
+    # 📦 Registro
     with tabs[0]:
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -110,7 +110,7 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion")
 
-    # 📋 Panel Administrativo (solo admin)
+    # 📋 Panel administrativo
     if st.session_state.rol_handheld == "admin":
         with tabs[1]:
             st.title("📋 Panel Administrativo")
@@ -144,12 +144,12 @@ if st.session_state.logueado_handheld:
             st.dataframe(resumen_eq)
             st.bar_chart(resumen_eq.set_index("Equipo"))
 
-    # 🚪 Footer flotante con botón de salida
+    # 🚪 Botón de salida flotante
     st.markdown("""
         <style>
             .boton-salir-container {
                 position: fixed;
-                bottom: 20px;
+                bottom: 80px;
                 right: 20px;
                 z-index: 9999;
             }
@@ -168,5 +168,13 @@ if st.session_state.logueado_handheld:
             <form action="#">
                 <button onclick="window.location.href='?salida=true'; return confirm('¿Estás seguro que deseas salir?')">🚪 Salir</button>
             </form>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # 🧾 Footer institucional
+    st.markdown("""
+        <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+        <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
+            NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
         </div>
     """, unsafe_allow_html=True)
