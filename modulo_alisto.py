@@ -1,43 +1,49 @@
-import streamlit as st
-from datetime import datetime
-from conectar_hoja import conectar_hoja_productividad  # Asegúrate de tener esta conexión separada si no está incluida arriba
+import gspread
+from google.oauth2.service_account import Credentials
 
-def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empleado, codigo_empleado):
-    st.title("🕒 Registro de Productividad")
+def conectar_hoja_productividad():
+    GOOGLE_SHEET_ID = "1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0"
 
-    placa = st.text_input("Placa del vehículo")
-    tipo_tarea = st.selectbox("Tipo de tarea", ["Alisto", "Despacho", "Picking", "Otro"])
-    unidades = st.number_input("Cantidad de líneas - Unidades", min_value=0, step=1)
-    cajas = st.number_input("Cantidad de líneas - Cajas", min_value=0, step=1)
-    hora_inicio = st.time_input("Hora de inicio")
-    hora_fin = st.time_input("Hora de fin")
+    service_account_info = {
+        "type": "service_account",
+        "project_id": "tu-proyecto",
+        "private_key_id": "xxxx",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nTU_LLAVE\n-----END PRIVATE KEY-----\n",
+        "client_email": "smartoneintelligence@onesit.iam.gserviceaccount.com",
+        "client_id": "xxxx",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/smartoneintelligence%40onesit.iam.gserviceaccount.com"
+    }
 
-    if st.button("Guardar registro"):
-        hoja = conectar_hoja_productividad()
-        if hoja:
-            ahora = datetime.now().strftime("%H:%M:%S")
-            fecha = datetime.now().strftime("%Y-%m-%d")
-            eficiencia = calcular_eficiencia(hora_inicio, hora_fin, unidades)  # función opcional
+    scope = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
 
-            fila = [
-                "", ahora, fecha, codigo_empleado, nombre_empleado,
-                placa, tipo_tarea, unidades, cajas,
-                hora_inicio.strftime("%H:%M:%S"), hora_fin.strftime("%H:%M:%S"),
-                eficiencia, ahora
-            ]
-            hoja.append_row(fila)
-            st.success("✅ Registro guardado correctamente.")
-        else:
-            st.error("❌ No se pudo conectar con la hoja de productividad.")
-
-def calcular_eficiencia(hora_inicio, hora_fin, unidades):
     try:
-        t1 = datetime.combine(datetime.today(), hora_inicio)
-        t2 = datetime.combine(datetime.today(), hora_fin)
-        minutos = (t2 - t1).seconds / 60
-        if minutos > 0:
-            return round(unidades / minutos, 2)
+        credentials = Credentials.from_service_account_info(service_account_info, scopes=scope)
+        gc = gspread.authorize(credentials)
+        libro = gc.open_by_key(GOOGLE_SHEET_ID)
+
+        nombre_hoja = "Productividad"
+        hojas = libro.worksheets()
+        nombres = [h.title for h in hojas]
+
+        if nombre_hoja in nombres:
+            sheet = libro.worksheet(nombre_hoja)
         else:
-            return 0
-    except:
-        return 0
+            sheet = libro.add_worksheet(title=nombre_hoja, rows="1000", cols="20")
+            encabezados = [
+                "ID", "Hora de registro", "Fecha", "Código empleado", "Nombre del empleado",
+                "Placa", "Tipo de tarea", "Cantidad líneas - Unidades", "Cantidad líneas - Cajas",
+                "Hora de inicio", "Hora de fin", "Eficiencia", "Hora fin de registro"
+            ]
+            sheet.insert_row(encabezados, index=1)
+
+        return sheet
+
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return None
