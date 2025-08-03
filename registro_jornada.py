@@ -13,14 +13,14 @@ def cargar_datos(conectar_funcion):
     return df
 
 # ➕ Función para agregar inicio de jornada
-def agregar_fila_inicio(fecha, usuario, bodega, hora):
-    hoja = conectar_sit_hh().worksheet("Jornadas")
+def agregar_fila_inicio(conectar_funcion, fecha, usuario, bodega, hora):
+    hoja = conectar_funcion().worksheet("Jornadas")
     nueva_fila = [fecha, usuario, bodega, hora, "", "", "", "", ""]
     hoja.append_row(nueva_fila)
 
 # ✅ Función para actualizar fecha de cierre
-def actualizar_fecha_cierre(fecha, usuario, bodega, hora):
-    hoja = conectar_sit_hh().worksheet("Jornadas")
+def actualizar_fecha_cierre(conectar_funcion, fecha, usuario, bodega, hora):
+    hoja = conectar_funcion().worksheet("Jornadas")
     datos = hoja.get_all_values()
     for i, fila in enumerate(datos[1:], start=2):  # saltar encabezado
         if (
@@ -66,7 +66,7 @@ def gestionar_jornada(conectar_funcion, usuario_actual):
             elif not registro_existente.empty:
                 st.warning("Ya registraste el inicio de jornada para hoy.")
             else:
-                agregar_fila_inicio(fecha_actual, usuario_actual, bodega, hora_actual)
+                agregar_fila_inicio(conectar_funcion, fecha_actual, usuario_actual, bodega, hora_actual)
                 st.success(f"✅ Inicio registrado a las {hora_actual}")
 
     with col2:
@@ -76,7 +76,7 @@ def gestionar_jornada(conectar_funcion, usuario_actual):
             elif registro_existente.iloc[0].get("fecha cierre", "") != "":
                 st.warning("Ya has cerrado la jornada de hoy.")
             else:
-                if actualizar_fecha_cierre(fecha_actual, usuario_actual, bodega, hora_actual):
+                if actualizar_fecha_cierre(conectar_funcion, fecha_actual, usuario_actual, bodega, hora_actual):
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_actual}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
