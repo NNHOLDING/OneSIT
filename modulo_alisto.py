@@ -2,11 +2,12 @@ import streamlit as st
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
+import pytz
 
-# 🔐 Conexión segura a Google Sheets usando st.secrets
+cr_timezone = pytz.timezone("America/Costa_Rica")
+
 def conectar_hoja_productividad(service_account_info):
     GOOGLE_SHEET_ID = "1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0"
-
     scope = [
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
@@ -16,12 +17,11 @@ def conectar_hoja_productividad(service_account_info):
         credentials = Credentials.from_service_account_info(service_account_info, scopes=scope)
         gc = gspread.authorize(credentials)
         libro = gc.open_by_key(GOOGLE_SHEET_ID)
-        return libro.worksheet("Productividad")  # Asegúrate de que ese sea el nombre exacto
+        return libro.worksheet("Productividad")
     except Exception as e:
         st.error(f"❌ Error técnico al conectar con la hoja: {e}")
         return None
 
-# 🧮 Cálculo de eficiencia
 def calcular_eficiencia(hora_inicio, hora_fin, unidades):
     try:
         t1 = datetime.combine(datetime.today(), hora_inicio)
@@ -31,7 +31,6 @@ def calcular_eficiencia(hora_inicio, hora_fin, unidades):
     except:
         return 0
 
-# 📋 Formulario principal
 def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empleado, codigo_empleado):
     st.title("🕒 Registro de Productividad")
 
@@ -53,6 +52,7 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
     unidades = st.number_input("📦 Cantidad de líneas - Unidades", min_value=0, step=1)
     cajas = st.number_input("📦 Cantidad de líneas - Cajas", min_value=0, step=1)
 
+    # Estados de sesión para hora de inicio y fin
     if "hora_inicio" not in st.session_state:
         st.session_state.hora_inicio = None
     if "hora_fin" not in st.session_state:
@@ -62,22 +62,23 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
     with col1:
         if st.session_state.hora_inicio is None:
             if st.button("⏱️ Registrar hora de inicio"):
-                st.session_state.hora_inicio = datetime.now().time()
-                st.success(f"Hora de inicio: {st.session_state.hora_inicio.strftime('%H:%M:%S')}")
+                st.session_state.hora_inicio = datetime.now(cr_timezone).time()
+        if st.session_state.hora_inicio:
+            st.info(f"Hora de inicio: {st.session_state.hora_inicio.strftime('%H:%M:%S')}")
 
     with col2:
         if st.session_state.hora_fin is None:
             if st.button("🕔 Registrar hora de fin"):
-                st.session_state.hora_fin = datetime.now().time()
-                st.success(f"Hora de fin: {st.session_state.hora_fin.strftime('%H:%M:%S')}")
+                st.session_state.hora_fin = datetime.now(cr_timezone).time()
+        if st.session_state.hora_fin:
+            st.info(f"Hora de fin: {st.session_state.hora_fin.strftime('%H:%M:%S')}")
 
     if st.session_state.hora_inicio and st.session_state.hora_fin:
         if st.button("💾 Guardar registro"):
             hoja = conectar_hoja_productividad(service_account_info)
             if hoja:
-                fecha = datetime.now().strftime("%Y-%m-%d")
+                fecha = datetime.now(cr_timezone).strftime("%Y-%m-%d")
                 eficiencia = calcular_eficiencia(st.session_state.hora_inicio, st.session_state.hora_fin, unidades)
-
                 fila = [
                     fecha,
                     placa,
@@ -90,7 +91,6 @@ def mostrar_formulario_alisto(GOOGLE_SHEET_ID, service_account_info, nombre_empl
                     st.session_state.hora_fin.strftime("%H:%M:%S"),
                     eficiencia
                 ]
-
                 hoja.append_row(fila)
                 st.success("✅ Registro guardado correctamente.")
                 st.session_state.hora_inicio = None
