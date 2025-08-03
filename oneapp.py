@@ -138,42 +138,35 @@ if st.session_state.logueado_handheld:
                 csv = df_filtrado.to_csv(index=False).encode("utf-8")
                 st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
-                # Actividad por Usuario
                 st.subheader("📊 Actividad por Usuario")
-                if "nombre" in df_filtrado.columns:
-                    resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
-                    st.dataframe(resumen)
-                    st.bar_chart(resumen.set_index("nombre"))
+                resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+                st.dataframe(resumen)
+                st.bar_chart(resumen.set_index("nombre"))
 
-                # Actividad por Equipo
                 st.subheader("🔧 Actividad por Equipo")
-                if "equipo" in df_filtrado.columns:
-                    resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
-                    st.dataframe(resumen_eq)
-                    st.bar_chart(resumen_eq.set_index("equipo"))
-                else:
-                    st.warning("⚠️ No se encuentra la columna 'equipo'.")
+                resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
+                st.dataframe(resumen_eq)
+                st.bar_chart(resumen_eq.set_index("equipo"))
 
             else:
                 st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
     # 🕒 Productividad
     with tabs[2]:
-        # Título eliminado para evitar duplicación
-        if st.session_state.rol_handheld == "admin":
-            mostrar_jornadas(conectar_sit_hh)
-        else:
-            mostrar_formulario_alisto(
-                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-                service_account_info=st.secrets["gcp_service_account"],
-                nombre_empleado=st.session_state.nombre_empleado,
-                codigo_empleado=st.session_state.codigo_empleado
-            )
+        mostrar_formulario_alisto(
+            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+            service_account_info=st.secrets["gcp_service_account"],
+            nombre_empleado=st.session_state.nombre_empleado,
+            codigo_empleado=st.session_state.codigo_empleado
+        )
 
     # 📝 Gestión de Jornada
     with tabs[3]:
-        # Título eliminado para evitar duplicación
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+
+        if st.session_state.rol_handheld == "admin":
+            st.markdown("---")
+            mostrar_jornadas(conectar_sit_hh)
 
     # 🚪 Cierre de sesión
     if not st.session_state.confirmar_salida:
