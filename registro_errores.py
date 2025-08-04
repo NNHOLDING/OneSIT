@@ -21,25 +21,28 @@ placas = [
     "CARTAINESA", "AUTODELI", "WALMART", "PRICSMART"
 ]
 
-# 🧠 Función para obtener usuarios
+# 🧠 Función para obtener usuarios con caché
+@st.cache_data(ttl=300)
 def obtener_usuarios():
     try:
         hoja = conectar_sit_hh().worksheet("usuarios")
         datos = hoja.get_all_values()
         return {fila[0]: fila[1] for fila in datos[1:] if len(fila) >= 2}
     except Exception as e:
-        st.warning(f"⚠️ No se pudo cargar la hoja de usuarios: {e}")
+        st.warning(f"⚠️ No se pudo cargar usuarios: {e}")
         return {}
 
-# 🔍 Función para obtener descripción desde TProductos
+# 🔍 Función para obtener descripción solo si hay código
 def obtener_descripcion_producto(codigo_producto):
+    if not codigo_producto:
+        return ""
     try:
         hoja = conectar_sit_hh().worksheet("TProductos")
         datos = hoja.get_all_values()
         productos = {fila[0]: fila[1] for fila in datos[1:] if len(fila) >= 2}
         return productos.get(codigo_producto, "")
     except Exception as e:
-        st.warning(f"⚠️ No se pudo acceder a la hoja TProductos: {e}")
+        st.warning(f"⚠️ No se pudo acceder a TProductos: {e}")
         return ""
 
 # 📤 Enviar registro a la hoja TRegistro
@@ -50,7 +53,7 @@ def registrar_error_en_hoja(datos):
             datos["FECHA"], datos["PLACA"], datos["PRODUCTO"], datos["DESCRIPCION DEL PRODUCTO"],
             datos["TIPO DE ERROR"], datos["ERROR UNIDADES"], datos["ERROR CAJAS"],
             datos["USUARIO"], datos["NOMBRE"], datos["CHEQUEADOR"], datos["PALLET"],
-            datos["HORA DE REGISTRO"]  # ⏱️ Campo adicional
+            datos["HORA DE REGISTRO"]
         ])
         return True
     except Exception as e:
@@ -62,21 +65,18 @@ def mostrar_formulario_errores():
     st.title("🚨 Registro de Errores")
 
     ahora = datetime.datetime.now(cr_timezone)
-    fecha_actual = ahora.strftime("%d/%m/%Y")           # solo fecha para guardar
-    hora_actual = ahora.strftime("%H:%M:%S")            # solo hora para guardar
-    fecha_visible = ahora.strftime("%Y-%m-%d %H:%M:%S") # para mostrar
+    fecha_actual = ahora.strftime("%d/%m/%Y")           # solo fecha
+    hora_actual = ahora.strftime("%H:%M:%S")            # solo hora
+    fecha_visible = ahora.strftime("%Y-%m-%d %H:%M:%S") # formato completo para mostrar
 
     st.markdown(f"🗓️ Fecha actual (CR): `{fecha_visible}`")
 
+    # 📦 Código del producto
     producto = st.text_input("📦 Código de producto (escaneado o escrito)")
-    
-    descripcion = ""
-    if producto:
-        descripcion = obtener_descripcion_producto(producto)
-        if not descripcion:
-            st.warning("⚠️ El código de producto no se encuentra en la hoja TProductos.")
-    
+    descripcion = obtener_descripcion_producto(producto)
     st.text_input("📝 Descripción del producto", value=descripcion, disabled=True)
+
+    # 🧺 Código del pallet
     pallet = st.text_input("🧺 Código del pallet (escaneado o escrito)")
 
     tipo_error = st.selectbox("⚠️ Tipo de error", [
@@ -90,6 +90,7 @@ def mostrar_formulario_errores():
     error_cajas = st.number_input("Cantidad con error (Cajas)", min_value=0)
     placa = st.selectbox("🚚 Placa del vehículo", placas)
 
+    # 👤 Usuario
     usuarios = obtener_usuarios()
     codigos = list(usuarios.keys())
     cod_usuario = st.selectbox("👤 Usuario (código)", codigos)
@@ -97,6 +98,7 @@ def mostrar_formulario_errores():
 
     chequeador = st.text_input("👀 Chequeador", value=nombre_usuario, disabled=True)
 
+    # 🟢 Botón registrar
     if st.button("✅ Registrar Datos"):
         datos = {
             "FECHA": fecha_actual,
@@ -110,7 +112,7 @@ def mostrar_formulario_errores():
             "NOMBRE": nombre_usuario,
             "CHEQUEADOR": nombre_usuario,
             "PALLET": pallet,
-            "HORA DE REGISTRO": hora_actual  # ⏱️ nuevo campo
+            "HORA DE REGISTRO": hora_actual
         }
 
         exito = registrar_error_en_hoja(datos)
@@ -118,3 +120,6 @@ def mostrar_formulario_errores():
             st.success("🎉 Registro guardado correctamente en BD TRegistro.")
         else:
             st.error("❌ No se pudo guardar el registro.")
+
+# 🟣 Ejecutar formulario
+mostrar_formulario_errores()
