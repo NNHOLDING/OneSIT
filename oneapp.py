@@ -23,7 +23,6 @@ st.set_page_config(
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
-# Inicializar variables de sesión
 defaults = {
     "logueado_handheld": False,
     "rol_handheld": "",
@@ -35,23 +34,10 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# Función para cargar datos de handhelds
-def cargar_handhelds():
-    hoja = conectar_sit_hh().worksheet("HH")
-    datos = hoja.get_all_values()
-    if datos and len(datos[0]) > 0:
-        df = pd.DataFrame(datos[1:], columns=datos[0])
-        df.columns = df.columns.str.strip().str.lower()
-        df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
-        return df
-    else:
-        st.warning("⚠️ No se pudieron cargar datos desde la hoja HH.")
-        return pd.DataFrame()
-
 # 🔐 Login
 if not st.session_state.logueado_handheld:
-    url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
     try:
+        url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
         response = requests.get(url_logo)
         if response.status_code == 200:
             image = Image.open(BytesIO(response.content))
@@ -76,26 +62,25 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# Interfaz principal post-login
+# 🧭 Interfaz principal post-login
 if st.session_state.logueado_handheld:
+    st.markdown("""
+        <div style='text-align: center;'>
+        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
+        </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown(
-        "<div style='text-align: center;'>"
-        "<img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>"
-        "</div>",
-        unsafe_allow_html=True
-    )
-
-    tabs = st.tabs([
+    # 🧩 Navegación por módulos
+    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", [
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
         "🕒 Productividad",
         "📝 Gestión de Jornada",
-        "🚨 Registro de Errores"  # 🆕 NUEVA PESTAÑA
+        "🚨 Registro de Errores"
     ])
 
     # 📦 Registro
-    with tabs[0]:
+    if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
         if st.session_state.rol_handheld != "admin":
@@ -121,44 +106,47 @@ if st.session_state.logueado_handheld:
                 )
 
     # 📋 Panel Administrativo
-    with tabs[1]:
-        if st.session_state.rol_handheld == "admin":
-            st.title("📋 Panel Administrativo")
-            df = cargar_handhelds()
+    elif modulo == "📋 Panel Administrativo":
+        st.title("📋 Panel Administrativo")
+        hoja = conectar_sit_hh().worksheet("HH")
+        datos = hoja.get_all_values()
+        if datos and len(datos[0]) > 0:
+            df = pd.DataFrame(datos[1:], columns=datos[0])
+            df.columns = df.columns.str.strip().str.lower()
+            df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
 
-            if not df.empty and "nombre" in df.columns:
-                usuarios = sorted(df["nombre"].dropna().unique())
-                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date(), key="admin_fecha_ini")
-                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date(), key="admin_fecha_fin")
-                usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios, key="admin_usuario_sel")
+            usuarios = sorted(df["nombre"].dropna().unique())
+            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
 
-                df_filtrado = df[
-                    (df["fecha"].dt.date >= fecha_ini) &
-                    (df["fecha"].dt.date <= fecha_fin)
-                ]
-                if usuario_sel != "Todos":
-                    df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
+            df_filtrado = df[
+                (df["fecha"].dt.date >= fecha_ini) &
+                (df["fecha"].dt.date <= fecha_fin)
+            ]
+            if usuario_sel != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
 
-                st.subheader("📑 Registros")
-                st.dataframe(df_filtrado)
+            st.subheader("📑 Registros")
+            st.dataframe(df_filtrado)
 
-                csv = df_filtrado.to_csv(index=False).encode("utf-8")
-                st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv", key="descarga_admin")
+            csv = df_filtrado.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
-                st.subheader("📊 Actividad por Usuario")
-                resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
-                st.dataframe(resumen)
-                st.bar_chart(resumen.set_index("nombre"))
+            st.subheader("📊 Actividad por Usuario")
+            resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+            st.dataframe(resumen)
+            st.bar_chart(resumen.set_index("nombre"))
 
-                st.subheader("🔧 Actividad por Equipo")
-                resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
-                st.dataframe(resumen_eq)
-                st.bar_chart(resumen_eq.set_index("equipo"))
-            else:
-                st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
+            st.subheader("🔧 Actividad por Equipo")
+            resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
+            st.dataframe(resumen_eq)
+            st.bar_chart(resumen_eq.set_index("equipo"))
+        else:
+            st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
     # 🕒 Productividad
-    with tabs[2]:
+    elif modulo == "🕒 Productividad":
         if st.session_state.rol_handheld == "admin":
             mostrar_panel_alisto(conectar_sit_hh)
         else:
@@ -170,36 +158,23 @@ if st.session_state.logueado_handheld:
             )
 
     # 📝 Gestión de Jornada
-    with tabs[3]:
+    elif modulo == "📝 Gestión de Jornada":
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
-
         if st.session_state.rol_handheld == "admin":
             st.markdown("---")
             mostrar_jornadas(conectar_sit_hh)
 
     # 🚨 Registro de Errores
-    with tabs[4]:
+    elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores()
 
     # 🚪 Cierre de sesión
-    if not st.session_state.confirmar_salida:
-        st.markdown("---")
-        st.markdown("### 🚪 Cerrar sesión")
-        if st.button("Salir", key="boton_salir"):
-            st.session_state.confirmar_salida = True
-
-    elif st.session_state.confirmar_salida:
-        st.markdown("## ¿Estás seguro que deseas cerrar sesión?")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("✅ Sí, cerrar sesión", key="boton_confirmar_salir"):
-                st.success("¡Hasta pronto! 👋 La sesión se ha cerrado correctamente.")
-                for key in defaults.keys():
-                    st.session_state[key] = False if key == "logueado_handheld" else ""
-                st.rerun()
-        with col2:
-            if st.button("↩️ No, regresar", key="boton_cancelar_salir"):
-                st.session_state.confirmar_salida = False
+    st.markdown("---")
+    st.markdown("### 🚪 Cerrar sesión")
+    if st.button("Salir", key="boton_salir"):
+        for key in defaults.keys():
+            st.session_state[key] = False if key == "logueado_handheld" else ""
+        st.rerun()
 
 # 🧾 Footer institucional
 st.markdown("""
