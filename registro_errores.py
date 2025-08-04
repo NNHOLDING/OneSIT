@@ -21,22 +21,28 @@ placas = [
     "CARTAINESA", "AUTODELI", "WALMART", "PRICSMART"
 ]
 
-# 👥 Cargar usuarios desde hoja "usuarios"
+# 🧠 Función para obtener usuarios
 def obtener_usuarios():
     try:
         hoja = conectar_sit_hh().worksheet("usuarios")
         datos = hoja.get_all_values()
-        if len(datos) > 1:
-            columnas = datos[0]
-            registros = datos[1:]
-            return {fila[0]: fila[1] for fila in registros if len(fila) >= 2}
-        else:
-            return {}
+        return {fila[0]: fila[1] for fila in datos[1:] if len(fila) >= 2}
     except Exception as e:
         st.warning(f"⚠️ No se pudo cargar la hoja de usuarios: {e}")
         return {}
 
-# 📤 Enviar registro a la hoja "TRegistro"
+# 🔍 Función para obtener descripción desde TProductos
+def obtener_descripcion_producto(codigo_producto):
+    try:
+        hoja = conectar_sit_hh().worksheet("TProductos")
+        datos = hoja.get_all_values()
+        productos = {fila[0]: fila[1] for fila in datos[1:] if len(fila) >= 2}
+        return productos.get(codigo_producto, "")
+    except Exception as e:
+        st.warning(f"⚠️ No se pudo acceder a la hoja TProductos: {e}")
+        return ""
+
+# 📤 Enviar registro a la hoja TRegistro
 def registrar_error_en_hoja(datos):
     try:
         hoja = conectar_sit_hh().worksheet("TRegistro")
@@ -58,7 +64,14 @@ def mostrar_formulario_errores():
     st.markdown(f"🗓️ Fecha actual (CR): `{fecha_actual}`")
 
     producto = st.text_input("📦 Código de producto (escaneado o escrito)")
-    descripcion = st.text_input("📝 Descripción del producto")
+    
+    descripcion = ""
+    if producto:
+        descripcion = obtener_descripcion_producto(producto)
+        if not descripcion:
+            st.warning("⚠️ El código de producto no se encuentra en la hoja TProductos.")
+    
+    st.text_input("📝 Descripción del producto", value=descripcion, disabled=True)
     pallet = st.text_input("🧺 Código del pallet (escaneado o escrito)")
 
     tipo_error = st.selectbox("⚠️ Tipo de error", [
