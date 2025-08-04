@@ -21,7 +21,7 @@ placas = [
     "CARTAINESA", "AUTODELI", "WALMART", "PRICSMART"
 ]
 
-# 🧠 Función para obtener usuarios
+# 🧠 Usuarios desde hoja 'usuarios'
 def obtener_usuarios():
     try:
         hoja = conectar_sit_hh().worksheet("usuarios")
@@ -31,7 +31,7 @@ def obtener_usuarios():
         st.warning(f"⚠️ No se pudo cargar la hoja de usuarios: {e}")
         return {}
 
-# 🔍 Función para obtener descripción desde TProductos
+# 🔍 Buscar descripción en hoja TProductos
 def obtener_descripcion_producto(codigo_producto):
     try:
         hoja = conectar_sit_hh().worksheet("TProductos")
@@ -42,7 +42,7 @@ def obtener_descripcion_producto(codigo_producto):
         st.warning(f"⚠️ No se pudo acceder a la hoja TProductos: {e}")
         return ""
 
-# 📤 Enviar registro a la hoja TRegistro
+# 📤 Enviar datos a hoja TRegistro
 def registrar_error_en_hoja(datos):
     try:
         hoja = conectar_sit_hh().worksheet("TRegistro")
@@ -60,11 +60,12 @@ def registrar_error_en_hoja(datos):
 def mostrar_formulario_errores():
     st.title("🚨 Registro de Errores")
 
-    fecha_actual = datetime.datetime.now(cr_timezone).strftime("%Y-%m-%d %H:%M:%S")
-    st.markdown(f"🗓️ Fecha actual (CR): `{fecha_actual}`")
+    fecha_con_hora = datetime.datetime.now(cr_timezone).strftime("%Y-%m-%d %H:%M:%S")
+    fecha_sola = datetime.datetime.now(cr_timezone).strftime("%d/%m/%Y")
+
+    st.markdown(f"🗓️ Fecha actual (CR): `{fecha_con_hora}`")
 
     producto = st.text_input("📦 Código de producto (escaneado o escrito)")
-    
     descripcion = ""
     if producto:
         descripcion = obtener_descripcion_producto(producto)
@@ -92,9 +93,9 @@ def mostrar_formulario_errores():
 
     chequeador = st.text_input("👀 Chequeador", value=nombre_usuario, disabled=True)
 
-    if st.button("✅ Registrar Datos"):
+    if st.button("✅ Registrar en hoja"):
         datos = {
-            "FECHA": fecha_actual,
+            "FECHA": fecha_sola,
             "PLACA": placa,
             "PRODUCTO": producto,
             "DESCRIPCION DEL PRODUCTO": descripcion,
@@ -112,5 +113,3 @@ def mostrar_formulario_errores():
             st.success("🎉 Registro guardado correctamente en BD TRegistro.")
         else:
             st.error("❌ No se pudo guardar el registro.")
-
-
