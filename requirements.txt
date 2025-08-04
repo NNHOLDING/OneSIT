@@ -1,5 +1,10 @@
 streamlit
+opencv-python
+pyzbar
+pillow
+requests
 gspread
 oauth2client
 pandas
+
 pytz
