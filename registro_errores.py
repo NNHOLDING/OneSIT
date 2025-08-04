@@ -21,7 +21,7 @@ placas = [
     "CARTAINESA", "AUTODELI", "WALMART", "PRICSMART"
 ]
 
-# 🧠 Usuarios desde hoja 'usuarios'
+# 🧠 Función para obtener usuarios
 def obtener_usuarios():
     try:
         hoja = conectar_sit_hh().worksheet("usuarios")
@@ -31,7 +31,7 @@ def obtener_usuarios():
         st.warning(f"⚠️ No se pudo cargar la hoja de usuarios: {e}")
         return {}
 
-# 🔍 Buscar descripción en hoja TProductos
+# 🔍 Función para obtener descripción desde TProductos
 def obtener_descripcion_producto(codigo_producto):
     try:
         hoja = conectar_sit_hh().worksheet("TProductos")
@@ -42,7 +42,7 @@ def obtener_descripcion_producto(codigo_producto):
         st.warning(f"⚠️ No se pudo acceder a la hoja TProductos: {e}")
         return ""
 
-# 📤 Enviar datos a hoja TRegistro
+# 📤 Enviar registro a la hoja TRegistro
 def registrar_error_en_hoja(datos):
     try:
         hoja = conectar_sit_hh().worksheet("TRegistro")
@@ -50,7 +50,7 @@ def registrar_error_en_hoja(datos):
             datos["FECHA"], datos["PLACA"], datos["PRODUCTO"], datos["DESCRIPCION DEL PRODUCTO"],
             datos["TIPO DE ERROR"], datos["ERROR UNIDADES"], datos["ERROR CAJAS"],
             datos["USUARIO"], datos["NOMBRE"], datos["CHEQUEADOR"], datos["PALLET"],
-            datos["HORA DE REGISTRO"]  # nuevo campo
+            datos["HORA DE REGISTRO"]  # ⏱️ Campo adicional
         ])
         return True
     except Exception as e:
@@ -62,20 +62,20 @@ def mostrar_formulario_errores():
     st.title("🚨 Registro de Errores")
 
     ahora = datetime.datetime.now(cr_timezone)
-    fecha_visible = ahora.strftime("%Y-%m-%d %H:%M:%S")  # muestra con hora
-    fecha_guardar = ahora.strftime("%d/%m/%Y")            # solo fecha
-    hora_registro = ahora.strftime("%H:%M:%S")            # solo hora
+    fecha_actual = ahora.strftime("%d/%m/%Y")           # solo fecha para guardar
+    hora_actual = ahora.strftime("%H:%M:%S")            # solo hora para guardar
+    fecha_visible = ahora.strftime("%Y-%m-%d %H:%M:%S") # para mostrar
 
     st.markdown(f"🗓️ Fecha actual (CR): `{fecha_visible}`")
 
     producto = st.text_input("📦 Código de producto (escaneado o escrito)")
-
+    
     descripcion = ""
     if producto:
         descripcion = obtener_descripcion_producto(producto)
         if not descripcion:
             st.warning("⚠️ El código de producto no se encuentra en la hoja TProductos.")
-
+    
     st.text_input("📝 Descripción del producto", value=descripcion, disabled=True)
     pallet = st.text_input("🧺 Código del pallet (escaneado o escrito)")
 
@@ -99,7 +99,7 @@ def mostrar_formulario_errores():
 
     if st.button("✅ Registrar Datos"):
         datos = {
-            "FECHA": fecha_guardar,
+            "FECHA": fecha_actual,
             "PLACA": placa,
             "PRODUCTO": producto,
             "DESCRIPCION DEL PRODUCTO": descripcion,
@@ -110,7 +110,7 @@ def mostrar_formulario_errores():
             "NOMBRE": nombre_usuario,
             "CHEQUEADOR": nombre_usuario,
             "PALLET": pallet,
-            "HORA DE REGISTRO": hora_registro  # nuevo campo
+            "HORA DE REGISTRO": hora_actual  # ⏱️ nuevo campo
         }
 
         exito = registrar_error_en_hoja(datos)
