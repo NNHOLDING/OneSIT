@@ -58,7 +58,7 @@ def registrar_error_en_hoja(datos):
 
 # 🧾 Formulario principal
 def mostrar_formulario_errores():
-    st.title("🚨 Registro de Errores - TRegistro")
+    st.title("🚨 Registro de Errores")
 
     fecha_actual = datetime.datetime.now(cr_timezone).strftime("%Y-%m-%d %H:%M:%S")
     st.markdown(f"🗓️ Fecha actual (CR): `{fecha_actual}`")
@@ -112,4 +112,5 @@ def mostrar_formulario_errores():
             st.success("🎉 Registro guardado correctamente en BD TRegistro.")
         else:
             st.error("❌ No se pudo guardar el registro.")
+
 
