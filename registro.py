@@ -29,7 +29,7 @@ def registrar_handheld(codigo, nombre, equipo, tipo):
         if fila:
             hoja.update_cell(fila_idx, 5, hora)
         else:
-            hoja.append_row([fecha, codigo, Nombre, Equipo, hora, "", "Entregado"])
+            hoja.append_row([fecha, codigo, nombre, Equipo, hora, "", "Entregado"])
         st.success("✅ Entrega registrada correctamente.")
     elif tipo == "devolucion":
         if fila and fila[5]:
@@ -42,3 +42,4 @@ def registrar_handheld(codigo, nombre, equipo, tipo):
             hoja.append_row([fecha, codigo, nombre, equipo, "", hora, "Devuelto"])
 
         st.success("✅ Devolución registrada correctamente.")
+
