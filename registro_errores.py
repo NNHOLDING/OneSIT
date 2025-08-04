@@ -60,7 +60,14 @@ def mostrar_formulario_errores():
     producto = st.text_input("📦 Código de producto (escaneado o escrito)")
     descripcion = st.text_input("📝 Descripción del producto")
     pallet = st.text_input("🧺 Código del pallet (escaneado o escrito)")
-    tipo_error = st.selectbox("⚠️ Tipo de error", ["UNIDADES", "CAJAS", "OTRO"])
+
+    tipo_error = st.selectbox("⚠️ Tipo de error", [
+        "Producto de menos",
+        "Producto invertido",
+        "Producto dañado",
+        "Producto Vencido"
+    ])
+
     error_unidades = st.number_input("Cantidad con error (Unidades)", min_value=0)
     error_cajas = st.number_input("Cantidad con error (Cajas)", min_value=0)
     placa = st.selectbox("🚚 Placa del vehículo", placas)
@@ -91,4 +98,4 @@ def mostrar_formulario_errores():
         if exito:
             st.success("🎉 Registro guardado correctamente en hoja TRegistro.")
         else:
-            st.error("❌ No se pudo guardar el registro. Revisa la conexión o formato.")
+            st.error("❌ No se pudo guardar el registro.")
