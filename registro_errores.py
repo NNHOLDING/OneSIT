@@ -21,18 +21,17 @@ placas = [
     "CARTAINESA", "AUTODELI", "WALMART", "PRICSMART"
 ]
 
-# 🧠 Función para obtener usuarios con caché
-@st.cache_data(ttl=300)
+# 🧠 Función para obtener usuarios (solo si se necesita)
 def obtener_usuarios():
     try:
         hoja = conectar_sit_hh().worksheet("usuarios")
         datos = hoja.get_all_values()
         return {fila[0]: fila[1] for fila in datos[1:] if len(fila) >= 2}
     except Exception as e:
-        st.warning(f"⚠️ No se pudo cargar usuarios: {e}")
+        st.warning(f"⚠️ No se pudo cargar la hoja de usuarios: {e}")
         return {}
 
-# 🔍 Función para obtener descripción solo si hay código
+# 🔍 Función para obtener descripción desde TProductos (solo si hay código)
 def obtener_descripcion_producto(codigo_producto):
     if not codigo_producto:
         return ""
@@ -42,7 +41,7 @@ def obtener_descripcion_producto(codigo_producto):
         productos = {fila[0]: fila[1] for fila in datos[1:] if len(fila) >= 2}
         return productos.get(codigo_producto, "")
     except Exception as e:
-        st.warning(f"⚠️ No se pudo acceder a TProductos: {e}")
+        st.warning(f"⚠️ No se pudo acceder a la hoja TProductos: {e}")
         return ""
 
 # 📤 Enviar registro a la hoja TRegistro
@@ -53,7 +52,7 @@ def registrar_error_en_hoja(datos):
             datos["FECHA"], datos["PLACA"], datos["PRODUCTO"], datos["DESCRIPCION DEL PRODUCTO"],
             datos["TIPO DE ERROR"], datos["ERROR UNIDADES"], datos["ERROR CAJAS"],
             datos["USUARIO"], datos["NOMBRE"], datos["CHEQUEADOR"], datos["PALLET"],
-            datos["HORA DE REGISTRO"]
+            datos["HORA"]  # Nuevo campo añadido
         ])
         return True
     except Exception as e:
@@ -65,18 +64,21 @@ def mostrar_formulario_errores():
     st.title("🚨 Registro de Errores")
 
     ahora = datetime.datetime.now(cr_timezone)
-    fecha_actual = ahora.strftime("%d/%m/%Y")           # solo fecha
-    hora_actual = ahora.strftime("%H:%M:%S")            # solo hora
-    fecha_visible = ahora.strftime("%Y-%m-%d %H:%M:%S") # formato completo para mostrar
+    fecha_actual = ahora.strftime("%d/%m/%Y")  # 💡 formato cambiado
+    hora_actual = ahora.strftime("%H:%M:%S")   # ⏱️ hora separada
 
-    st.markdown(f"🗓️ Fecha actual (CR): `{fecha_visible}`")
+    st.markdown(f"🗓️ Fecha actual (CR): `{ahora.strftime('%Y-%m-%d %H:%M:%S')}`")
 
-    # 📦 Código del producto
+    # 📦 Código de producto
     producto = st.text_input("📦 Código de producto (escaneado o escrito)")
-    descripcion = obtener_descripcion_producto(producto)
-    st.text_input("📝 Descripción del producto", value=descripcion, disabled=True)
 
-    # 🧺 Código del pallet
+    descripcion = ""
+    if producto:
+        descripcion = obtener_descripcion_producto(producto)
+        if not descripcion:
+            st.warning("⚠️ El código de producto no se encuentra en la hoja TProductos.")
+    
+    st.text_input("📝 Descripción del producto", value=descripcion, disabled=True)
     pallet = st.text_input("🧺 Código del pallet (escaneado o escrito)")
 
     tipo_error = st.selectbox("⚠️ Tipo de error", [
@@ -95,10 +97,8 @@ def mostrar_formulario_errores():
     codigos = list(usuarios.keys())
     cod_usuario = st.selectbox("👤 Usuario (código)", codigos)
     nombre_usuario = usuarios.get(cod_usuario, "Desconocido")
-
     chequeador = st.text_input("👀 Chequeador", value=nombre_usuario, disabled=True)
 
-    # 🟢 Botón registrar
     if st.button("✅ Registrar Datos"):
         datos = {
             "FECHA": fecha_actual,
@@ -112,7 +112,7 @@ def mostrar_formulario_errores():
             "NOMBRE": nombre_usuario,
             "CHEQUEADOR": nombre_usuario,
             "PALLET": pallet,
-            "HORA DE REGISTRO": hora_actual
+            "HORA": hora_actual  # 🆕 campo añadido al final
         }
 
         exito = registrar_error_en_hoja(datos)
@@ -121,5 +121,5 @@ def mostrar_formulario_errores():
         else:
             st.error("❌ No se pudo guardar el registro.")
 
-# 🟣 Ejecutar formulario
+# ▶️ Ejecutar formulario
 mostrar_formulario_errores()
