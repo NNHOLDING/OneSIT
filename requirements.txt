@@ -1,5 +1,6 @@
 streamlit
 opencv-python
+opencv-python
 pyzbar
 pillow
 requests
@@ -8,3 +9,4 @@ oauth2client
 pandas
 
 pytz
+
