@@ -49,7 +49,8 @@ def registrar_error_en_hoja(datos):
         hoja.append_row([
             datos["FECHA"], datos["PLACA"], datos["PRODUCTO"], datos["DESCRIPCION DEL PRODUCTO"],
             datos["TIPO DE ERROR"], datos["ERROR UNIDADES"], datos["ERROR CAJAS"],
-            datos["USUARIO"], datos["NOMBRE"], datos["CHEQUEADOR"], datos["PALLET"]
+            datos["USUARIO"], datos["NOMBRE"], datos["CHEQUEADOR"], datos["PALLET"],
+            datos["HORA DE REGISTRO"]  # nuevo campo
         ])
         return True
     except Exception as e:
@@ -60,18 +61,21 @@ def registrar_error_en_hoja(datos):
 def mostrar_formulario_errores():
     st.title("🚨 Registro de Errores")
 
-    fecha_con_hora = datetime.datetime.now(cr_timezone).strftime("%Y-%m-%d %H:%M:%S")
-    fecha_sola = datetime.datetime.now(cr_timezone).strftime("%d/%m/%Y")
+    ahora = datetime.datetime.now(cr_timezone)
+    fecha_visible = ahora.strftime("%Y-%m-%d %H:%M:%S")  # muestra con hora
+    fecha_guardar = ahora.strftime("%d/%m/%Y")            # solo fecha
+    hora_registro = ahora.strftime("%H:%M:%S")            # solo hora
 
-    st.markdown(f"🗓️ Fecha actual (CR): `{fecha_con_hora}`")
+    st.markdown(f"🗓️ Fecha actual (CR): `{fecha_visible}`")
 
     producto = st.text_input("📦 Código de producto (escaneado o escrito)")
+
     descripcion = ""
     if producto:
         descripcion = obtener_descripcion_producto(producto)
         if not descripcion:
             st.warning("⚠️ El código de producto no se encuentra en la hoja TProductos.")
-    
+
     st.text_input("📝 Descripción del producto", value=descripcion, disabled=True)
     pallet = st.text_input("🧺 Código del pallet (escaneado o escrito)")
 
@@ -93,9 +97,9 @@ def mostrar_formulario_errores():
 
     chequeador = st.text_input("👀 Chequeador", value=nombre_usuario, disabled=True)
 
-    if st.button("✅ Registrar en hoja"):
+    if st.button("✅ Registrar Datos"):
         datos = {
-            "FECHA": fecha_sola,
+            "FECHA": fecha_guardar,
             "PLACA": placa,
             "PRODUCTO": producto,
             "DESCRIPCION DEL PRODUCTO": descripcion,
@@ -105,7 +109,8 @@ def mostrar_formulario_errores():
             "USUARIO": cod_usuario,
             "NOMBRE": nombre_usuario,
             "CHEQUEADOR": nombre_usuario,
-            "PALLET": pallet
+            "PALLET": pallet,
+            "HORA DE REGISTRO": hora_registro  # nuevo campo
         }
 
         exito = registrar_error_en_hoja(datos)
