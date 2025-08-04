@@ -21,7 +21,7 @@ placas = [
     "CARTAINESA", "AUTODELI", "WALMART", "PRICSMART"
 ]
 
-# 🧠 Obtener usuarios
+# 🧠 Función para obtener usuarios
 def obtener_usuarios():
     try:
         hoja = conectar_sit_hh().worksheet("usuarios")
@@ -31,7 +31,7 @@ def obtener_usuarios():
         st.warning(f"⚠️ No se pudo cargar la hoja de usuarios: {e}")
         return {}
 
-# 🔍 Obtener descripción de producto
+# 🔍 Función para obtener descripción desde TProductos
 def obtener_descripcion_producto(codigo_producto):
     try:
         hoja = conectar_sit_hh().worksheet("TProductos")
@@ -42,15 +42,15 @@ def obtener_descripcion_producto(codigo_producto):
         st.warning(f"⚠️ No se pudo acceder a la hoja TProductos: {e}")
         return ""
 
-# 📤 Guardar registro en hoja TRegistro
+# 📤 Enviar registro a la hoja TRegistro
 def registrar_error_en_hoja(datos):
     try:
         hoja = conectar_sit_hh().worksheet("TRegistro")
         hoja.append_row([
             datos["FECHA"], datos["PLACA"], datos["PRODUCTO"], datos["DESCRIPCION DEL PRODUCTO"],
             datos["TIPO DE ERROR"], datos["ERROR UNIDADES"], datos["ERROR CAJAS"],
-            datos["USUARIO"], datos["NOMBRE"], datos["CHEQUEADOR"],
-            datos["PALLET"], datos["HORA"]  # ✅ Campo nuevo añadido
+            datos["USUARIO"], datos["NOMBRE"], datos["CHEQUEADOR"], datos["PALLET"],
+            datos["HORA DE REGISTRO"]  # ✅ Campo agregado
         ])
         return True
     except Exception as e:
@@ -62,41 +62,40 @@ def mostrar_formulario_errores():
     st.title("🚨 Registro de Errores")
 
     ahora = datetime.datetime.now(cr_timezone)
-    fecha_actual = ahora.strftime("%d/%m/%Y")  # ✅ Formato corregido
-    hora_actual = ahora.strftime("%H:%M:%S")   # ✅ Campo de hora añadido
-
+    fecha_actual = ahora.strftime("%d/%m/%Y")         # ✅ Formato modificado
+    hora_actual = ahora.strftime("%H:%M:%S")          # ✅ Hora separada
     st.markdown(f"🗓️ Fecha actual (CR): `{ahora.strftime('%Y-%m-%d %H:%M:%S')}`")
 
-    producto = st.text_input("📦 Código de producto", key="codigo_producto")
+    producto = st.text_input("📦 Código de producto (escaneado o escrito)", key="input_producto")
 
     descripcion = ""
     if producto:
         descripcion = obtener_descripcion_producto(producto)
         if not descripcion:
-            st.warning("⚠️ El código no se encuentra en la hoja TProductos.")
+            st.warning("⚠️ El código de producto no se encuentra en la hoja TProductos.")
 
-    st.text_input("📝 Descripción del producto", value=descripcion, disabled=True, key="descripcion_producto")
-    pallet = st.text_input("🧺 Código del pallet", key="codigo_pallet")
+    st.text_input("📝 Descripción del producto", value=descripcion, disabled=True, key="input_descripcion")
+    pallet = st.text_input("🧺 Código del pallet (escaneado o escrito)", key="input_pallet")
 
     tipo_error = st.selectbox("⚠️ Tipo de error", [
         "Producto de menos",
         "Producto invertido",
         "Producto dañado",
         "Producto Vencido"
-    ], key="tipo_error")
+    ], key="select_error")
 
-    error_unidades = st.number_input("Cantidad con error (Unidades)", min_value=0, key="unidades_error")
-    error_cajas = st.number_input("Cantidad con error (Cajas)", min_value=0, key="cajas_error")
-    placa = st.selectbox("🚚 Placa del vehículo", placas, key="placa_seleccionada")
+    error_unidades = st.number_input("Cantidad con error (Unidades)", min_value=0, key="num_unidades")
+    error_cajas = st.number_input("Cantidad con error (Cajas)", min_value=0, key="num_cajas")
+    placa = st.selectbox("🚚 Placa del vehículo", placas, key="select_placa")
 
     usuarios = obtener_usuarios()
     codigos = list(usuarios.keys())
-    cod_usuario = st.selectbox("👤 Usuario (código)", codigos, key="codigo_usuario")
+    cod_usuario = st.selectbox("👤 Usuario (código)", codigos, key="select_usuario")
     nombre_usuario = usuarios.get(cod_usuario, "Desconocido")
 
-    chequeador = st.text_input("👀 Chequeador", value=nombre_usuario, disabled=True, key="chequeador_nombre")
+    chequeador = st.text_input("👀 Chequeador", value=nombre_usuario, disabled=True, key="input_chequeador")
 
-    if st.button("✅ Registrar Datos", key="registrar_btn"):
+    if st.button("✅ Registrar Datos", key="btn_registrar"):
         datos = {
             "FECHA": fecha_actual,
             "PLACA": placa,
@@ -109,7 +108,7 @@ def mostrar_formulario_errores():
             "NOMBRE": nombre_usuario,
             "CHEQUEADOR": nombre_usuario,
             "PALLET": pallet,
-            "HORA": hora_actual  # ✅ Agregado para guardar
+            "HORA DE REGISTRO": hora_actual  # ✅ Campo agregado
         }
 
         exito = registrar_error_en_hoja(datos)
@@ -117,6 +116,3 @@ def mostrar_formulario_errores():
             st.success("🎉 Registro guardado correctamente en BD TRegistro.")
         else:
             st.error("❌ No se pudo guardar el registro.")
-
-# ▶️ Ejecutar formulario
-mostrar_formulario_errores()
