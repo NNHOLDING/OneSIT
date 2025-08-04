@@ -92,7 +92,7 @@ def mostrar_formulario_errores():
 
     chequeador = st.text_input("👀 Chequeador", value=nombre_usuario, disabled=True)
 
-    if st.button("✅ Registrar en hoja"):
+    if st.button("✅ Registrar Datos"):
         datos = {
             "FECHA": fecha_actual,
             "PLACA": placa,
@@ -109,6 +109,7 @@ def mostrar_formulario_errores():
 
         exito = registrar_error_en_hoja(datos)
         if exito:
-            st.success("🎉 Registro guardado correctamente en hoja TRegistro.")
+            st.success("🎉 Registro guardado correctamente en BD TRegistro.")
         else:
             st.error("❌ No se pudo guardar el registro.")
+
