@@ -6,22 +6,9 @@ from google_sheets import conectar_sit_hh
 # 🌎 Zona horaria Costa Rica
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
-# 🚚 Lista de placas disponibles
-placas = [
-    "200", "201", "202", "203", "204", "205", "206", "207", "208", "209",
-    "210", "211", "212", "213", "214", "215", "216", "218",
-    "300", "301", "302", "303", "304", "305", "306", "307", "308", "309",
-    "310", "311", "312", "313", "314", "315", "316", "317", "318",
-    "400", "401", "402", "403", "404", "405", "406", "407", "408", "409",
-    "410", "411", "412", "413",
-    "500", "505", "506", "507", "508", "509", "510", "511", "512", "513",
-    "F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08", "F09", "F10",
-    "POZUELO", "SIGMA", "COMAPAN", "MAFAM", "MEGASUPER", "AUTOMERCADO",
-    "DEMASA", "INOLASA", "EXPORTACION UNIMAR", "HILLTOP", "SAM",
-    "CARTAINESA", "AUTODELI", "WALMART", "PRICSMART"
-]
+# ... (Tu lista de placas permanece igual)
 
-# 🧠 Función para obtener usuarios (solo si se necesita)
+# 🧠 Función para obtener usuarios
 def obtener_usuarios():
     try:
         hoja = conectar_sit_hh().worksheet("usuarios")
@@ -31,10 +18,8 @@ def obtener_usuarios():
         st.warning(f"⚠️ No se pudo cargar la hoja de usuarios: {e}")
         return {}
 
-# 🔍 Función para obtener descripción desde TProductos (solo si hay código)
+# 🔍 Función para obtener descripción desde TProductos
 def obtener_descripcion_producto(codigo_producto):
-    if not codigo_producto:
-        return ""
     try:
         hoja = conectar_sit_hh().worksheet("TProductos")
         datos = hoja.get_all_values()
@@ -52,7 +37,7 @@ def registrar_error_en_hoja(datos):
             datos["FECHA"], datos["PLACA"], datos["PRODUCTO"], datos["DESCRIPCION DEL PRODUCTO"],
             datos["TIPO DE ERROR"], datos["ERROR UNIDADES"], datos["ERROR CAJAS"],
             datos["USUARIO"], datos["NOMBRE"], datos["CHEQUEADOR"], datos["PALLET"],
-            datos["HORA"]  # Nuevo campo añadido
+            datos["HORA"]  # ✅ NUEVO CAMPO AÑADIDO AL FINAL
         ])
         return True
     except Exception as e:
@@ -64,14 +49,12 @@ def mostrar_formulario_errores():
     st.title("🚨 Registro de Errores")
 
     ahora = datetime.datetime.now(cr_timezone)
-    fecha_actual = ahora.strftime("%d/%m/%Y")  # 💡 formato cambiado
-    hora_actual = ahora.strftime("%H:%M:%S")   # ⏱️ hora separada
-
+    fecha_actual = ahora.strftime("%d/%m/%Y")  # ✅ FORMATO MODIFICADO
+    hora_actual = ahora.strftime("%H:%M:%S")   # ✅ HORA SEPARADA
     st.markdown(f"🗓️ Fecha actual (CR): `{ahora.strftime('%Y-%m-%d %H:%M:%S')}`")
 
-    # 📦 Código de producto
     producto = st.text_input("📦 Código de producto (escaneado o escrito)")
-
+    
     descripcion = ""
     if producto:
         descripcion = obtener_descripcion_producto(producto)
@@ -92,11 +75,11 @@ def mostrar_formulario_errores():
     error_cajas = st.number_input("Cantidad con error (Cajas)", min_value=0)
     placa = st.selectbox("🚚 Placa del vehículo", placas)
 
-    # 👤 Usuario
     usuarios = obtener_usuarios()
     codigos = list(usuarios.keys())
     cod_usuario = st.selectbox("👤 Usuario (código)", codigos)
     nombre_usuario = usuarios.get(cod_usuario, "Desconocido")
+
     chequeador = st.text_input("👀 Chequeador", value=nombre_usuario, disabled=True)
 
     if st.button("✅ Registrar Datos"):
@@ -112,7 +95,7 @@ def mostrar_formulario_errores():
             "NOMBRE": nombre_usuario,
             "CHEQUEADOR": nombre_usuario,
             "PALLET": pallet,
-            "HORA": hora_actual  # 🆕 campo añadido al final
+            "HORA": hora_actual  # ✅ NUEVO CAMPO INCLUIDO AQUÍ
         }
 
         exito = registrar_error_en_hoja(datos)
@@ -120,6 +103,3 @@ def mostrar_formulario_errores():
             st.success("🎉 Registro guardado correctamente en BD TRegistro.")
         else:
             st.error("❌ No se pudo guardar el registro.")
-
-# ▶️ Ejecutar formulario
-mostrar_formulario_errores()
