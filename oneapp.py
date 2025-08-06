@@ -37,7 +37,7 @@ for key, value in defaults.items():
 # 🔐 Login
 if not st.session_state.logueado_handheld:
     try:
-        url_logo = "https://drive.google.com/uc?export=view&id=11lWbCN396sg1DhLbn1Qzj7KZgBVcXroP"
+        url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
         response = requests.get(url_logo)
         if response.status_code == 200:
             image = Image.open(BytesIO(response.content))
@@ -209,6 +209,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
