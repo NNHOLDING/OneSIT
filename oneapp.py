@@ -135,7 +135,7 @@ if st.session_state.logueado_handheld:
             if "estado" in df.columns:
                 entregados_hoy = df[
                     (df["fecha"].dt.date == hoy) &
-                    (df["Estado"].str.lower() == "Entregado")
+                    (df["Estatus"].str.lower() == "Entregado")
                 ]
                 st.subheader("✅ Registros Entregados Hoy")
                 st.dataframe(Entregados_hoy)
@@ -195,5 +195,6 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
