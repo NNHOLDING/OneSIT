@@ -132,15 +132,15 @@ if st.session_state.logueado_handheld:
 
             # ✅ Tabla de registros entregados hoy
             hoy = datetime.now(cr_timezone).date()
-            if "estado" in df.columns:
+            if "estatus" in df.columns:
                 entregados_hoy = df[
                     (df["fecha"].dt.date == hoy) &
-                    (df["Estatus"].str.lower() == "Entregado")
+                    (df["estatus"].str.lower() == "entregado")
                 ]
                 st.subheader("✅ Registros Entregados Hoy")
-                st.dataframe(Entregados_hoy)
+                st.dataframe(entregados_hoy)
             else:
-                st.info("ℹ️ No se encontró la columna 'estado' para mostrar entregas de hoy.")
+                st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas de hoy.")
 
             csv = df_filtrado.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
@@ -195,6 +195,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
