@@ -130,37 +130,32 @@ if st.session_state.logueado_handheld:
             st.subheader("📑 Registros")
             st.dataframe(df_filtrado)
 
-            # ✅ Tabla de registros entregados hoy
+                        # ✅ Tabla de registros entregados y devueltos hoy
             hoy = datetime.now(cr_timezone).date()
             if "estatus" in df.columns:
                 entregados_hoy = df[
                     (df["fecha"].dt.date == hoy) &
                     (df["estatus"].str.lower() == "entregado")
                 ]
+                devueltos_hoy = df[
+                    (df["fecha"].dt.date == hoy) &
+                    (df["estatus"].str.lower() == "devuelto")
+                ]
+
                 st.subheader("✅ Registros Entregados Hoy")
                 st.dataframe(entregados_hoy)
+
+                st.subheader("📤 Registros Devueltos Hoy")
+                st.dataframe(devueltos_hoy)
+
+                st.markdown("### 📊 Resumen de Movimientos Hoy")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Entregados", len(entregados_hoy))
+                with col2:
+                    st.metric("Devueltos", len(devueltos_hoy))
             else:
-                st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas de hoy.")
-                    # ✅ Registros entregados hoy
-        hoy = datetime.now(cr_timezone).date()
-        if "estatus" in df.columns:
-            entregados_hoy = df[
-                (df["fecha"].dt.date == hoy) &
-                (df["estatus"].str.lower() == "entregado")
-            ]
-            devueltos_hoy = df[
-                (df["fecha"].dt.date == hoy) &
-                (df["estatus"].str.lower() == "devuelto")
-            ]
-
-            st.subheader("✅ Registros Entregados Hoy")
-            st.dataframe(entregados_hoy)
-
-            st.subheader("📤 Registros Devueltos Hoy")
-            st.dataframe(devueltos_hoy)
-        else:
-            st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
-
+                st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
             csv = df_filtrado.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
@@ -214,6 +209,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
