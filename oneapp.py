@@ -13,7 +13,7 @@ from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
 from modulo_alisto import mostrar_formulario_alisto
 from panel_productividad_alisto import mostrar_panel_alisto
-from registro_errores import mostrar_formulario_errores  # 🆕 NUEVO MÓDULO
+from registro_errores import mostrar_formulario_errores
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
@@ -230,10 +230,13 @@ if st.session_state.logueado_handheld:
             codigo_empleado=st.session_state.codigo_empleado
         )
 
-    elif modulo == "alisto_panel":
-        mostrar_panel_alisto(conectar_sit_hh)
+        elif modulo == "alisto_panel":
+        if st.session_state.rol_handheld == "admin":
+            mostrar_panel_alisto(conectar_sit_hh)
+        else:
+            st.warning("⚠️ Acceso restringido: solo administradores pueden ver el panel de productividad.")
 
-        elif modulo == "jornada":
+    elif modulo == "jornada":
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
         if st.session_state.rol_handheld == "admin":
             st.markdown("---")
