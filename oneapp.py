@@ -105,7 +105,7 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion"
                 )
 
-   # 🧭 Interfaz principal post-login
+ # 🧭 Interfaz principal post-login
 if st.session_state.logueado_handheld:
     st.markdown("""
         <div style='text-align: center;'>
@@ -114,38 +114,34 @@ if st.session_state.logueado_handheld:
     """, unsafe_allow_html=True)
 
     # 🧩 Navegación por módulos
-    modulo = st.sidebar.selectbox(
-        "🧩 Selecciona el módulo",
-        [
-            "📦 Registro de Handhelds",
-            "📋 Panel Administrativo",
-            "🕒 Productividad",
-            "📝 Gestión de Jornada",
-            "🚨 Registro de Errores"
-        ],
-        key="modulo_selector"
-    )
+    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", [
+        "📦 Registro de Handhelds",
+        "📋 Panel Administrativo",
+        "🕒 Productividad",
+        "📝 Gestión de Jornada",
+        "🚨 Registro de Errores"
+    ])
 
     # 📦 Registro
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
-        st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True, key="registro_nombre")
+        st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
         if st.session_state.rol_handheld != "admin":
-            st.text_input("Código", value=st.session_state.codigo_empleado, disabled=True, key="registro_codigo")
+            st.text_input("Código", value=st.session_state.codigo_empleado, disabled=True)
 
         equipos = [f"Equipo {i}" for i in range(1, 25)]
-        equipo = st.selectbox("Selecciona el equipo", equipos, key="registro_equipo")
+        equipo = st.selectbox("Selecciona el equipo", equipos)
 
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("📌 Guardar Entrega", key="btn_entrega"):
+            if st.button("📌 Guardar Entrega"):
                 registrar_handheld(
                     st.session_state.codigo_empleado,
                     st.session_state.nombre_empleado,
                     equipo, "entrega"
                 )
         with col2:
-            if st.button("✅ Guardar Devolución", key="btn_devolucion"):
+            if st.button("✅ Guardar Devolución"):
                 registrar_handheld(
                     st.session_state.codigo_empleado,
                     st.session_state.nombre_empleado,
@@ -164,9 +160,9 @@ if st.session_state.logueado_handheld:
             df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
 
             usuarios = sorted(df["nombre"].dropna().unique())
-            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date(), key="fecha_ini")
-            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date(), key="fecha_fin")
-            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios, key="select_usuario")
+            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
 
             df_filtrado = df[
                 (df["fecha"].dt.date >= fecha_ini) &
@@ -176,47 +172,47 @@ if st.session_state.logueado_handheld:
                 df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
 
             st.subheader("📑 Registros")
-            df_filtrado = df_filtrado.reset_index(drop=True)
             st.dataframe(df_filtrado)
 
-            st.markdown("### ✏️ Selecciona una fila para editar")
-            fila_sel = st.radio("Fila", df_filtrado.index, horizontal=True, key="radio_fila")
+            # ✏️ Edición dinámica de registros
+            st.subheader("✏️ Editar Registro Seleccionado")
+            df_filtrado = df_filtrado.reset_index(drop=True)
+            fila_sel = st.selectbox("Selecciona una fila para editar", df_filtrado.index)
             registro = df_filtrado.loc[fila_sel]
 
-            with st.expander("🛠️ Editar registro seleccionado", expanded=True):
-                with st.form(key="form_edicion"):
-                    nueva_fecha = st.date_input("Fecha", value=registro["fecha"].date(), key="edit_fecha")
-                    nuevo_codigo = st.text_input("Código", value=registro["codigo"], key="edit_codigo")
-                    nuevo_nombre = st.text_input("Nombre", value=registro["nombre"], key="edit_nombre")
-                    nuevo_equipo = st.text_input("Equipo", value=registro["equipo"], key="edit_equipo")
-                    nueva_entrega = st.text_input("Hora entrega", value=registro["hora entrega"], key="edit_entrega")
-                    nueva_devolucion = st.text_input("Hora devolución", value=registro["hora devolucion"], key="edit_devolucion")
-                    nuevo_estatus = st.selectbox("Estatus", ["Entregado", "Devuelto"], index=["entregado", "devuelto"].index(registro["estatus"].lower()), key="edit_estatus")
+            with st.form("form_edicion"):
+                nueva_fecha = st.date_input("Fecha", value=registro["fecha"].date())
+                nuevo_codigo = st.text_input("Código", value=registro["codigo"])
+                nuevo_nombre = st.text_input("Nombre", value=registro["nombre"])
+                nuevo_equipo = st.text_input("Equipo", value=registro["equipo"])
+                nueva_entrega = st.text_input("Hora entrega", value=registro["hora entrega"])
+                nueva_devolucion = st.text_input("Hora devolución", value=registro["hora devolucion"])
+                nuevo_estatus = st.selectbox("Estatus", ["Entregado", "Devuelto"], index=["entregado", "devuelto"].index(registro["estatus"].lower()))
 
-                    submitted = st.form_submit_button("Guardar cambios", type="primary")
+                submitted = st.form_submit_button("Guardar cambios")
 
-                if submitted:
-                    coincidencias = df[
-                        (df["fecha"] == registro["fecha"]) &
-                        (df["codigo"] == registro["codigo"]) &
-                        (df["nombre"] == registro["nombre"]) &
-                        (df["equipo"] == registro["equipo"])
-                    ]
+            if submitted:
+                coincidencias = df[
+                    (df["fecha"] == registro["fecha"]) &
+                    (df["codigo"] == registro["codigo"]) &
+                    (df["nombre"] == registro["nombre"]) &
+                    (df["equipo"] == registro["equipo"])
+                ]
 
-                    if not coincidencias.empty:
-                        fila_hoja = coincidencias.index[0] + 2
+                if not coincidencias.empty:
+                    fila_hoja = coincidencias.index[0] + 2  # +2 por encabezado y 1-based indexing
 
-                        hoja.update_cell(fila_hoja, 1, nueva_fecha.strftime("%Y-%m-%d"))
-                        hoja.update_cell(fila_hoja, 2, nuevo_codigo)
-                        hoja.update_cell(fila_hoja, 3, nuevo_nombre)
-                        hoja.update_cell(fila_hoja, 4, nuevo_equipo)
-                        hoja.update_cell(fila_hoja, 5, nueva_entrega)
-                        hoja.update_cell(fila_hoja, 6, nueva_devolucion)
-                        hoja.update_cell(fila_hoja, 7, nuevo_estatus)
+                    hoja.update_cell(fila_hoja, 1, nueva_fecha.strftime("%Y-%m-%d"))  # Fecha
+                    hoja.update_cell(fila_hoja, 2, nuevo_codigo)                      # Código
+                    hoja.update_cell(fila_hoja, 3, nuevo_nombre)                      # Nombre
+                    hoja.update_cell(fila_hoja, 4, nuevo_equipo)                      # Equipo
+                    hoja.update_cell(fila_hoja, 5, nueva_entrega)                     # Hora entrega
+                    hoja.update_cell(fila_hoja, 6, nueva_devolucion)                  # Hora devolución
+                    hoja.update_cell(fila_hoja, 7, nuevo_estatus)                     # Estatus
 
-                        st.success("✅ Registro actualizado en Google Sheets.")
-                    else:
-                        st.error("❌ No se pudo encontrar la fila original en la hoja.")
+                    st.success("✅ Registro actualizado en Google Sheets.")
+                else:
+                    st.error("❌ No se pudo encontrar la fila original en la hoja.")
 
             # ✅ Tabla de registros entregados y devueltos hoy
             hoy = datetime.now(cr_timezone).date()
@@ -246,7 +242,7 @@ if st.session_state.logueado_handheld:
                 st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
 
             csv = df_filtrado.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv", key="download_csv")
+            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
             st.subheader("📊 Actividad por Usuario")
             resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
@@ -285,6 +281,9 @@ if st.session_state.logueado_handheld:
     # 🚨 Registro de Errores
     elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores()
+    # 🚨 Registro de Errores
+    elif modulo == "🚨 Registro de Errores":
+        mostrar_formulario_errores()
 
     # 🚨 Registro de Errores
     elif modulo == "🚨 Registro de Errores":
@@ -304,6 +303,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
