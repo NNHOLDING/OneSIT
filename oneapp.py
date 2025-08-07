@@ -13,7 +13,7 @@ from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
 from modulo_alisto import mostrar_formulario_alisto
 from panel_productividad_alisto import mostrar_panel_alisto
-from registro_errores import mostrar_formulario_errores
+from registro_errores import mostrar_formulario_errores  # 🆕 NUEVO MÓDULO
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
@@ -28,8 +28,7 @@ defaults = {
     "rol_handheld": "",
     "nombre_empleado": "",
     "codigo_empleado": "",
-    "confirmar_salida": False,
-    "modulo_activo": "registro"
+    "confirmar_salida": False
 }
 for key, value in defaults.items():
     if key not in st.session_state:
@@ -63,40 +62,25 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🧭 Interfaz principal
+# 🧭 Interfaz principal post-login
 if st.session_state.logueado_handheld:
-    # 👤 Logo institucional
     st.markdown("""
         <div style='text-align: center;'>
-            <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
+        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
         </div>
     """, unsafe_allow_html=True)
 
-    # 🌐 Menú horizontal con botones
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-    with col1:
-        if st.button("📦 Registro"):
-            st.session_state.modulo_activo = "registro"
-    with col2:
-        if st.button("📋 Panel"):
-            st.session_state.modulo_activo = "panel"
-    with col3:
-        if st.button("📝 Alisto"):
-            st.session_state.modulo_activo = "alisto_form"
-    with col4:
-        if st.button("📊 Productividad"):
-            st.session_state.modulo_activo = "alisto_panel"
-    with col5:
-        if st.button("🕒 Jornada"):
-            st.session_state.modulo_activo = "jornada"
-    with col6:
-        if st.button("🚨 Errores"):
-            st.session_state.modulo_activo = "errores"
+    # 🧩 Navegación por módulos
+    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", [
+        "📦 Registro de Handhelds",
+        "📋 Panel Administrativo",
+        "🕒 Productividad",
+        "📝 Gestión de Jornada",
+        "🚨 Registro de Errores"
+    ])
 
-    # 🔀 Navegación por módulos
-    modulo = st.session_state.modulo_activo
-
-    if modulo == "registro":
+    # 📦 Registro
+    if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
         if st.session_state.rol_handheld != "admin":
@@ -121,7 +105,8 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion"
                 )
 
-    elif modulo == "panel":
+    # 📋 Panel Administrativo
+    elif modulo == "📋 Panel Administrativo":
         st.title("📋 Panel Administrativo")
         hoja = conectar_sit_hh().worksheet("HH")
         datos = hoja.get_all_values()
@@ -145,6 +130,7 @@ if st.session_state.logueado_handheld:
             st.subheader("📑 Registros")
             st.dataframe(df_filtrado)
 
+                        # ✅ Tabla de registros entregados y devueltos hoy
             hoy = datetime.now(cr_timezone).date()
             if "estatus" in df.columns:
                 entregados_hoy = df[
@@ -185,32 +171,41 @@ if st.session_state.logueado_handheld:
         else:
             st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
-    elif modulo == "alisto_form":
-        mostrar_formulario_alisto(
-            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-            service_account_info=st.secrets["gcp_service_account"],
-            nombre_empleado=st.session_state.nombre_empleado,
-            codigo_empleado=st.session_state.codigo_empleado
-        )
-
-    elif modulo == "alisto_panel":
+    # 🕒 Productividad
+    elif modulo == "🕒 Productividad":
         if st.session_state.rol_handheld == "admin":
             mostrar_panel_alisto(conectar_sit_hh)
         else:
-            st.warning("⚠️ Acceso restringido: solo administradores pueden ver este panel.")
+            mostrar_formulario_alisto(
+                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+                service_account_info=st.secrets["gcp_service_account"],
+                nombre_empleado=st.session_state.nombre_empleado,
+                codigo_empleado=st.session_state.codigo_empleado
+            )
 
-    elif modulo == "jornada":
+    # 📝 Gestión de Jornada
+    elif modulo == "📝 Gestión de Jornada":
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
         if st.session_state.rol_handheld == "admin":
             st.markdown("---")
             mostrar_jornadas(conectar_sit_hh)
 
-    elif modulo == "errores":
+    # 🚨 Registro de Errores
+    elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores()
 
     # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
-    if st.button("Salir"):
+    if st.button("Salir", key="boton_salir"):
         for key in defaults.keys():
-            st
+            st.session_state[key] = False if key == "logueado_handheld" else ""
+        st.rerun()
+
+# 🧾 Footer institucional
+st.markdown("""
+    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
+        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+    </div>
+""", unsafe_allow_html=True)
