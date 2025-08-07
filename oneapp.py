@@ -105,55 +105,11 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion"
                 )
 
-# 🧭 Interfaz principal post-login
-if st.session_state.logueado_handheld:
-    st.markdown("""
-        <div style='text-align: center;'>
-        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # 🧩 Navegación por módulos
-    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", [
-        "📦 Registro de Handhelds",
-        "📋 Panel Administrativo",
-        "🕒 Productividad",
-        "📝 Gestión de Jornada",
-        "🚨 Registro de Errores"
-    ])
-
-    # 📦 Registro
-    if modulo == "📦 Registro de Handhelds":
-        st.title("📦 Registro de Handhelds")
-        st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
-        if st.session_state.rol_handheld != "admin":
-            st.text_input("Código", value=st.session_state.codigo_empleado, disabled=True)
-
-        equipos = [f"Equipo {i}" for i in range(1, 25)]
-        equipo = st.selectbox("Selecciona el equipo", equipos)
-
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("📌 Guardar Entrega"):
-                registrar_handheld(
-                    st.session_state.codigo_empleado,
-                    st.session_state.nombre_empleado,
-                    equipo, "entrega"
-                )
-        with col2:
-            if st.button("✅ Guardar Devolución"):
-                registrar_handheld(
-                    st.session_state.codigo_empleado,
-                    st.session_state.nombre_empleado,
-                    equipo, "devolucion"
-                )
-
     # 📋 Panel Administrativo
     elif modulo == "📋 Panel Administrativo":
         st.title("📋 Panel Administrativo")
         hoja = conectar_sit_hh().worksheet("HH")
         datos = hoja.get_all_values()
-
         if datos and len(datos[0]) > 0:
             df = pd.DataFrame(datos[1:], columns=datos[0])
             df.columns = df.columns.str.strip().str.lower()
@@ -174,55 +130,15 @@ if st.session_state.logueado_handheld:
             st.subheader("📑 Registros")
             st.dataframe(df_filtrado)
 
-            # ✏️ Edición dinámica de registros
-            st.subheader("✏️ Editar Registro Seleccionado")
-            df_filtrado = df_filtrado.reset_index(drop=True)
-            fila_sel = st.selectbox("Selecciona una fila para editar", df_filtrado.index)
-            registro = df_filtrado.loc[fila_sel]
-
-            with st.form("form_edicion"):
-                nueva_fecha = st.date_input("Fecha", value=registro["fecha"].date())
-                nuevo_codigo = st.text_input("Código", value=registro["codigo"])
-                nuevo_nombre = st.text_input("Nombre", value=registro["nombre"])
-                nuevo_equipo = st.text_input("Equipo", value=registro["equipo"])
-                nueva_entrega = st.text_input("Hora entrega", value=registro["hora entrega"])
-                nueva_devolucion = st.text_input("Hora devolución", value=registro["hora devolucion"])
-                nuevo_estatus = st.selectbox("Estatus", ["Entregado", "Devuelto"], index=["entregado", "devuelto"].index(registro["estatus"].lower()))
-
-                submitted = st.form_submit_button("Guardar cambios")
-
-            if submitted:
-                coincidencias = df[
-                    (df["fecha"] == registro["fecha"]) &
-                    (df["codigo"] == registro["codigo"]) &
-                    (df["nombre"] == registro["nombre"]) &
-                    (df["equipo"] == registro["equipo"])
-                ]
-
-                if not coincidencias.empty:
-                    fila_hoja = coincidencias.index[0] + 2  # +2 por encabezado y 1-based indexing
-
-                    hoja.update_cell(fila_hoja, 1, nueva_fecha.strftime("%Y-%m-%d"))  # Fecha
-                    hoja.update_cell(fila_hoja, 2, nuevo_codigo)                      # Código
-                    hoja.update_cell(fila_hoja, 3, nuevo_nombre)                      # Nombre
-                    hoja.update_cell(fila_hoja, 4, nuevo_equipo)                      # Equipo
-                    hoja.update_cell(fila_hoja, 5, nueva_entrega)                     # Hora entrega
-                    hoja.update_cell(fila_hoja, 6, nueva_devolucion)                  # Hora devolución
-                    hoja.update_cell(fila_hoja, 7, nuevo_estatus)                     # Estatus
-
-                    st.success("✅ Registro actualizado en Google Sheets.")
-                else:
-                    st.error("❌ No se pudo encontrar la fila original en la hoja.")
-
-            # ✅ Tabla de registros entregados y devueltos hoy
+                        # ✅ Tabla de registros entregados y devueltos hoy
             hoy = datetime.now(cr_timezone).date()
             if "estatus" in df.columns:
                 entregados_hoy = df[
-                    (df["fecha"].dt.date == hoy) & 
+                    (df["fecha"].dt.date == hoy) &
                     (df["estatus"].str.lower() == "entregado")
                 ]
                 devueltos_hoy = df[
-                    (df["fecha"].dt.date == hoy) & 
+                    (df["fecha"].dt.date == hoy) &
                     (df["estatus"].str.lower() == "devuelto")
                 ]
 
@@ -240,7 +156,6 @@ if st.session_state.logueado_handheld:
                     st.metric("Devueltos", len(devueltos_hoy))
             else:
                 st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
-
             csv = df_filtrado.to_csv(index=False).encode("utf-8")
             st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
@@ -279,19 +194,6 @@ if st.session_state.logueado_handheld:
     elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores()
 
-    # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
-        mostrar_formulario_errores()
-    # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
-        mostrar_formulario_errores()
-    # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
-        mostrar_formulario_errores()
-
-    # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
-        mostrar_formulario_errores()
     # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
@@ -307,18 +209,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
