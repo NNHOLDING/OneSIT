@@ -105,7 +105,7 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion"
                 )
 
- # 🧭 Interfaz principal post-login
+# 🧭 Interfaz principal post-login
 if st.session_state.logueado_handheld:
     st.markdown("""
         <div style='text-align: center;'>
@@ -278,6 +278,10 @@ if st.session_state.logueado_handheld:
     # 🚨 Registro de Errores
     elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores()
+
+    # 🚨 Registro de Errores
+    elif modulo == "🚨 Registro de Errores":
+        mostrar_formulario_errores()
     # 🚨 Registro de Errores
     elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores()
@@ -303,6 +307,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
