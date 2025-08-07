@@ -64,23 +64,76 @@ if not st.session_state.logueado_handheld:
 
 # 🧭 Interfaz principal post-login
 if st.session_state.logueado_handheld:
+    # 🌐 Menú horizontal
     st.markdown("""
-        <div style='text-align: center;'>
-        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
+    <style>
+    .navbar {
+        overflow: hidden;
+        background-color: #2c3e50;
+        font-family: Arial, sans-serif;
+        margin-bottom: 30px;
+    }
+    .navbar a, .dropdown-btn {
+        float: left;
+        font-size: 16px;
+        color: white;
+        text-align: center;
+        padding: 14px 20px;
+        text-decoration: none;
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+    .navbar a:hover, .dropdown:hover .dropdown-btn {
+        background-color: #34495e;
+    }
+    .dropdown {
+        float: left;
+        overflow: hidden;
+    }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #ecf0f1;
+        min-width: 180px;
+        z-index: 1;
+    }
+    .dropdown-content a {
+        float: none;
+        color: #2c3e50;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+    }
+    .dropdown-content a:hover {
+        background-color: #bdc3c7;
+    }
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+    </style>
+
+    <div class="navbar">
+      <a href="?modulo=registro">📦 Registro</a>
+      <a href="?modulo=panel">📋 Panel</a>
+      <div class="dropdown">
+        <button class="dropdown-btn">🕒 Productividad ▼</button>
+        <div class="dropdown-content">
+          <a href="?modulo=alisto_form">Formulario Alisto</a>
+          <a href="?modulo=alisto_panel">Panel Alisto</a>
         </div>
+      </div>
+      <a href="?modulo=jornada">📝 Jornada</a>
+      <a href="?modulo=errores">🚨 Errores</a>
+    </div>
     """, unsafe_allow_html=True)
 
-    # 🧩 Navegación por módulos
-    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", [
-        "📦 Registro de Handhelds",
-        "📋 Panel Administrativo",
-        "🕒 Productividad",
-        "📝 Gestión de Jornada",
-        "🚨 Registro de Errores"
-    ])
+    # Detectar módulo activo
+    modulo = st.query_params.get("modulo", "registro")
 
-    # 📦 Registro
-    if modulo == "📦 Registro de Handhelds":
+    # Mostrar contenido según el módulo
+    if modulo == "registro":
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
         if st.session_state.rol_handheld != "admin":
@@ -104,7 +157,6 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion"
                 )
-
     # 📋 Panel Administrativo
     elif modulo == "📋 Panel Administrativo":
         st.title("📋 Panel Administrativo")
@@ -209,3 +261,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
