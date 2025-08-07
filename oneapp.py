@@ -157,8 +157,8 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion"
                 )
-    # 📋 Panel Administrativo
-    elif modulo == "📋 Panel Administrativo":
+
+    elif modulo == "panel":
         st.title("📋 Panel Administrativo")
         hoja = conectar_sit_hh().worksheet("HH")
         datos = hoja.get_all_values()
@@ -182,7 +182,6 @@ if st.session_state.logueado_handheld:
             st.subheader("📑 Registros")
             st.dataframe(df_filtrado)
 
-                        # ✅ Tabla de registros entregados y devueltos hoy
             hoy = datetime.now(cr_timezone).date()
             if "estatus" in df.columns:
                 entregados_hoy = df[
@@ -223,27 +222,24 @@ if st.session_state.logueado_handheld:
         else:
             st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
-    # 🕒 Productividad
-    elif modulo == "🕒 Productividad":
-        if st.session_state.rol_handheld == "admin":
-            mostrar_panel_alisto(conectar_sit_hh)
-        else:
-            mostrar_formulario_alisto(
-                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-                service_account_info=st.secrets["gcp_service_account"],
-                nombre_empleado=st.session_state.nombre_empleado,
-                codigo_empleado=st.session_state.codigo_empleado
-            )
+    elif modulo == "alisto_form":
+        mostrar_formulario_alisto(
+            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+            service_account_info=st.secrets["gcp_service_account"],
+            nombre_empleado=st.session_state.nombre_empleado,
+            codigo_empleado=st.session_state.codigo_empleado
+        )
 
-    # 📝 Gestión de Jornada
-    elif modulo == "📝 Gestión de Jornada":
+    elif modulo == "alisto_panel":
+        mostrar_panel_alisto(conectar_sit_hh)
+
+        elif modulo == "jornada":
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
         if st.session_state.rol_handheld == "admin":
             st.markdown("---")
             mostrar_jornadas(conectar_sit_hh)
 
-    # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
+    elif modulo == "errores":
         mostrar_formulario_errores()
 
     # 🚪 Cierre de sesión
@@ -261,4 +257,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
