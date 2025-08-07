@@ -167,7 +167,7 @@ if st.session_state.logueado_handheld:
                     hoja.update_cell(fila_hoja, 6, nueva_devolucion)                  # Hora devolución
                     hoja.update_cell(fila_hoja, 7, nuevo_estatus)                     # Estatus
 
-                    st.success("✅ Registro actualizado en Google Sheets.")
+                    st.success("✅ Registro actualizado en Base Datos NN HOLDING.")
                 else:
                     st.error("❌ No se pudo encontrar la fila original en la hoja.")
 
@@ -250,6 +250,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
