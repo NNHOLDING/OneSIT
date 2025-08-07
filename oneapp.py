@@ -192,7 +192,8 @@ if st.session_state.logueado_handheld:
         )
 
     elif modulo == "alisto_panel":
-        if st.session_state.rol_handheld == "admin":
-            mostrar_panel_alisto(conectar_sit_hh)
-        else:
-            st.warning("
+    if st.session_state.rol_handheld == "admin":
+        mostrar_panel_alisto(conectar_sit_hh)
+    else:
+        st.warning("⚠️ Acceso restringido: solo administradores pueden ver este panel.")
+
