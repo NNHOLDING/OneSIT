@@ -1,11 +1,17 @@
 import streamlit as st
 from datetime import datetime
 import pytz
+import requests
+from PIL import Image
+from io import BytesIO
+
+# 🔐 Importa tu función real de autenticación
+from auth import validar_login
 
 # Configuración inicial
 st.set_page_config(
     page_title="Smart Intelligence Tools",
-    page_icon="📱",
+    page_icon="https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/NN25.ico",
     layout="centered"
 )
 
@@ -25,19 +31,31 @@ for key, value in defaults.items():
 
 # 🔐 Login
 if not st.session_state.logueado_handheld:
+    try:
+        url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
+        response = requests.get(url_logo)
+        if response.status_code == 200:
+            image = Image.open(BytesIO(response.content))
+            st.image(image, use_container_width=True)
+        else:
+            st.warning("⚠️ No se pudo cargar el logo.")
+    except:
+        st.warning("⚠️ Error al cargar el logo.")
+
     st.title("🔐 Smart Intelligence Tools")
-    usuario = st.text_input("Usuario")
+    usuario = st.text_input("Usuario (Código o Admin)")
     contraseña = st.text_input("Contraseña", type="password")
     if st.button("Ingresar"):
-        # Simulación de login (reemplaza con validar_login real)
-        if usuario == "admin" and contraseña == "123":
+        rol, nombre = validar_login(usuario, contraseña)
+        if rol:
             st.session_state.logueado_handheld = True
-            st.session_state.rol_handheld = "admin"
-            st.session_state.nombre_empleado = "Administrador"
+            st.session_state.rol_handheld = rol
+            st.session_state.nombre_empleado = nombre
             st.session_state.codigo_empleado = usuario
+            st.success(f"Bienvenido, {nombre}")
             st.rerun()
         else:
-            st.error("Credenciales incorrectas.")
+            st.error("Credenciales incorrectas o usuario no válido.")
 
 # 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
@@ -104,6 +122,13 @@ if st.session_state.logueado_handheld:
       <a href="?modulo=jornada">📝 Jornada</a>
       <a href="?modulo=errores">🚨 Errores</a>
     </div>
+    """, unsafe_allow_html=True)
+
+    # 👤 Logo institucional
+    st.markdown("""
+        <div style='text-align: center;'>
+            <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
+        </div>
     """, unsafe_allow_html=True)
 
     # Detectar módulo activo
