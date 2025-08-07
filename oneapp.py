@@ -5,10 +5,15 @@ import requests
 from PIL import Image
 from io import BytesIO
 
-# 🔐 Importa tu función real de autenticación
 from auth import validar_login
+from google_sheets import conectar_sit_hh
+from registro import registrar_handheld
+from jornadas import mostrar_jornadas
+from registro_jornada import gestionar_jornada
+from modulo_alisto import mostrar_formulario_alisto
+from panel_productividad_alisto import mostrar_panel_alisto
+from registro_errores import mostrar_formulario_errores
 
-# Configuración inicial
 st.set_page_config(
     page_title="Smart Intelligence Tools",
     page_icon="https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/NN25.ico",
@@ -17,13 +22,13 @@ st.set_page_config(
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
-# Estado de sesión
 defaults = {
     "logueado_handheld": False,
     "rol_handheld": "",
     "nombre_empleado": "",
     "codigo_empleado": "",
-    "confirmar_salida": False
+    "confirmar_salida": False,
+    "modulo_activo": "registro"
 }
 for key, value in defaults.items():
     if key not in st.session_state:
@@ -52,78 +57,12 @@ if not st.session_state.logueado_handheld:
             st.session_state.rol_handheld = rol
             st.session_state.nombre_empleado = nombre
             st.session_state.codigo_empleado = usuario
-            st.success(f"Bienvenido, {nombre}")
             st.rerun()
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
 # 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
-    # 🌐 Navbar horizontal
-    st.markdown("""
-    <style>
-    .navbar {
-        overflow: hidden;
-        background-color: #2c3e50;
-        font-family: Arial, sans-serif;
-        margin-bottom: 30px;
-    }
-    .navbar a, .dropdown-btn {
-        float: left;
-        font-size: 16px;
-        color: white;
-        text-align: center;
-        padding: 14px 20px;
-        text-decoration: none;
-        border: none;
-        background: none;
-        cursor: pointer;
-    }
-    .navbar a:hover, .dropdown:hover .dropdown-btn {
-        background-color: #34495e;
-    }
-    .dropdown {
-        float: left;
-        overflow: hidden;
-    }
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #ecf0f1;
-        min-width: 180px;
-        z-index: 1;
-    }
-    .dropdown-content a {
-        float: none;
-        color: #2c3e50;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        text-align: left;
-    }
-    .dropdown-content a:hover {
-        background-color: #bdc3c7;
-    }
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
-    </style>
-
-    <div class="navbar">
-      <a href="?modulo=registro">📦 Registro</a>
-      <a href="?modulo=panel">📋 Panel</a>
-      <div class="dropdown">
-        <button class="dropdown-btn">🕒 Productividad ▼</button>
-        <div class="dropdown-content">
-          <a href="?modulo=alisto_form">Formulario Alisto</a>
-          <a href="?modulo=alisto_panel">Panel Alisto</a>
-        </div>
-      </div>
-      <a href="?modulo=jornada">📝 Jornada</a>
-      <a href="?modulo=errores">🚨 Errores</a>
-    </div>
-    """, unsafe_allow_html=True)
-
     # 👤 Logo institucional
     st.markdown("""
         <div style='text-align: center;'>
@@ -131,49 +70,129 @@ if st.session_state.logueado_handheld:
         </div>
     """, unsafe_allow_html=True)
 
-    # Detectar módulo activo
-    modulo = st.query_params.get("modulo", "registro")
+    # 🌐 Menú horizontal con botones
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    with col1:
+        if st.button("📦 Registro"):
+            st.session_state.modulo_activo = "registro"
+    with col2:
+        if st.button("📋 Panel"):
+            st.session_state.modulo_activo = "panel"
+    with col3:
+        if st.button("📝 Alisto"):
+            st.session_state.modulo_activo = "alisto_form"
+    with col4:
+        if st.button("📊 Productividad"):
+            st.session_state.modulo_activo = "alisto_panel"
+    with col5:
+        if st.button("🕒 Jornada"):
+            st.session_state.modulo_activo = "jornada"
+    with col6:
+        if st.button("🚨 Errores"):
+            st.session_state.modulo_activo = "errores"
 
     # 🔀 Navegación por módulos
+    modulo = st.session_state.modulo_activo
+
     if modulo == "registro":
         st.title("📦 Registro de Handhelds")
-        st.write("Aquí va el formulario de registro.")
+        st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
+        if st.session_state.rol_handheld != "admin":
+            st.text_input("Código", value=st.session_state.codigo_empleado, disabled=True)
+
+        equipos = [f"Equipo {i}" for i in range(1, 25)]
+        equipo = st.selectbox("Selecciona el equipo", equipos)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("📌 Guardar Entrega"):
+                registrar_handheld(
+                    st.session_state.codigo_empleado,
+                    st.session_state.nombre_empleado,
+                    equipo, "entrega"
+                )
+        with col2:
+            if st.button("✅ Guardar Devolución"):
+                registrar_handheld(
+                    st.session_state.codigo_empleado,
+                    st.session_state.nombre_empleado,
+                    equipo, "devolucion"
+                )
 
     elif modulo == "panel":
         st.title("📋 Panel Administrativo")
-        st.write("Aquí va el panel con filtros y visualizaciones.")
+        hoja = conectar_sit_hh().worksheet("HH")
+        datos = hoja.get_all_values()
+        if datos and len(datos[0]) > 0:
+            df = pd.DataFrame(datos[1:], columns=datos[0])
+            df.columns = df.columns.str.strip().str.lower()
+            df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+
+            usuarios = sorted(df["nombre"].dropna().unique())
+            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
+
+            df_filtrado = df[
+                (df["fecha"].dt.date >= fecha_ini) &
+                (df["fecha"].dt.date <= fecha_fin)
+            ]
+            if usuario_sel != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
+
+            st.subheader("📑 Registros")
+            st.dataframe(df_filtrado)
+
+            hoy = datetime.now(cr_timezone).date()
+            if "estatus" in df.columns:
+                entregados_hoy = df[
+                    (df["fecha"].dt.date == hoy) &
+                    (df["estatus"].str.lower() == "entregado")
+                ]
+                devueltos_hoy = df[
+                    (df["fecha"].dt.date == hoy) &
+                    (df["estatus"].str.lower() == "devuelto")
+                ]
+
+                st.subheader("✅ Registros Entregados Hoy")
+                st.dataframe(entregados_hoy)
+
+                st.subheader("📤 Registros Devueltos Hoy")
+                st.dataframe(devueltos_hoy)
+
+                st.markdown("### 📊 Resumen de Movimientos Hoy")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Entregados", len(entregados_hoy))
+                with col2:
+                    st.metric("Devueltos", len(devueltos_hoy))
+            else:
+                st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
+            csv = df_filtrado.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
+
+            st.subheader("📊 Actividad por Usuario")
+            resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+            st.dataframe(resumen)
+            st.bar_chart(resumen.set_index("nombre"))
+
+            st.subheader("🔧 Actividad por Equipo")
+            resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
+            st.dataframe(resumen_eq)
+            st.bar_chart(resumen_eq.set_index("equipo"))
+        else:
+            st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
     elif modulo == "alisto_form":
-        st.title("📝 Formulario de Alisto")
-        st.write("Aquí va el formulario de productividad para usuarios.")
+        mostrar_formulario_alisto(
+            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+            service_account_info=st.secrets["gcp_service_account"],
+            nombre_empleado=st.session_state.nombre_empleado,
+            codigo_empleado=st.session_state.codigo_empleado
+        )
 
     elif modulo == "alisto_panel":
-        st.title("📊 Panel de Productividad")
         if st.session_state.rol_handheld == "admin":
-            st.write("Aquí va el panel de productividad para administradores.")
+            mostrar_panel_alisto(conectar_sit_hh)
         else:
-            st.warning("⚠️ Acceso restringido: solo administradores pueden ver este panel.")
-
-    elif modulo == "jornada":
-        st.title("🕒 Gestión de Jornada")
-        st.write("Aquí va la gestión de jornada laboral.")
-
-    elif modulo == "errores":
-        st.title("🚨 Registro de Errores")
-        st.write("Aquí va el formulario para reportar errores.")
-
-    # 🚪 Cierre de sesión
-    st.markdown("---")
-    st.markdown("### 🚪 Cerrar sesión")
-    if st.button("Salir"):
-        for key in defaults.keys():
-            st.session_state[key] = False if key == "logueado_handheld" else ""
-        st.rerun()
-
-# 🧾 Footer institucional
-st.markdown("""
-    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
-    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
-        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
-    </div>
-""", unsafe_allow_html=True)
+            st.warning("
