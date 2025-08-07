@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 import pytz
 import requests
@@ -57,6 +58,7 @@ if not st.session_state.logueado_handheld:
             st.session_state.rol_handheld = rol
             st.session_state.nombre_empleado = nombre
             st.session_state.codigo_empleado = usuario
+            st.success(f"Bienvenido, {nombre}")
             st.rerun()
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
@@ -192,8 +194,23 @@ if st.session_state.logueado_handheld:
         )
 
     elif modulo == "alisto_panel":
-    if st.session_state.rol_handheld == "admin":
-        mostrar_panel_alisto(conectar_sit_hh)
-    else:
-        st.warning("⚠️ Acceso restringido: solo administradores pueden ver este panel.")
+        if st.session_state.rol_handheld == "admin":
+            mostrar_panel_alisto(conectar_sit_hh)
+        else:
+            st.warning("⚠️ Acceso restringido: solo administradores pueden ver este panel.")
 
+    elif modulo == "jornada":
+        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+        if st.session_state.rol_handheld == "admin":
+            st.markdown("---")
+            mostrar_jornadas(conectar_sit_hh)
+
+    elif modulo == "errores":
+        mostrar_formulario_errores()
+
+    # 🚪 Cierre de sesión
+    st.markdown("---")
+    st.markdown("### 🚪 Cerrar sesión")
+    if st.button("Salir"):
+        for key in defaults.keys():
+            st
