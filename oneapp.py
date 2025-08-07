@@ -222,41 +222,22 @@ if st.session_state.logueado_handheld:
         else:
             st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
-    elif modulo == "alisto_form":
-        mostrar_formulario_alisto(
-            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-            service_account_info=st.secrets["gcp_service_account"],
-            nombre_empleado=st.session_state.nombre_empleado,
-            codigo_empleado=st.session_state.codigo_empleado
-        )
+        elif modulo == "alisto_form":
+        try:
+            mostrar_formulario_alisto(
+                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+                service_account_info=st.secrets["gcp_service_account"],
+                nombre_empleado=st.session_state.nombre_empleado,
+                codigo_empleado=st.session_state.codigo_empleado
+            )
+        except Exception as e:
+            st.error(f"❌ Error al cargar el formulario de alisto: {e}")
 
-        elif modulo == "alisto_panel":
+    elif modulo == "alisto_panel":
         if st.session_state.rol_handheld == "admin":
-            mostrar_panel_alisto(conectar_sit_hh)
+            try:
+                mostrar_panel_alisto(conectar_sit_hh)
+            except Exception as e:
+                st.error(f"❌ Error al cargar el panel de productividad: {e}")
         else:
             st.warning("⚠️ Acceso restringido: solo administradores pueden ver el panel de productividad.")
-
-    elif modulo == "jornada":
-        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
-        if st.session_state.rol_handheld == "admin":
-            st.markdown("---")
-            mostrar_jornadas(conectar_sit_hh)
-
-    elif modulo == "errores":
-        mostrar_formulario_errores()
-
-    # 🚪 Cierre de sesión
-    st.markdown("---")
-    st.markdown("### 🚪 Cerrar sesión")
-    if st.button("Salir", key="boton_salir"):
-        for key in defaults.keys():
-            st.session_state[key] = False if key == "logueado_handheld" else ""
-        st.rerun()
-
-# 🧾 Footer institucional
-st.markdown("""
-    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
-    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
-        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
-    </div>
-""", unsafe_allow_html=True)
