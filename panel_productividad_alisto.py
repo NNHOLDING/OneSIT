@@ -78,7 +78,9 @@ def mostrar_panel_alisto(conectar_funcion):
     st.subheader("💡 Unidades/Hora por Empleado")
     eficiencia = df_filtrado.groupby("empleado").apply(
         lambda x: x["cantidad"].sum() / x["duracion"].sum() if x["duracion"].sum() > 0 else 0
-    ).reset_index(name="Unidades/Hora")
+    ).reset_index()
+    eficiencia.columns = ["empleado", "Unidades/Hora"]
+    eficiencia = eficiencia.dropna()
     st.dataframe(eficiencia, use_container_width=True)
 
     # Eficiencia histórica semanal
@@ -86,7 +88,9 @@ def mostrar_panel_alisto(conectar_funcion):
     df_filtrado["semana"] = df_filtrado["fecha"].dt.to_period("W").astype(str)
     eficiencia_semana = df_filtrado.groupby("semana").apply(
         lambda x: x["cantidad"].sum() / x["duracion"].sum() if x["duracion"].sum() > 0 else 0
-    ).reset_index(name="Unidades/Hora")
+    ).reset_index()
+    eficiencia_semana.columns = ["semana", "Unidades/Hora"]
+    eficiencia_semana = eficiencia_semana.dropna()
     st.dataframe(eficiencia_semana, use_container_width=True)
     st.line_chart(eficiencia_semana.set_index("semana"), use_container_width=True)
 
