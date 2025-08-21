@@ -17,7 +17,7 @@ from registro_errores import mostrar_formulario_errores  # 🆕 NUEVO MÓDULO
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
-    page_icon="https://github.com/NNHOLDING/OneSIT/blob/main/NN25.ico",
+    page_icon="https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/NN25.ico",
     layout="centered"
 )
 
@@ -209,6 +209,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
