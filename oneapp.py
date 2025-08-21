@@ -186,7 +186,7 @@ elif modulo == "📋 Panel Administrativo":
     else:
         st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
     # 🕒 Productividad
-    elif modulo == "🕒 Productividad":
+elif modulo == "🕒 Productividad":
         if st.session_state.rol_handheld == "admin":
             mostrar_panel_alisto(conectar_sit_hh)
         else:
@@ -223,6 +223,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
