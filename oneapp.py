@@ -132,18 +132,7 @@ if st.session_state.logueado_handheld:
             st.subheader("📑 Registros")
             st.dataframe(df_filtrado)
 
-            st.subheader("📈 Actividad del Usuario por Fecha")
-            if not df_filtrado.empty:
-                actividad_por_fecha = (
-                    df_filtrado.groupby(df_filtrado["fecha"].dt.date)
-                    .size()
-                    .reset_index(name="Registros")
-                )
-                actividad_por_fecha = actividad_por_fecha.sort_values("fecha")
-                st.line_chart(actividad_por_fecha.set_index("fecha"))
-            else:
-                st.info("ℹ️ No hay registros para el usuario y rango de fecha seleccionados.")
-
+            
             hoy = datetime.now(cr_timezone).date()
             if "estatus" in df.columns:
                 entregados_hoy = df[
@@ -223,3 +212,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
