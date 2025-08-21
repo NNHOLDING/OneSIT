@@ -105,7 +105,8 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion"
                 )
-# 📋 Panel Administrativo
+
+   # 📋 Panel Administrativo
 elif modulo == "📋 Panel Administrativo":
     st.title("📋 Panel Administrativo")
     hoja = conectar_sit_hh().worksheet("HH")
@@ -131,17 +132,18 @@ elif modulo == "📋 Panel Administrativo":
         st.subheader("📑 Registros")
         st.dataframe(df_filtrado)
 
-       # 📈 Visualización gráfica de registros filtrados
-        st.subheader("📈 Visualización de Registros Filtrados")
-        # Asegurarse de que la columna 'fecha' tenga hora si aplica
-       if not df_filtrado.empty:
-        # Agrupar por fecha (o por hora si lo prefieres)
-        actividad_por_dia = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size()
-        # Mostrar gráfico de línea
-        st.line_chart(actividad_por_dia)
-       else:
-            st.info("ℹ️ No hay registros para graficar en el rango seleccionado.")
-        # ✅ Registros entregados y devueltos hoy
+        st.subheader("📈 Actividad del Usuario por Fecha")
+        if not df_filtrado.empty:
+            actividad_por_fecha = (
+                df_filtrado.groupby(df_filtrado["fecha"].dt.date)
+                .size()
+                .reset_index(name="Registros")
+            )
+            actividad_por_fecha = actividad_por_fecha.sort_values("fecha")
+            st.line_chart(actividad_por_fecha.set_index("fecha"))
+        else:
+            st.info("ℹ️ No hay registros para el usuario y rango de fecha seleccionados.")
+
         hoy = datetime.now(cr_timezone).date()
         if "estatus" in df.columns:
             entregados_hoy = df[
@@ -168,46 +170,55 @@ elif modulo == "📋 Panel Administrativo":
         else:
             st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
 
-        # 📥 Descarga CSV
         csv = df_filtrado.to_csv(index=False).encode("utf-8")
         st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
-        # 📊 Actividad por Usuario
         st.subheader("📊 Actividad por Usuario")
         resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
         st.dataframe(resumen)
         st.bar_chart(resumen.set_index("nombre"))
 
-        # 🔧 Actividad por Equipo
         st.subheader("🔧 Actividad por Equipo")
         resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
         st.dataframe(resumen_eq)
         st.bar_chart(resumen_eq.set_index("equipo"))
     else:
         st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
+    # 🕒 Productividad
+    elif modulo == "🕒 Productividad":
+        if st.session_state.rol_handheld == "admin":
+            mostrar_panel_alisto(conectar_sit_hh)
+        else:
+            mostrar_formulario_alisto(
+                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+                service_account_info=st.secrets["gcp_service_account"],
+                nombre_empleado=st.session_state.nombre_empleado,
+                codigo_empleado=st.session_state.codigo_empleado
+            )
 
-# 🕒 Productividad
-elif modulo == "🕒 Productividad":
-    if st.session_state.rol_handheld == "admin":
-        mostrar_panel_alisto(conectar_sit_hh)
-    else:
-        mostrar_formulario_alisto(
-            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi
+    # 📝 Gestión de Jornada
+    elif modulo == "📝 Gestión de Jornada":
+        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+        if st.session_state.rol_handheld == "admin":
+            st.markdown("---")
+            mostrar_jornadas(conectar_sit_hh)
 
+    # 🚨 Registro de Errores
+    elif modulo == "🚨 Registro de Errores":
+        mostrar_formulario_errores()
 
+    # 🚪 Cierre de sesión
+    st.markdown("---")
+    st.markdown("### 🚪 Cerrar sesión")
+    if st.button("Salir", key="boton_salir"):
+        for key in defaults.keys():
+            st.session_state[key] = False if key == "logueado_handheld" else ""
+        st.rerun()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# 🧾 Footer institucional
+st.markdown("""
+    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
+        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+    </div>
+""", unsafe_allow_html=True)
