@@ -131,25 +131,16 @@ elif modulo == "📋 Panel Administrativo":
         st.subheader("📑 Registros")
         st.dataframe(df_filtrado)
 
-        # 📈 Actividad del Usuario por Fecha con agrupación
-        st.subheader("📈 Actividad del Usuario por Fecha")
-        opciones_agrupacion = ["Por Día", "Por Semana", "Por Mes"]
-        tipo_agrupacion = st.selectbox("Agrupar por", opciones_agrupacion)
-
-        if not df_filtrado.empty:
-            if tipo_agrupacion == "Por Día":
-                actividad = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size()
-            elif tipo_agrupacion == "Por Semana":
-                actividad = df_filtrado.groupby(df_filtrado["fecha"].dt.to_period("W").apply(lambda r: r.start_time.date())).size()
-            elif tipo_agrupacion == "Por Mes":
-                actividad = df_filtrado.groupby(df_filtrado["fecha"].dt.to_period("M").apply(lambda r: r.start_time.date())).size()
-
-            actividad = actividad.reset_index(name="Registros").sort_values("index")
-            actividad.columns = ["Fecha", "Registros"]
-            st.line_chart(actividad.set_index("Fecha"))
-        else:
-            st.info("ℹ️ No hay registros para el usuario y rango de fecha seleccionados.")
-
+       # 📈 Visualización gráfica de registros filtrados
+        st.subheader("📈 Visualización de Registros Filtrados")
+        # Asegurarse de que la columna 'fecha' tenga hora si aplica
+       if not df_filtrado.empty:
+        # Agrupar por fecha (o por hora si lo prefieres)
+        actividad_por_dia = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size()
+        # Mostrar gráfico de línea
+        st.line_chart(actividad_por_dia)
+       else:
+            st.info("ℹ️ No hay registros para graficar en el rango seleccionado.")
         # ✅ Registros entregados y devueltos hoy
         hoy = datetime.now(cr_timezone).date()
         if "estatus" in df.columns:
@@ -202,6 +193,7 @@ elif modulo == "🕒 Productividad":
     else:
         mostrar_formulario_alisto(
             GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi
+
 
 
 
