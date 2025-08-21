@@ -66,7 +66,7 @@ if not st.session_state.logueado_handheld:
 if st.session_state.logueado_handheld:
     st.markdown("""
         <div style='text-align: center;'>
-        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
+        <img src="https://drive.google.com/uc?export=view&id=1P6OSXZMR4DI_cEgwjk1ZVJ6B8aLS1_qq" width="250">
         </div>
     """, unsafe_allow_html=True)
 
@@ -209,3 +209,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
