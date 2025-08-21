@@ -107,7 +107,7 @@ if st.session_state.logueado_handheld:
                 )
 
    # 📋 Panel Administrativo
-elif modulo == "📋 Panel Administrativo":
+    elif modulo == "📋 Panel Administrativo":
     st.title("📋 Panel Administrativo")
     hoja = conectar_sit_hh().worksheet("HH")
     datos = hoja.get_all_values()
@@ -222,3 +222,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
