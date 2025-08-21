@@ -106,35 +106,37 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion"
                 )
 # 📋 Panel Administrativo
-    elif modulo == "📋 Panel Administrativo":
-        st.title("📋 Panel Administrativo")
-        hoja = conectar_sit_hh().worksheet("HH")
-        datos = hoja.get_all_values()
-        if datos and len(datos[0]) > 0:
-            df = pd.DataFrame(datos[1:], columns=datos[0])
-            df.columns = df.columns.str.strip().str.lower()
-            df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+elif modulo == "📋 Panel Administrativo":
+    st.title("📋 Panel Administrativo")
+    hoja = conectar_sit_hh().worksheet("HH")
+    datos = hoja.get_all_values()
 
-            usuarios = sorted(df["nombre"].dropna().unique())
-            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
+    if datos and len(datos[0]) > 0:
+        df = pd.DataFrame(datos[1:], columns=datos[0])
+        df.columns = df.columns.str.strip().str.lower()
+        df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
 
-            df_filtrado = df[
-                (df["fecha"].dt.date >= fecha_ini) &
-                (df["fecha"].dt.date <= fecha_fin)
-            ]
-            if usuario_sel != "Todos":
-                df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
+        usuarios = sorted(df["nombre"].dropna().unique())
+        fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+        fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+        usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
 
-            st.subheader("📑 Registros")
-            st.dataframe(df_filtrado)
-            st.subheader("📈 Actividad del Usuario por Fecha")
-            opciones_agrupacion = ["Por Día", "Por Semana", "Por Mes"]
-            tipo_agrupacion = st.selectbox("Agrupar por", opciones_agrupacion)
-           if not df_filtrado.empty:
-            df_filtrado["fecha"] = pd.to_datetime(df_filtrado["fecha"], errors="coerce")
+        df_filtrado = df[
+            (df["fecha"].dt.date >= fecha_ini) &
+            (df["fecha"].dt.date <= fecha_fin)
+        ]
+        if usuario_sel != "Todos":
+            df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
 
+        st.subheader("📑 Registros")
+        st.dataframe(df_filtrado)
+
+        # 📈 Actividad del Usuario por Fecha con agrupación
+        st.subheader("📈 Actividad del Usuario por Fecha")
+        opciones_agrupacion = ["Por Día", "Por Semana", "Por Mes"]
+        tipo_agrupacion = st.selectbox("Agrupar por", opciones_agrupacion)
+
+        if not df_filtrado.empty:
             if tipo_agrupacion == "Por Día":
                 actividad = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size()
             elif tipo_agrupacion == "Por Semana":
@@ -144,52 +146,54 @@ if st.session_state.logueado_handheld:
 
             actividad = actividad.reset_index(name="Registros").sort_values("index")
             actividad.columns = ["Fecha", "Registros"]
-
             st.line_chart(actividad.set_index("Fecha"))
-           else:
+        else:
             st.info("ℹ️ No hay registros para el usuario y rango de fecha seleccionados.")
 
-                        # ✅ Tabla de registros entregados y devueltos hoy
-            hoy = datetime.now(cr_timezone).date()
-            if "estatus" in df.columns:
-                entregados_hoy = df[
-                    (df["fecha"].dt.date == hoy) &
-                    (df["estatus"].str.lower() == "entregado")
-                ]
-                devueltos_hoy = df[
-                    (df["fecha"].dt.date == hoy) &
-                    (df["estatus"].str.lower() == "devuelto")
-                ]
+        # ✅ Registros entregados y devueltos hoy
+        hoy = datetime.now(cr_timezone).date()
+        if "estatus" in df.columns:
+            entregados_hoy = df[
+                (df["fecha"].dt.date == hoy) &
+                (df["estatus"].str.lower() == "entregado")
+            ]
+            devueltos_hoy = df[
+                (df["fecha"].dt.date == hoy) &
+                (df["estatus"].str.lower() == "devuelto")
+            ]
 
-                st.subheader("✅ Registros Entregados Hoy")
-                st.dataframe(entregados_hoy)
+            st.subheader("✅ Registros Entregados Hoy")
+            st.dataframe(entregados_hoy)
 
-                st.subheader("📤 Registros Devueltos Hoy")
-                st.dataframe(devueltos_hoy)
+            st.subheader("📤 Registros Devueltos Hoy")
+            st.dataframe(devueltos_hoy)
 
-                st.markdown("### 📊 Resumen de Movimientos Hoy")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Entregados", len(entregados_hoy))
-                with col2:
-                    st.metric("Devueltos", len(devueltos_hoy))
-            else:
-                st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
-            csv = df_filtrado.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
-
-            st.subheader("📊 Actividad por Usuario")
-            resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
-            st.dataframe(resumen)
-            st.bar_chart(resumen.set_index("nombre"))
-
-            st.subheader("🔧 Actividad por Equipo")
-            resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
-            st.dataframe(resumen_eq)
-            st.bar_chart(resumen_eq.set_index("equipo"))
+            st.markdown("### 📊 Resumen de Movimientos Hoy")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("Entregados", len(entregados_hoy))
+            with col2:
+                st.metric("Devueltos", len(devueltos_hoy))
         else:
-            st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
+            st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
 
+        # 📥 Descarga CSV
+        csv = df_filtrado.to_csv(index=False).encode("utf-8")
+        st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
+
+        # 📊 Actividad por Usuario
+        st.subheader("📊 Actividad por Usuario")
+        resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+        st.dataframe(resumen)
+        st.bar_chart(resumen.set_index("nombre"))
+
+        # 🔧 Actividad por Equipo
+        st.subheader("🔧 Actividad por Equipo")
+        resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
+        st.dataframe(resumen_eq)
+        st.bar_chart(resumen_eq.set_index("equipo"))
+    else:
+        st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
       # 🕒 Productividad
     elif modulo == "🕒 Productividad":
         if st.session_state.rol_handheld == "admin":
@@ -228,6 +232,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
