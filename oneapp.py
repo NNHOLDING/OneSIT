@@ -130,16 +130,24 @@ if st.session_state.logueado_handheld:
             st.subheader("📑 Registros")
             st.dataframe(df_filtrado)
             st.subheader("📈 Actividad del Usuario por Fecha")
-            if not df_filtrado.empty:
-                actividad_por_fecha = (
-                    df_filtrado.groupby(df_filtrado["fecha"].dt.date)
-                    .size()
-                    .reset_index(name="Registros")
-                )
-                actividad_por_fecha = actividad_por_fecha.sort_values("fecha")
-                st.line_chart(actividad_por_fecha.set_index("fecha"))
-            else:
-                st.info("ℹ️ No hay registros para el usuario y rango de fecha seleccionados.")
+            opciones_agrupacion = ["Por Día", "Por Semana", "Por Mes"]
+            tipo_agrupacion = st.selectbox("Agrupar por", opciones_agrupacion)
+           if not df_filtrado.empty:
+            df_filtrado["fecha"] = pd.to_datetime(df_filtrado["fecha"], errors="coerce")
+
+            if tipo_agrupacion == "Por Día":
+                actividad = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size()
+            elif tipo_agrupacion == "Por Semana":
+                actividad = df_filtrado.groupby(df_filtrado["fecha"].dt.to_period("W").apply(lambda r: r.start_time.date())).size()
+            elif tipo_agrupacion == "Por Mes":
+                actividad = df_filtrado.groupby(df_filtrado["fecha"].dt.to_period("M").apply(lambda r: r.start_time.date())).size()
+
+            actividad = actividad.reset_index(name="Registros").sort_values("index")
+            actividad.columns = ["Fecha", "Registros"]
+
+            st.line_chart(actividad.set_index("Fecha"))
+           else:
+            st.info("ℹ️ No hay registros para el usuario y rango de fecha seleccionados.")
 
                         # ✅ Tabla de registros entregados y devueltos hoy
             hoy = datetime.now(cr_timezone).date()
@@ -220,6 +228,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
