@@ -111,6 +111,7 @@ elif modulo == "📋 Panel Administrativo":
     st.title("📋 Panel Administrativo")
     hoja = conectar_sit_hh().worksheet("HH")
     datos = hoja.get_all_values()
+
     if datos and len(datos[0]) > 0:
         df = pd.DataFrame(datos[1:], columns=datos[0])
         df.columns = df.columns.str.strip().str.lower()
@@ -131,7 +132,6 @@ elif modulo == "📋 Panel Administrativo":
         st.subheader("📑 Registros")
         st.dataframe(df_filtrado)
 
-        # 📈 Actividad del Usuario por Fecha
         st.subheader("📈 Actividad del Usuario por Fecha")
         if not df_filtrado.empty:
             actividad_por_fecha = (
@@ -144,7 +144,6 @@ elif modulo == "📋 Panel Administrativo":
         else:
             st.info("ℹ️ No hay registros para el usuario y rango de fecha seleccionados.")
 
-        # ✅ Tabla de registros entregados y devueltos hoy
         hoy = datetime.now(cr_timezone).date()
         if "estatus" in df.columns:
             entregados_hoy = df[
@@ -223,6 +222,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
