@@ -77,7 +77,7 @@ if st.session_state.logueado_handheld:
         "📋 Panel Administrativo",
         "🕒 Productividad",
         "📝 Gestión de Jornada",
-        "🚨 Registro de Errores"
+        "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura"  # 🆕 Nuevo módulo
     ])
 
@@ -217,5 +217,6 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
