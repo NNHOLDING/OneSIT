@@ -1,14 +1,21 @@
 from datetime import datetime
+import streamlit as st
+import pandas as pd
+import io
 
 def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     hoja = conectar_sit_hh().worksheet("TTemperatura")
+
+    # ✅ Definir fecha y hora antes de usarlas
     ahora = datetime.now(cr_timezone)
-    fecha_actual = ahora.replace(hour=0, minute=0, second=0, microsecond=0)  # ✅ objeto datetime
+    fecha_actual = ahora.replace(hour=0, minute=0, second=0, microsecond=0)  # datetime puro
     hora_actual = ahora.strftime("%H:%M")
 
+    # ✅ Mostrar fecha y hora en formato legible
     st.text_input("📅 Fecha", value=fecha_actual.strftime("%d/%m/%Y"), disabled=True)
     st.text_input("⏰ Hora", value=hora_actual, disabled=True)
 
+    # ✅ Obtener usuario
     codigo = st.session_state.codigo_empleado
     hoja_usuarios = conectar_sit_hh().worksheet("usuarios")
     datos_usuarios = hoja_usuarios.get_all_values()
@@ -19,6 +26,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     st.text_input("👤 Usuario", value=codigo, disabled=True)
     st.text_input("🧑 Nombre de usuario", value=nombre, disabled=True)
 
+    # ✅ Selección de datos
     opciones_almacen = ["Site Alajuela", "Site Cartago", "Site Curridabat", "Site Liberia", "Site SAVI"]
     almacen = st.selectbox("🏬 Almacén", opciones_almacen)
 
@@ -48,6 +56,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
 
     dispositivo = st.text_input("💻 Dispositivo", value=st.session_state.get("device_name", ""), disabled=True)
 
+    # ✅ Autenticación
     autenticar_usuario()
 
     if st.button("✅ Guardar registro"):
@@ -66,8 +75,9 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
             except Exception as e:
                 st.error(f"❌ Error al subir la foto: {e}")
 
+        # ✅ Fila con fecha como datetime y método correcto
         fila = [
-            fecha_actual,  # ✅ objeto datetime
+            fecha_actual,  # datetime reconocido por Sheets
             hora_actual,
             codigo,
             nombre,
