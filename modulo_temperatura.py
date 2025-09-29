@@ -36,7 +36,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     hoja = conectar_sit_hh().worksheet("TTemperatura")
 
     ahora = datetime.now(cr_timezone)
-    fecha_actual = ahora.strftime("%Y-%m-%d")  # ✅ formato ISO compatible con Sheets
+    fecha_actual = ahora.strftime("%Y-%m-%d")  # formato ISO compatible con Sheets
     hora_actual = ahora.strftime("%H:%M")
 
     st.text_input("📅 Fecha", value=ahora.strftime("%d/%m/%Y"), disabled=True)
@@ -100,7 +100,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
                 st.error(f"❌ Error al subir la foto: {e}")
 
         fila = [
-            fecha_actual,  # ✅ texto ISO que Sheets puede interpretar como fecha
+            fecha_actual,
             hora_actual,
             codigo,
             nombre,
@@ -112,5 +112,10 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
             enlace_foto,
             dispositivo
         ]
-        hoja.append_row(fila, value_input_option='USER_ENTERED')  # ✅ método correcto para una sola fila
+        hoja.append_row(fila, value_input_option='USER_ENTERED')
+
+        # ✅ Activar el disparador onEdit editando la columna "Valoración" (columna 9)
+        ultima_fila = len(hoja.get_all_values())
+        hoja.update_cell(ultima_fila, 9, valoracion)
+
         st.success("✅ Registro guardado correctamente")
