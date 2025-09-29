@@ -36,10 +36,10 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     hoja = conectar_sit_hh().worksheet("TTemperatura")
 
     ahora = datetime.now(cr_timezone)
-    fecha_actual = ahora.replace(hour=0, minute=0, second=0, microsecond=0)  # datetime puro
+    fecha_actual = ahora.strftime("%Y-%m-%d")  # ✅ formato ISO compatible con Sheets
     hora_actual = ahora.strftime("%H:%M")
 
-    st.text_input("📅 Fecha", value=fecha_actual.strftime("%d/%m/%Y"), disabled=True)
+    st.text_input("📅 Fecha", value=ahora.strftime("%d/%m/%Y"), disabled=True)
     st.text_input("⏰ Hora", value=hora_actual, disabled=True)
 
     codigo = st.session_state.codigo_empleado
@@ -84,7 +84,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     autenticar_usuario()
 
     if st.button("✅ Guardar registro"):
-        nombre_archivo = f"{fecha_actual.strftime('%d-%m-%Y')}_{hora_actual.replace(':', '-')}.jpg"
+        nombre_archivo = f"{ahora.strftime('%d-%m-%Y')}_{hora_actual.replace(':', '-')}.jpg"
         enlace_foto = ""
 
         if foto:
@@ -100,7 +100,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
                 st.error(f"❌ Error al subir la foto: {e}")
 
         fila = [
-            fecha_actual,  # datetime reconocido por Sheets
+            fecha_actual,  # ✅ texto ISO que Sheets puede interpretar como fecha
             hora_actual,
             codigo,
             nombre,
@@ -112,5 +112,5 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
             enlace_foto,
             dispositivo
         ]
-        hoja.append_rows([fila], value_input_option='USER_ENTERED')
+        hoja.append_row(fila, value_input_option='USER_ENTERED')  # ✅ método correcto para una sola fila
         st.success("✅ Registro guardado correctamente")
