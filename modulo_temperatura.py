@@ -72,6 +72,10 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     st.text_input("👤 Usuario", value=codigo, disabled=True)
     st.text_input("🧑 Nombre de usuario", value=nombre, disabled=True)
 
+    # Almacén
+    opciones_almacen = ["Site Alajuela", "Site Cartago", "Site Curridabat", "Site Liberia", "Site SAVI"]
+    almacen = st.selectbox("🏬 Almacén", opciones_almacen)
+
     congelados = [f"Contenedor congelado {str(i).zfill(2)}" for i in range(1, 11)]
     refrigerados = [f"Contenedor refrigerado {str(i).zfill(2)}" for i in range(1, 11)]
     opciones_contenedor = congelados + refrigerados
@@ -121,7 +125,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
             hora_actual,
             codigo,
             nombre,
-            "",  # Almacén
+            almacen,
             contenedor,
             temperatura,
             f"{rango_definido}°C",
