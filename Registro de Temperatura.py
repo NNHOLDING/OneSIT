@@ -76,4 +76,5 @@ elif modulo == "🌡️ Registro de Temperatura":
 
         # Guardar foto en Drive (requiere integración con Google Drive API)
         if foto:
+
             st.warning("⚠️ La carga directa a Drive requiere configuración adicional con la API de Google Drive.")
