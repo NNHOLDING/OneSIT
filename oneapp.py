@@ -14,6 +14,7 @@ from registro_jornada import gestionar_jornada
 from modulo_alisto import mostrar_formulario_alisto
 from panel_productividad_alisto import mostrar_panel_alisto
 from registro_errores import mostrar_formulario_errores  # 🆕 NUEVO MÓDULO
+from modulo_temperatura import mostrar_formulario_temperatura
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
@@ -217,6 +218,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
