@@ -1,6 +1,10 @@
 from google.oauth2 import service_account
+from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
+import streamlit as st
+import pandas as pd
+from datetime import datetime
 import io
 
 def subir_imagen_a_drive(foto, nombre_archivo, carpeta_id, service_account_info):
@@ -16,11 +20,40 @@ def subir_imagen_a_drive(foto, nombre_archivo, carpeta_id, service_account_info)
     file = service.files().create(body=file_metadata, media_body=media, fields='id,webViewLink').execute()
     return file.get('webViewLink')
 
-def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
-    import streamlit as st
-    import pandas as pd
-    from datetime import datetime
+def autenticar_usuario():
+    if "google_creds" not in st.session_state:
+        flow = Flow.from_client_config(
+            {
+                "web": {
+                    "client_id": st.secrets["google_oauth"]["client_id"],
+                    "client_secret": st.secrets["google_oauth"]["client_secret"],
+                    "auth_uri": st.secrets["google_oauth"]["auth_uri"],
+                    "token_uri": st.secrets["google_oauth"]["token_uri"],
+                    "auth_provider_x509_cert_url": st.secrets["google_oauth"]["auth_provider_x509_cert_url"],
+                    "redirect_uris": [st.secrets["google_oauth"]["redirect_uri"]],
+                }
+            },
+            scopes=["https://www.googleapis.com/auth/drive.file"],
+            redirect_uri=st.secrets["google_oauth"]["redirect_uri"]
+        )
 
+        auth_url, _ = flow.authorization_url(prompt="consent")
+        st.markdown(f"[🔐 Autorizar acceso a Google Drive]({auth_url})")
+        code = st.text_input("🔑 Pega aquí el código de autorización")
+        if code:
+            flow.fetch_token(code=code)
+            st.session_state.google_creds = flow.credentials
+            st.success("✅ Autenticado correctamente")
+
+def subir_archivo_oauth(foto, nombre_archivo):
+    creds = st.session_state.google_creds
+    service = build("drive", "v3", credentials=creds)
+    media = MediaIoBaseUpload(io.BytesIO(foto.read()), mimetype=foto.type)
+    file_metadata = {"name": nombre_archivo}
+    file = service.files().create(body=file_metadata, media_body=media, fields="id,webViewLink").execute()
+    return file.get("webViewLink")
+
+def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     hoja = conectar_sit_hh().worksheet("TTemperatura")
     ahora = datetime.now(cr_timezone)
     fecha_actual = ahora.strftime("%d/%m/%Y")
@@ -65,15 +98,21 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
 
     dispositivo = st.text_input("💻 Dispositivo", value=st.session_state.get("device_name", ""), disabled=True)
 
+    autenticar_usuario()
+
     if st.button("✅ Guardar registro"):
         nombre_archivo = f"{fecha_actual.replace('/', '-')}_{hora_actual.replace(':', '-')}.jpg"
         enlace_foto = ""
 
         if foto:
-            carpeta_id = "11akWr6WaZON7qjw_4PGOvM3tLBq7pgYi"
             try:
-                enlace_foto = subir_imagen_a_drive(foto, nombre_archivo, carpeta_id, st.secrets["gcp_service_account"])
-                st.success(f"📁 Foto subida correctamente. [Ver imagen en Drive]({enlace_foto})")
+                if "google_creds" in st.session_state:
+                    enlace_foto = subir_archivo_oauth(foto, nombre_archivo)
+                    st.success(f"📁 Foto subida correctamente. [Ver imagen en Drive]({enlace_foto})")
+                else:
+                    carpeta_id = "11akWr6WaZON7qjw_4PGOvM3tLBq7pgYi"
+                    enlace_foto = subir_imagen_a_drive(foto, nombre_archivo, carpeta_id, st.secrets["gcp_service_account"])
+                    st.success(f"📁 Foto subida con cuenta de servicio. [Ver imagen en Drive]({enlace_foto})")
             except Exception as e:
                 st.error(f"❌ Error al subir la foto: {e}")
 
