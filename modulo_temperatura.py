@@ -1,65 +1,12 @@
-from google.oauth2 import service_account
-from google_auth_oauthlib.flow import Flow
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-import streamlit as st
-import pandas as pd
 from datetime import datetime
-import io
-
-def subir_imagen_a_drive(foto, nombre_archivo, carpeta_id, service_account_info):
-    creds = service_account.Credentials.from_service_account_info(service_account_info)
-    service = build('drive', 'v3', credentials=creds)
-
-    file_metadata = {
-        'name': nombre_archivo,
-        'parents': [carpeta_id]
-    }
-
-    media = MediaIoBaseUpload(io.BytesIO(foto.read()), mimetype=foto.type)
-    file = service.files().create(body=file_metadata, media_body=media, fields='id,webViewLink').execute()
-    return file.get('webViewLink')
-
-def autenticar_usuario():
-    if "google_creds" not in st.session_state:
-        flow = Flow.from_client_config(
-            {
-                "web": {
-                    "client_id": st.secrets["google_oauth"]["client_id"],
-                    "client_secret": st.secrets["google_oauth"]["client_secret"],
-                    "auth_uri": st.secrets["google_oauth"]["auth_uri"],
-                    "token_uri": st.secrets["google_oauth"]["token_uri"],
-                    "auth_provider_x509_cert_url": st.secrets["google_oauth"]["auth_provider_x509_cert_url"],
-                    "redirect_uris": [st.secrets["google_oauth"]["redirect_uri"]],
-                }
-            },
-            scopes=["https://www.googleapis.com/auth/drive.file"],
-            redirect_uri=st.secrets["google_oauth"]["redirect_uri"]
-        )
-
-        auth_url, _ = flow.authorization_url(prompt="consent")
-        st.markdown(f"[🔐 Autorizar acceso a Google Drive]({auth_url})")
-        code = st.text_input("🔑 Pega aquí el código de autorización")
-        if code:
-            flow.fetch_token(code=code)
-            st.session_state.google_creds = flow.credentials
-            st.success("✅ Autenticado correctamente")
-
-def subir_archivo_oauth(foto, nombre_archivo):
-    creds = st.session_state.google_creds
-    service = build("drive", "v3", credentials=creds)
-    media = MediaIoBaseUpload(io.BytesIO(foto.read()), mimetype=foto.type)
-    file_metadata = {"name": nombre_archivo}
-    file = service.files().create(body=file_metadata, media_body=media, fields="id,webViewLink").execute()
-    return file.get("webViewLink")
 
 def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     hoja = conectar_sit_hh().worksheet("TTemperatura")
     ahora = datetime.now(cr_timezone)
-    fecha_actual = ahora.strftime("%Y-%m-%d")  # ✅ ISO format para fecha real
+    fecha_actual = ahora.replace(hour=0, minute=0, second=0, microsecond=0)  # ✅ objeto datetime
     hora_actual = ahora.strftime("%H:%M")
 
-    st.text_input("📅 Fecha", value=ahora.strftime("%d/%m/%Y"), disabled=True)
+    st.text_input("📅 Fecha", value=fecha_actual.strftime("%d/%m/%Y"), disabled=True)
     st.text_input("⏰ Hora", value=hora_actual, disabled=True)
 
     codigo = st.session_state.codigo_empleado
@@ -104,7 +51,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     autenticar_usuario()
 
     if st.button("✅ Guardar registro"):
-        nombre_archivo = f"{ahora.strftime('%d-%m-%Y')}_{hora_actual.replace(':', '-')}.jpg"
+        nombre_archivo = f"{fecha_actual.strftime('%d-%m-%Y')}_{hora_actual.replace(':', '-')}.jpg"
         enlace_foto = ""
 
         if foto:
@@ -120,7 +67,7 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
                 st.error(f"❌ Error al subir la foto: {e}")
 
         fila = [
-            fecha_actual,  # ✅ tipo fecha reconocible por Sheets
+            fecha_actual,  # ✅ objeto datetime
             hora_actual,
             codigo,
             nombre,
@@ -132,5 +79,5 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
             enlace_foto,
             dispositivo
         ]
-        hoja.append_row(fila)
+        hoja.append_rows([fila], value_input_option='USER_ENTERED')  # ✅ método correcto
         st.success("✅ Registro guardado correctamente")
