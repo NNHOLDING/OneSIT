@@ -56,7 +56,7 @@ def subir_archivo_oauth(foto, nombre_archivo):
 def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     hoja = conectar_sit_hh().worksheet("TTemperatura")
     ahora = datetime.now(cr_timezone)
-    fecha_actual = ahora.date()  # ✅ Se guarda como tipo fecha real
+    fecha_actual = ahora.replace(hour=0, minute=0, second=0, microsecond=0)  # ✅ Fecha como datetime puro
     hora_actual = ahora.strftime("%H:%M")
 
     st.text_input("📅 Fecha", value=fecha_actual.strftime("%d/%m/%Y"), disabled=True)
@@ -72,7 +72,6 @@ def mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone):
     st.text_input("👤 Usuario", value=codigo, disabled=True)
     st.text_input("🧑 Nombre de usuario", value=nombre, disabled=True)
 
-    # Almacén
     opciones_almacen = ["Site Alajuela", "Site Cartago", "Site Curridabat", "Site Liberia", "Site SAVI"]
     almacen = st.selectbox("🏬 Almacén", opciones_almacen)
 
