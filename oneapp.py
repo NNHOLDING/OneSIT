@@ -213,5 +213,4 @@ if st.session_state.logueado_handheld:
     # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
-    if st.button("Salir", key="boton_salir"):
-        for key in defaults.keys():
+    if st.button
