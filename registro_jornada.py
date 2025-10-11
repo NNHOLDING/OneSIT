@@ -8,9 +8,10 @@ from streamlit_js_eval import streamlit_js_eval
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 # 📍 Coordenadas del punto autorizado
-LAT_CENTRO = 9.99413016099283
-LON_CENTRO = -84.23354393628277
+LAT_CENTRO = 9.908688
+LON_CENTRO = -84.104453
 RADIO_METROS = 30
+
 
 # 📏 Función Haversine para calcular distancia entre dos puntos
 def calcular_distancia_m(lat1, lon1, lat2, lon2):
@@ -129,3 +130,4 @@ def gestionar_jornada(conectar_funcion, usuario_actual):
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_actual}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
