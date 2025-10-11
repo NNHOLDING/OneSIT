@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 import pytz
 from math import radians, cos, sin, asin, sqrt
-from streamlit_geolocation import geolocation
+from streamlit_js_eval import streamlit_js_eval
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
@@ -77,11 +77,14 @@ def gestionar_jornada(conectar_funcion, usuario_actual):
 
     # 📍 Captura automática de ubicación
     st.subheader("📍 Verificación de ubicación automática")
-    ubicacion = geolocation()
+    ubicacion = streamlit_js_eval(
+        js_expressions="navigator.geolocation.getCurrentPosition((pos) => ({latitude: pos.coords.latitude, longitude: pos.coords.longitude}))",
+        key="ubicacion"
+    )
 
-    if ubicacion and "coords" in ubicacion:
-        lat_usuario = ubicacion["coords"]["latitude"]
-        lon_usuario = ubicacion["coords"]["longitude"]
+    if ubicacion and "latitude" in ubicacion and "longitude" in ubicacion:
+        lat_usuario = ubicacion["latitude"]
+        lon_usuario = ubicacion["longitude"]
         st.success(f"Ubicación detectada: {lat_usuario:.6f}, {lon_usuario:.6f}")
     else:
         st.error("❌ No se pudo validar tu ubicación. Asegúrate de permitir el acceso en el navegador y recarga la página.")
