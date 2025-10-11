@@ -2,8 +2,25 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import pytz
+from math import radians, cos, sin, asin, sqrt
+from streamlit_js_eval import streamlit_js_eval
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
+
+# 📍 Coordenadas del punto de control
+LAT_CENTRO = 9.99413016099283
+LON_CENTRO = -84.23354393628277
+RADIO_METROS = 30
+
+# 📏 Función Haversine para calcular distancia entre dos puntos
+def esta_dentro_del_radio(lat1, lon1, lat2, lon2, radio_metros=30):
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    distancia = 6371000 * c  # Radio de la Tierra en metros
+    return distancia <= radio_metros
 
 # 🗃️ Función para cargar datos desde la hoja "Jornadas"
 def cargar_datos(conectar_funcion):
@@ -58,6 +75,19 @@ def gestionar_jornada(conectar_funcion, usuario_actual):
         (datos["Bodega"] == bodega)
     ]
 
+    # 📍 Captura automática de ubicación
+    st.subheader("📍 Verificación de ubicación automática")
+    ubicacion = streamlit_js_eval(js_expressions="navigator.geolocation.getCurrentPosition((pos) => pos.coords)", key="ubicacion")
+
+    if ubicacion and "latitude" in ubicacion and "longitude" in ubicacion:
+        lat_usuario = ubicacion["latitude"]
+        lon_usuario = ubicacion["longitude"]
+        st.success(f"Ubicación detectada: {lat_usuario:.6f}, {lon_usuario:.6f}")
+    else:
+        st.warning("No se pudo obtener tu ubicación. Asegúrate de permitir el acceso en el navegador.")
+        lat_usuario = None
+        lon_usuario = None
+
     col1, col2 = st.columns(2)
     with col1:
         if st.button("📌 Iniciar jornada"):
@@ -65,6 +95,10 @@ def gestionar_jornada(conectar_funcion, usuario_actual):
                 st.warning("Debes seleccionar una bodega.")
             elif not registro_existente.empty:
                 st.warning("Ya registraste el inicio de jornada para hoy.")
+            elif lat_usuario is None or lon_usuario is None:
+                st.error("❌ No se pudo validar tu ubicación.")
+            elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
+                st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
             else:
                 agregar_fila_inicio(conectar_funcion, fecha_actual, usuario_actual, bodega, hora_actual)
                 st.success(f"✅ Inicio registrado a las {hora_actual}")
