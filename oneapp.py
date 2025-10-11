@@ -210,6 +210,18 @@ if st.session_state.logueado_handheld:
         except Exception as e:
             st.error(f"Error al cargar el módulo de prueba: {e}")
 
-    # 🚪 Cierre de sesión
-    st.markdown("---")
-    st.markdown("### 🚪 C
+   # 🚪 Cierre de sesión
+st.markdown("---")
+st.markdown("### 🚪 Cerrar sesión")
+if st.button("Salir", key="boton_salir"):
+    for key in defaults.keys():
+        st.session_state[key] = False if key == "logueado_handheld" else ""
+    st.rerun()
+    # 🧾 Footer institucional
+st.markdown("""
+    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
+        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+    </div>
+""", unsafe_allow_html=True)
+
