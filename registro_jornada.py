@@ -67,7 +67,7 @@ def gestionar_jornada(conectar_funcion, usuario_actual):
     st.text_input("Fecha", value=fecha_actual, disabled=True)
 
     bodegas = [
-        "Bodega Barrio Cuba", "CEDI Coyol", "Bodega Cañas",
+        "Bodega Barrio Cuba", "CEDI Coyol", "Sigma Coyol","Bodega Cañas",
         "Bodega Coto", "Bodega San Carlos", "Bodega Pérez Zeledón"
     ]
     bodega = st.selectbox("Selecciona la bodega", bodegas)
@@ -131,5 +131,6 @@ def gestionar_jornada(conectar_funcion, usuario_actual):
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_actual}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
 
