@@ -9,10 +9,11 @@ oauth2client
 pandas
 google-api-python-client
 pytz
-
+streamlit-js-eval
 google-auth
 google-auth-httplib2
 google-auth-oauthlib
+
 
 
 
