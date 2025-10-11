@@ -13,12 +13,12 @@ from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
 from modulo_alisto import mostrar_formulario_alisto
 from panel_productividad_alisto import mostrar_panel_alisto
-from registro_errores import mostrar_formulario_errores
-from modulo_temperatura import mostrar_formulario_temperatura
+from registro_errores import mostrar_formulario_errores  # 🆕 NUEVO MÓDULO
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
+    #page_icon="https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/NN25.ico",
     layout="centered"
 )
 
@@ -77,9 +77,8 @@ if st.session_state.logueado_handheld:
         "📋 Panel Administrativo",
         "🕒 Productividad",
         "📝 Gestión de Jornada",
-        "🚨 Registro de Errores",
-        "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación"
+        "🚨 Registro de Errores"
+        "🌡️ Registro de Temperatura"  # 🆕 Nuevo módulo
     ])
 
     # 📦 Registro
@@ -134,6 +133,7 @@ if st.session_state.logueado_handheld:
             st.subheader("📑 Registros")
             st.dataframe(df_filtrado)
 
+            
             hoy = datetime.now(cr_timezone).date()
             if "estatus" in df.columns:
                 entregados_hoy = df[
@@ -198,30 +198,18 @@ if st.session_state.logueado_handheld:
     elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores()
 
-    # 🌡️ Registro de Temperatura
-    elif modulo == "🌡️ Registro de Temperatura":
-        mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)
+    # 🚪 Cierre de sesión
+    st.markdown("---")
+    st.markdown("### 🚪 Cerrar sesión")
+    if st.button("Salir", key="boton_salir"):
+        for key in defaults.keys():
+            st.session_state[key] = False if key == "logueado_handheld" else ""
+        st.rerun()
 
-    # 🧪 Prueba de Ubicación
-    elif modulo == "🧪 Prueba de Ubicación":
-        try:
-            from prueba_ubicacion import main as prueba_ubicacion_main
-            prueba_ubicacion_main()
-        except Exception as e:
-            st.error(f"Error al cargar el módulo de prueba: {e}")
-
-   # 🚪 Cierre de sesión
-st.markdown("---")
-st.markdown("### 🚪 Cerrar sesión")
-if st.button("Salir", key="boton_salir"):
-    for key in defaults.keys():
-        st.session_state[key] = False if key == "logueado_handheld" else ""
-    st.rerun()
-    # 🧾 Footer institucional
+# 🧾 Footer institucional
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
     <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
