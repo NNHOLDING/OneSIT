@@ -80,6 +80,7 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura"  # 🆕 Nuevo módulo
+         "🧪 Prueba de Ubicación"  # 🆕 Nuevo módulo de prueba
     ])
 
     # 📦 Registro
@@ -202,6 +203,13 @@ if st.session_state.logueado_handheld:
     elif modulo == "🌡️ Registro de Temperatura":
         from modulo_temperatura import mostrar_formulario_temperatura
         mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)
+    # 🧪 Prueba de Ubicación
+    elif modulo == "🧪 Prueba de Ubicación":
+    try:
+        from prueba_ubicacion import main as prueba_ubicacion_main
+        prueba_ubicacion_main()
+    except Exception as e:
+        st.error(f"Error al cargar el módulo de prueba: {e}")
 
     # 🚪 Cierre de sesión
     st.markdown("---")
@@ -218,6 +226,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
