@@ -13,12 +13,12 @@ from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
 from modulo_alisto import mostrar_formulario_alisto
 from panel_productividad_alisto import mostrar_panel_alisto
-from registro_errores import mostrar_formulario_errores  # 🆕 NUEVO MÓDULO
+from registro_errores import mostrar_formulario_errores
+from modulo_temperatura import mostrar_formulario_temperatura
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
-    #page_icon="https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/NN25.ico",
     layout="centered"
 )
 
@@ -71,15 +71,27 @@ if st.session_state.logueado_handheld:
         </div>
     """, unsafe_allow_html=True)
 
-    # 🧩 Navegación por módulos
-    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", [
+    # 🧩 Menú dinámico según rol
+    modulos_admin = [
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
         "🕒 Productividad",
         "📝 Gestión de Jornada",
-        "🚨 Registro de Errores"
-        "🌡️ Registro de Temperatura"  # 🆕 Nuevo módulo
-    ])
+        "🚨 Registro de Errores",
+        "🌡️ Registro de Temperatura",
+        "🧪 Prueba de Ubicación"
+    ]
+
+    modulos_usuario = [
+        "📦 Registro de Handhelds",
+        "🕒 Productividad",
+        "📝 Gestión de Jornada",
+        "🌡️ Registro de Temperatura",
+        "🧪 Prueba de Ubicación"
+    ]
+
+    opciones_menu = modulos_admin if st.session_state.rol_handheld == "admin" else modulos_usuario
+    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
 
     # 📦 Registro
     if modulo == "📦 Registro de Handhelds":
@@ -109,71 +121,73 @@ if st.session_state.logueado_handheld:
 
     # 📋 Panel Administrativo
     elif modulo == "📋 Panel Administrativo":
-        st.title("📋 Panel Administrativo")
-        hoja = conectar_sit_hh().worksheet("HH")
-        datos = hoja.get_all_values()
-
-        if datos and len(datos[0]) > 0:
-            df = pd.DataFrame(datos[1:], columns=datos[0])
-            df.columns = df.columns.str.strip().str.lower()
-            df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
-
-            usuarios = sorted(df["nombre"].dropna().unique())
-            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
-
-            df_filtrado = df[
-                (df["fecha"].dt.date >= fecha_ini) &
-                (df["fecha"].dt.date <= fecha_fin)
-            ]
-            if usuario_sel != "Todos":
-                df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
-
-            st.subheader("📑 Registros")
-            st.dataframe(df_filtrado)
-
-            
-            hoy = datetime.now(cr_timezone).date()
-            if "estatus" in df.columns:
-                entregados_hoy = df[
-                    (df["fecha"].dt.date == hoy) &
-                    (df["estatus"].str.lower() == "entregado")
-                ]
-                devueltos_hoy = df[
-                    (df["fecha"].dt.date == hoy) &
-                    (df["estatus"].str.lower() == "devuelto")
-                ]
-
-                st.subheader("✅ Registros Entregados Hoy")
-                st.dataframe(entregados_hoy)
-
-                st.subheader("📤 Registros Devueltos Hoy")
-                st.dataframe(devueltos_hoy)
-
-                st.markdown("### 📊 Resumen de Movimientos Hoy")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Entregados", len(entregados_hoy))
-                with col2:
-                    st.metric("Devueltos", len(devueltos_hoy))
-            else:
-                st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
-
-            csv = df_filtrado.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
-
-            st.subheader("📊 Actividad por Usuario")
-            resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
-            st.dataframe(resumen)
-            st.bar_chart(resumen.set_index("nombre"))
-
-            st.subheader("🔧 Actividad por Equipo")
-            resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
-            st.dataframe(resumen_eq)
-            st.bar_chart(resumen_eq.set_index("equipo"))
+        if st.session_state.rol_handheld != "admin":
+            st.error("⛔ No tienes permisos para acceder a este módulo.")
         else:
-            st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
+            st.title("📋 Panel Administrativo")
+            hoja = conectar_sit_hh().worksheet("HH")
+            datos = hoja.get_all_values()
+
+            if datos and len(datos[0]) > 0:
+                df = pd.DataFrame(datos[1:], columns=datos[0])
+                df.columns = df.columns.str.strip().str.lower()
+                df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+
+                usuarios = sorted(df["nombre"].dropna().unique())
+                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+                usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
+
+                df_filtrado = df[
+                    (df["fecha"].dt.date >= fecha_ini) &
+                    (df["fecha"].dt.date <= fecha_fin)
+                ]
+                if usuario_sel != "Todos":
+                    df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
+
+                st.subheader("📑 Registros")
+                st.dataframe(df_filtrado)
+
+                hoy = datetime.now(cr_timezone).date()
+                if "estatus" in df.columns:
+                    entregados_hoy = df[
+                        (df["fecha"].dt.date == hoy) &
+                        (df["estatus"].str.lower() == "entregado")
+                    ]
+                    devueltos_hoy = df[
+                        (df["fecha"].dt.date == hoy) &
+                        (df["estatus"].str.lower() == "devuelto")
+                    ]
+
+                    st.subheader("✅ Registros Entregados Hoy")
+                    st.dataframe(entregados_hoy)
+
+                    st.subheader("📤 Registros Devueltos Hoy")
+                    st.dataframe(devueltos_hoy)
+
+                    st.markdown("### 📊 Resumen de Movimientos Hoy")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("Entregados", len(entregados_hoy))
+                    with col2:
+                        st.metric("Devueltos", len(devueltos_hoy))
+                else:
+                    st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
+
+                csv = df_filtrado.to_csv(index=False).encode("utf-8")
+                st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
+
+                st.subheader("📊 Actividad por Usuario")
+                resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+                st.dataframe(resumen)
+                st.bar_chart(resumen.set_index("nombre"))
+
+                st.subheader("🔧 Actividad por Equipo")
+                resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
+                st.dataframe(resumen_eq)
+                st.bar_chart(resumen_eq.set_index("equipo"))
+            else:
+                st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
     # 🕒 Productividad
     elif modulo == "🕒 Productividad":
@@ -196,9 +210,8 @@ if st.session_state.logueado_handheld:
 
     # 🚨 Registro de Errores
     elif modulo == "🚨 Registro de Errores":
-        mostrar_formulario_errores()
-
-    # 🚪 Cierre de sesión
+        mostrar_formulario_errores
+        # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
     if st.button("Salir", key="boton_salir"):
