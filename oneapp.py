@@ -210,7 +210,4 @@ if st.session_state.logueado_handheld:
         except Exception as e:
             st.error(f"Error al cargar el módulo de prueba: {e}")
 
-    # 🚪 Cierre de sesión
-    st.markdown("---")
-    st.markdown("### 🚪 Cerrar sesión")
-    if st.button
+   
