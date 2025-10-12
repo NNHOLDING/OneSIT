@@ -215,7 +215,7 @@ if st.session_state.logueado_handheld:
     elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores
 
-    # 🎓 Control de Certificación
+        # 🎓 Control de Certificación
     elif modulo == "🎓 Control de Certificación":
         st.title("🎓 Control de certificación de rutas Sigma Alimentos")
 
@@ -233,8 +233,9 @@ if st.session_state.logueado_handheld:
         certificador = st.selectbox("Certificador", usuarios)
         persona_conteo = st.selectbox("Persona conteo", usuarios)
 
-        hora_inicio = st.time_input("Hora inicio", value=None)
-        hora_fin = st.time_input("Hora fin", value=None)
+        hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
+        hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc)
+        hora_fin = st.time_input("Hora fin", value=hora_actual_crc)
 
         if st.button("📥 Guardar Certificación"):
             campos = {
@@ -259,10 +260,7 @@ if st.session_state.logueado_handheld:
                         hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
                         site = "Site Alajuela"
 
-                        hoja = conectar_sit_hh().parent.open_by_url(
-                            "https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit"
-                        ).worksheet("TCertificaciones")
-
+                        hoja = conectar_sit_hh().worksheet("TCertificaciones")
                         hoja.append_row([
                             fecha_actual, ruta, certificador, persona_conteo,
                             hora_inicio.strftime(formato), hora_fin.strftime(formato),
@@ -287,3 +285,5 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
+   
