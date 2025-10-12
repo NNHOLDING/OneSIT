@@ -39,10 +39,10 @@ tab1, tab2 = st.tabs(["📥 Certificación", "📝 Gestión de Jornada"])
 with tab1:
     st.subheader("Registro de certificación de ruta")
 
-    fecha_actual = datetime.now(cr_timezone).strftime("%Y-%m-%d")
-    st.text_input("Fecha", value=fecha_actual, disabled=True)
+    fecha_cert = datetime.now(cr_timezone).strftime("%Y-%m-%d")
+    st.text_input("Fecha", value=fecha_cert, disabled=True, key="fecha_cert")
 
-    ruta = st.selectbox("Ruta", ["100", "200", "300", "400", "500", "600", "700", "800", "otro"])
+    ruta = st.selectbox("Ruta", ["100", "200", "300", "400", "500", "600", "700", "800", "otro"], key="ruta_cert")
 
     def obtener_usuarios():
         hoja = conectar_funcion().worksheet("usuarios")
@@ -50,12 +50,12 @@ with tab1:
         return sorted([fila[1] for fila in datos[1:] if fila[1]])
 
     usuarios = obtener_usuarios()
-    certificador = st.selectbox("Certificador", usuarios)
-    persona_conteo = st.selectbox("Persona conteo", usuarios)
+    certificador = st.selectbox("Certificador", usuarios, key="certificador_cert")
+    persona_conteo = st.selectbox("Persona conteo", usuarios, key="conteo_cert")
 
     hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
-    hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc)
-    hora_fin = st.time_input("Hora fin", value=hora_actual_crc)
+    hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc, key="inicio_cert")
+    hora_fin = st.time_input("Hora fin", value=hora_actual_crc, key="fin_cert")
 
     if st.button("📥 Enviar Certificación"):
         campos = {
@@ -82,7 +82,7 @@ with tab1:
 
                     hoja = conectar_funcion().worksheet("TCertificaciones")
                     hoja.append_row([
-                        fecha_actual, ruta, certificador, persona_conteo,
+                        fecha_cert, ruta, certificador, persona_conteo,
                         hora_inicio.strftime(formato), hora_fin.strftime(formato),
                         duracion, hora_registro, site
                     ])
@@ -130,24 +130,23 @@ with tab2:
                 return True
         return False
 
-    usuario_actual = st.text_input("Usuario")
+    usuario_actual = st.text_input("Usuario", key="usuario_jornada")
     if usuario_actual:
-        now_cr = datetime.now(cr_timezone)
-        fecha_actual = now_cr.strftime("%Y-%m-%d")
-        hora_actual = now_cr.strftime("%H:%M:%S")
+        fecha_jornada = datetime.now(cr_timezone).strftime("%Y-%m-%d")
+        hora_actual = datetime.now(cr_timezone).strftime("%H:%M:%S")
 
-        st.text_input("Fecha", value=fecha_actual, disabled=True)
+        st.text_input("Fecha", value=fecha_jornada, disabled=True, key="fecha_jornada")
 
         bodegas = [
             "Bodega Barrio Cuba", "CEDI Coyol", "Sigma Coyol", "Bodega Cañas",
             "Bodega Coto", "Bodega San Carlos", "Bodega Pérez Zeledón"
         ]
-        bodega = st.selectbox("Selecciona la bodega", bodegas)
+        bodega = st.selectbox("Selecciona la bodega", bodegas, key="bodega_jornada")
 
         datos = cargar_datos(conectar_funcion)
         registro_existente = datos[
             (datos["usuario"] == usuario_actual) &
-            (datos["fecha"] == fecha_actual) &
+            (datos["fecha"] == fecha_jornada) &
             (datos["Bodega"] == bodega)
         ]
 
@@ -184,6 +183,4 @@ with tab2:
                     st.warning("Ya registraste el inicio de jornada para hoy.")
                 elif lat_usuario is None or lon_usuario is None:
                     st.error("❌ No se pudo validar tu ubicación.")
-                elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
-                    st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
-               
+                elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO,
