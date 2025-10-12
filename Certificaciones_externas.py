@@ -9,6 +9,24 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 import streamlit.components.v1 as components
 
+components.html("""
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<input type="text" id="timepicker" placeholder="Selecciona una hora" style="padding:8px; font-size:16px; width:200px;">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+flatpickr("#timepicker", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    defaultHour: new Date().getHours(),
+    defaultMinute: new Date().getMinutes()
+});
+</script>
+""", height=100)
+# Configuración visual
+st.set_page_config(page_title="HH HOLDING", page_icon="🏢", layout="centered")
+
 # Logo y encabezado
 url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
 st.markdown(
@@ -52,84 +70,32 @@ with tab1:
     certificador = st.selectbox("Certificador", usuarios, key="certificador_cert")
     persona_conteo = st.selectbox("Persona conteo", usuarios, key="conteo_cert")
 
-    hora_actual_str = datetime.now(cr_timezone).strftime("%H:%M")
-
-    # 🕒 Hora inicio visual
-    st.markdown("### 🕒 Hora inicio")
-    components.html(f"""
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <input type="text" id="hora_inicio_cert" style="padding:8px; font-size:16px; width:200px;" />
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
-    window.horaInicioCert = null;
-    flatpickr("#hora_inicio_cert", {{
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        defaultDate: "{hora_actual_str}",
-        onChange: function(selectedDates, dateStr, instance) {{
-            window.horaInicioCert = dateStr;
-        }}
-    }});
-    </script>
-    """, height=120)
-
-    hora_inicio = streamlit_js_eval(
-        js_expressions="window.horaInicioCert || null",
-        key="hora_inicio_cert"
-    )
-
-    # 🕒 Hora fin visual
-    st.markdown("### 🕒 Hora fin")
-    components.html(f"""
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <input type="text" id="hora_fin_cert" style="padding:8px; font-size:16px; width:200px;" />
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
-    window.horaFinCert = null;
-    flatpickr("#hora_fin_cert", {{
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        defaultDate: "{hora_actual_str}",
-        onChange: function(selectedDates, dateStr, instance) {{
-            window.horaFinCert = dateStr;
-        }}
-    }});
-    </script>
-    """, height=120)
-
-    hora_fin = streamlit_js_eval(
-        js_expressions="window.horaFinCert || null",
-        key="hora_fin_cert"
-    )
+    hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
+    hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc, key="inicio_cert")
+    hora_fin = st.time_input("Hora fin", value=hora_actual_crc, key="fin_cert")
 
     if st.button("📥 Enviar Certificación"):
-        if not isinstance(hora_inicio, str) or not isinstance(hora_fin, str):
-            st.error("⚠️ No se pudo capturar la hora seleccionada. Por favor selecciona ambas horas usando el reloj.")
-        else:
-            try:
-                formato = "%H:%M"
-                inicio_dt = datetime.strptime(hora_inicio, formato)
-                fin_dt = datetime.strptime(hora_fin, formato)
-                duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
-                if duracion < 0:
-                    st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
-                else:
-                    hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
-                    site = "Dispositivo externo"
-                    hoja = conectar_funcion().worksheet("TCertificaciones")
-                    hoja.append_row([
-                        fecha_cert, ruta, certificador, persona_conteo,
-                        hora_inicio, hora_fin,
-                        duracion, hora_registro, site
-                    ])
-                    st.success("✅ Certificación enviada correctamente.")
-            except Exception as e:
-                st.error(f"❌ Error al enviar certificación: {e}")
+        try:
+            formato = "%H:%M"
+            inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
+            fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
+            duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
+            if duracion < 0:
+                st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
+            else:
+                hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
+                site = "Dispositivo externo"
+                hoja = conectar_funcion().worksheet("TCertificaciones")
+                hoja.append_row([
+                    fecha_cert, ruta, certificador, persona_conteo,
+                    hora_inicio.strftime(formato), hora_fin.strftime(formato),
+                    duracion, hora_registro, site
+                ])
+                st.success("✅ Certificación enviada correctamente.")
+        except Exception as e:
+            st.error(f"❌ Error al enviar certificación: {e}")
 
+# 📝 Gestión de Jornada
 with tab2:
     st.subheader("📝 Gestión de jornada")
 
@@ -176,47 +142,9 @@ with tab2:
     ]
     bodega = st.selectbox("🏢 Selecciona la bodega", bodegas, key="bodega_jornada")
 
-    # 🕒 Hora de inicio con reloj visual
-    st.markdown("### 🕒 Hora de inicio")
-    components.html(f"""
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <input type="text" id="hora_inicio" value="{datetime.now(cr_timezone).strftime('%H:%M')}" style="padding:8px; font-size:16px; width:200px;">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
-    flatpickr("#hora_inicio", {{
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true
-    }});
-    </script>
-    """, height=100)
-
-    hora_inicio = streamlit_js_eval(
-        js_expressions="document.getElementById('hora_inicio')?.value",
-        key="hora_inicio_reloj"
-    )
-
-    # 🕒 Hora de cierre con reloj visual
-    st.markdown("### 🕒 Hora de cierre")
-    components.html(f"""
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <input type="text" id="hora_cierre" value="{datetime.now(cr_timezone).strftime('%H:%M')}" style="padding:8px; font-size:16px; width:200px;">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
-    flatpickr("#hora_cierre", {{
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true
-    }});
-    </script>
-    """, height=100)
-
-    hora_cierre = streamlit_js_eval(
-        js_expressions="document.getElementById('hora_cierre')?.value",
-        key="hora_cierre_reloj"
-    )
+    st.markdown("### 🕒 Selecciona la hora")
+    hora_inicio_manual = st.time_input("Hora de inicio", value=datetime.now(cr_timezone).time(), key="hora_inicio_manual")
+    hora_cierre_manual = st.time_input("Hora de cierre", value=datetime.now(cr_timezone).time(), key="hora_cierre_manual")
 
     datos = cargar_datos(conectar_funcion)
     registro_existente = datos[
@@ -263,7 +191,7 @@ with tab2:
             elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
                 st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
             else:
-                hora_inicio_str = hora_inicio + ":00" if hora_inicio else datetime.now(cr_timezone).strftime("%H:%M:%S")
+                hora_inicio_str = hora_inicio_manual.strftime("%H:%M:%S")
                 agregar_fila_inicio(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_inicio_str)
                 st.success(f"✅ Inicio registrado a las {hora_inicio_str}")
 
@@ -276,15 +204,8 @@ with tab2:
             elif registro_existente.iloc[0].get("fecha cierre", "") != "":
                 st.warning("Ya has cerrado la jornada de hoy.")
             else:
-                hora_cierre_str = hora_cierre + ":00" if hora_cierre else datetime.now(cr_timezone).strftime("%H:%M:%S")
+                hora_cierre_str = hora_cierre_manual.strftime("%H:%M:%S")
                 if actualizar_fecha_cierre(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_cierre_str):
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
-
-
-
-
-
-
-
