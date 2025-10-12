@@ -221,8 +221,8 @@ if st.session_state.logueado_handheld:
         for key in defaults.keys():
             st.session_state[key] = False if key == "logueado_handheld" else ""
         st.rerun()
-      # 🎓 Control de Certificación
-    elif modulo == "🎓 Control de Certificación":
+   # 🎓 Control de Certificación
+elif modulo == "🎓 Control de Certificación":
     st.title("🎓 Control de certificación de rutas Sigma Alimentos")
 
     fecha_actual = datetime.now(cr_timezone).strftime("%Y-%m-%d")
@@ -286,5 +286,6 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
