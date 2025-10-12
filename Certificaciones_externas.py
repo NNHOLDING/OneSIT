@@ -40,7 +40,7 @@ def obtener_usuarios():
     return sorted([fila[1] for fila in datos[1:] if fila[1]])
 
 # Formulario de certificación
-st.title("📝 Enviar certificación de ruta")
+st.title("📝 Certificacion de ruta Sigma")
 
 fecha_actual = datetime.now(cr_timezone).strftime("%Y-%m-%d")
 st.text_input("Fecha", value=fecha_actual, disabled=True)
@@ -87,3 +87,4 @@ if st.button("📥 Enviar Certificación"):
         except Exception as e:
 
             st.error(f"❌ Error al enviar certificación: {e}")
+
