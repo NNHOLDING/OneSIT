@@ -97,6 +97,37 @@ with tab1:
 
 # 📝 Gestión de Jornada
 with tab2:
+st.markdown("### 🕒 Hora de inicio")
+components.html(f"""
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<input type="text" id="hora_inicio" placeholder="Selecciona hora de inicio" style="padding:8px; font-size:16px; width:200px;">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+flatpickr("#hora_inicio", {{
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    defaultDate: "{datetime.now(cr_timezone).strftime('%H:%M')}"
+}});
+</script>
+""", height=100)
+
+st.markdown("### 🕒 Hora de cierre")
+components.html(f"""
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<input type="text" id="hora_cierre" placeholder="Selecciona hora de cierre" style="padding:8px; font-size:16px; width:200px;">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+flatpickr("#hora_cierre", {{
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    defaultDate: "{datetime.now(cr_timezone).strftime('%H:%M')}"
+}});
+</script>
+""", height=100)
     st.subheader("📝 Gestión de jornada")
 
     LAT_CENTRO = 9.994116953453139
@@ -269,3 +300,4 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
