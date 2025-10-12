@@ -81,6 +81,7 @@ if st.session_state.logueado_handheld:
         "🌡️ Registro de Temperatura",
         "🧪 Prueba de Ubicación",
         "🎓 Control de Certificación",  # 👈 Nuevo módulo
+        "📊 Panel de Certificaciones",  # ✅ Asegúrate de que esté aquí
 
     ]
 
@@ -339,4 +340,5 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
    
+
 
