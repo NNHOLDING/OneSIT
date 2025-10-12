@@ -58,20 +58,25 @@ with tab1:
     st.markdown("### 🕒 Hora inicio")
     components.html(f"""
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <input type="text" id="hora_inicio_cert" value="{hora_actual_str}" style="padding:8px; font-size:16px; width:200px;">
+    <input type="text" id="hora_inicio_cert" style="padding:8px; font-size:16px; width:200px;" />
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+    window.horaInicioCert = null;
     flatpickr("#hora_inicio_cert", {{
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
-        time_24hr: true
+        time_24hr: true,
+        defaultDate: "{hora_actual_str}",
+        onChange: function(selectedDates, dateStr, instance) {{
+            window.horaInicioCert = dateStr;
+        }}
     }});
     </script>
-    """, height=100)
+    """, height=120)
 
     hora_inicio = streamlit_js_eval(
-        js_expressions="document.getElementById('hora_inicio_cert')?.value || null",
+        js_expressions="window.horaInicioCert || null",
         key="hora_inicio_cert"
     )
 
@@ -79,26 +84,31 @@ with tab1:
     st.markdown("### 🕒 Hora fin")
     components.html(f"""
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <input type="text" id="hora_fin_cert" value="{hora_actual_str}" style="padding:8px; font-size:16px; width:200px;">
+    <input type="text" id="hora_fin_cert" style="padding:8px; font-size:16px; width:200px;" />
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+    window.horaFinCert = null;
     flatpickr("#hora_fin_cert", {{
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
-        time_24hr: true
+        time_24hr: true,
+        defaultDate: "{hora_actual_str}",
+        onChange: function(selectedDates, dateStr, instance) {{
+            window.horaFinCert = dateStr;
+        }}
     }});
     </script>
-    """, height=100)
+    """, height=120)
 
     hora_fin = streamlit_js_eval(
-        js_expressions="document.getElementById('hora_fin_cert')?.value || null",
+        js_expressions="window.horaFinCert || null",
         key="hora_fin_cert"
     )
 
     if st.button("📥 Enviar Certificación"):
         if not isinstance(hora_inicio, str) or not isinstance(hora_fin, str):
-            st.error("⚠️ No se pudo capturar la hora seleccionada. Intenta seleccionar nuevamente.")
+            st.error("⚠️ No se pudo capturar la hora seleccionada. Por favor selecciona ambas horas usando el reloj.")
         else:
             try:
                 formato = "%H:%M"
@@ -271,6 +281,7 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
 
 
