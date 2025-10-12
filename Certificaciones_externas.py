@@ -79,6 +79,36 @@ with tab1:
             st.error(f"❌ Error al enviar certificación: {e}")
 
 with tab2:
+import streamlit.components.v1 as components
+
+components.html("""
+<div style="text-align:center; font-family:sans-serif;">
+  <h4>🕒 Selecciona la hora</h4>
+  <input type="range" id="hour" min="0" max="23" value="12" style="width:200px;">
+  <label for="hour">Hora: <span id="hourVal">12</span></label><br><br>
+  <input type="range" id="minute" min="0" max="59" value="30" style="width:200px;">
+  <label for="minute">Minuto: <span id="minuteVal">30</span></label><br><br>
+  <button onclick="setTime()">Establecer hora</button>
+  <p id="selectedTime" style="margin-top:10px; font-weight:bold;"></p>
+</div>
+
+<script>
+  const hourSlider = document.getElementById("hour");
+  const minuteSlider = document.getElementById("minute");
+  const hourVal = document.getElementById("hourVal");
+  const minuteVal = document.getElementById("minuteVal");
+  const selectedTime = document.getElementById("selectedTime");
+
+  hourSlider.oninput = () => hourVal.textContent = hourSlider.value;
+  minuteSlider.oninput = () => minuteVal.textContent = minuteSlider.value;
+
+  function setTime() {
+    const h = hourSlider.value.padStart(2, '0');
+    const m = minuteSlider.value.padStart(2, '0');
+    selectedTime.textContent = `Hora seleccionada: ${h}:${m}`;
+  }
+</script>
+""", height=300)
     st.subheader("Gestión de jornada")
 
     LAT_CENTRO = 9.994116953453139
@@ -192,5 +222,6 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
 
