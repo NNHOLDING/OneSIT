@@ -179,4 +179,5 @@ with tab2:
                 if registro_existente.empty:
                     st.warning("Debes iniciar jornada antes de cerrarla.")
                 elif registro_existente.iloc[0].get("fecha cierre", "") != "":
-                    st.warning("Ya has
+                    st.warning("Ya has cerrado la jornada de hoy.")
+
