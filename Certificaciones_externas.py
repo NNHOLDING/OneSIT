@@ -3,11 +3,10 @@ from datetime import datetime
 from pytz import timezone
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-
 # Configuración de la página
 st.set_page_config(
     page_title="HH HOLDING",
-    page_icon="ttps://drive.google.com/uc?export=view&id=1P6OSXZMR4DI_cEgwjk1ZVJ6B8aLS1_qq" width="250",  # favicon personalizado
+    page_icon="https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh",  # favicon personalizado
     layout="centered"
 )
 
@@ -22,6 +21,8 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+
 
 # Zona horaria Costa Rica
 cr_timezone = timezone("America/Costa_Rica")
@@ -87,5 +88,6 @@ if st.button("📥 Enviar Certificación"):
         except Exception as e:
 
             st.error(f"❌ Error al enviar certificación: {e}")
+
 
 
