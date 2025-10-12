@@ -125,7 +125,7 @@ with tab2:
     ]
     bodega = st.selectbox("🏢 Selecciona la bodega", bodegas, key="bodega_jornada")
 
-    st.markdown("### 🕒 Establecer hora manualmente")
+    st.markdown("### 🕒 Selecciona la hora")
     hora_inicio_manual = st.time_input("Hora de inicio", value=datetime.now(cr_timezone).time(), key="hora_inicio_manual")
     hora_cierre_manual = st.time_input("Hora de cierre", value=datetime.now(cr_timezone).time(), key="hora_cierre_manual")
 
