@@ -142,9 +142,69 @@ with tab2:
     ]
     bodega = st.selectbox("🏢 Selecciona la bodega", bodegas, key="bodega_jornada")
 
-    st.markdown("### 🕒 Selecciona la hora")
-    hora_inicio_manual = st.time_input("Hora de inicio", value=datetime.now(cr_timezone).time(), key="hora_inicio_manual")
-    hora_cierre_manual = st.time_input("Hora de cierre", value=datetime.now(cr_timezone).time(), key="hora_cierre_manual")
+    hora_actual_str = datetime.now(cr_timezone).strftime("%H:%M")
+
+    st.markdown("### 🕒 Hora de inicio")
+    hora_inicio = streamlit_js_eval(
+        js_expressions=f"""
+        new Promise((resolve, reject) => {{
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = "hora_inicio";
+            input.placeholder = "Selecciona hora de inicio";
+            input.style = "padding:8px; font-size:16px; width:200px; margin-bottom:10px;";
+            document.body.appendChild(input);
+
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/flatpickr";
+            script.onload = () => {{
+                flatpickr("#hora_inicio", {{
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    defaultDate: "{hora_actual_str}",
+                    onChange: function(selectedDates, dateStr, instance) {{
+                        resolve(dateStr);
+                    }}
+                }});
+            }};
+            document.body.appendChild(script);
+        }})
+        """,
+        key="hora_inicio_reloj"
+    )
+
+    st.markdown("### 🕒 Hora de cierre")
+    hora_cierre = streamlit_js_eval(
+        js_expressions=f"""
+        new Promise((resolve, reject) => {{
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = "hora_cierre";
+            input.placeholder = "Selecciona hora de cierre";
+            input.style = "padding:8px; font-size:16px; width:200px; margin-bottom:10px;";
+            document.body.appendChild(input);
+
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/flatpickr";
+            script.onload = () => {{
+                flatpickr("#hora_cierre", {{
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    defaultDate: "{hora_actual_str}",
+                    onChange: function(selectedDates, dateStr, instance) {{
+                        resolve(dateStr);
+                    }}
+                }});
+            }};
+            document.body.appendChild(script);
+        }})
+        """,
+        key="hora_cierre_reloj"
+    )
 
     datos = cargar_datos(conectar_funcion)
     registro_existente = datos[
@@ -191,7 +251,7 @@ with tab2:
             elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
                 st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
             else:
-                hora_inicio_str = hora_inicio_manual.strftime("%H:%M:%S")
+                hora_inicio_str = hora_inicio + ":00" if hora_inicio else datetime.now(cr_timezone).strftime("%H:%M:%S")
                 agregar_fila_inicio(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_inicio_str)
                 st.success(f"✅ Inicio registrado a las {hora_inicio_str}")
 
@@ -204,7 +264,7 @@ with tab2:
             elif registro_existente.iloc[0].get("fecha cierre", "") != "":
                 st.warning("Ya has cerrado la jornada de hoy.")
             else:
-                hora_cierre_str = hora_cierre_manual.strftime("%H:%M:%S")
+                hora_cierre_str = hora_cierre + ":00" if hora_cierre else datetime.now(cr_timezone).strftime("%H:%M:%S")
                 if actualizar_fecha_cierre(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_cierre_str):
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
