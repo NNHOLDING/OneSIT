@@ -191,7 +191,59 @@ if st.session_state.logueado_handheld:
                 st.bar_chart(resumen_eq.set_index("equipo"))
             else:
                 st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
+        # 📊 Panel de Certificaciones
+    elif modulo == "📊 Panel de Certificaciones":
+        st.title("📊 Panel de Certificaciones")
 
+        hoja = conectar_sit_hh().worksheet("TCertificaciones")
+        datos = hoja.get_all_values()
+
+        if datos and len(datos) > 1:
+            df = pd.DataFrame(datos[1:], columns=datos[0])
+            df.columns = df.columns.str.strip().str.lower()
+
+            df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+            df["duracion"] = pd.to_numeric(df["duracion"], errors="coerce")
+
+            rutas = sorted(df["ruta"].dropna().unique())
+            certificadores = sorted(df["certificador"].dropna().unique())
+
+            col1, col2 = st.columns(2)
+            with col1:
+                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+            with col2:
+                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+
+            ruta_sel = st.selectbox("Filtrar por Ruta", ["Todas"] + rutas)
+            cert_sel = st.selectbox("Filtrar por Certificador", ["Todos"] + certificadores)
+
+            df_filtrado = df[
+                (df["fecha"].dt.date >= fecha_ini) &
+                (df["fecha"].dt.date <= fecha_fin)
+            ]
+            if ruta_sel != "Todas":
+                df_filtrado = df_filtrado[df_filtrado["ruta"] == ruta_sel]
+            if cert_sel != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["certificador"] == cert_sel]
+
+            st.subheader("📄 Registros Filtrados")
+            st.dataframe(df_filtrado)
+
+            csv = df_filtrado.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+
+            st.subheader("📈 Duración promedio por certificador")
+            resumen_cert = df_filtrado.groupby("certificador")["duracion"].mean().reset_index()
+            resumen_cert["duracion"] = resumen_cert["duracion"].round(2)
+            st.dataframe(resumen_cert)
+            st.bar_chart(resumen_cert.set_index("certificador"))
+
+            st.subheader("📊 Total de certificaciones por ruta")
+            resumen_ruta = df_filtrado.groupby("ruta").size().reset_index(name="Certificaciones")
+            st.dataframe(resumen_ruta)
+            st.bar_chart(resumen_ruta.set_index("ruta"))
+        else:
+            st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
     # 🕒 Productividad
     elif modulo == "🕒 Productividad":
         if st.session_state.rol_handheld == "admin":
@@ -287,3 +339,4 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
    
+
