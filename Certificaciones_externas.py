@@ -6,21 +6,10 @@ from math import radians, cos, sin, asin, sqrt
 from streamlit_js_eval import streamlit_js_eval
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import streamlit.components.v1 as components  # ✅ Import necesario para el reloj visual
 
 # Configuración visual
 st.set_page_config(page_title="HH HOLDING", page_icon="🏢", layout="centered")
-
-# Logo y encabezado
-url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
-st.markdown(
-    f"""
-    <div style='text-align: center; margin-bottom: 20px;'>
-        <img src="{url_logo}" width="200" />
-        <h2 style='margin-top: 10px;'>HH HOLDING</h2>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 
 # Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
@@ -113,6 +102,9 @@ with tab2:
     """, height=300)
 
     # Aquí continúa tu lógica de jornada...
+    # Puedes mantener tus campos de usuario, fecha, bodega, ubicación, etc.
+    # Y seguir usando st.time_input para capturar la hora en Python si lo necesitas
+
 
 
 
