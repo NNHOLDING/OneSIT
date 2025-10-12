@@ -71,7 +71,23 @@ with tab1:
     """, height=100)
 
     hora_inicio = streamlit_js_eval(
-        js_expressions="document.getElementById('hora_inicio_cert')?.value",
+        js_expressions="""
+        new Promise((resolve) => {
+            const el = document.getElementById('hora_inicio_cert');
+            if (el) {
+                const checkValue = () => {
+                    if (el.value) {
+                        resolve(el.value);
+                    } else {
+                        setTimeout(checkValue, 300);
+                    }
+                };
+                checkValue();
+            } else {
+                resolve(null);
+            }
+        })
+        """,
         key="hora_inicio_cert"
     )
 
@@ -92,30 +108,49 @@ with tab1:
     """, height=100)
 
     hora_fin = streamlit_js_eval(
-        js_expressions="document.getElementById('hora_fin_cert')?.value",
+        js_expressions="""
+        new Promise((resolve) => {
+            const el = document.getElementById('hora_fin_cert');
+            if (el) {
+                const checkValue = () => {
+                    if (el.value) {
+                        resolve(el.value);
+                    } else {
+                        setTimeout(checkValue, 300);
+                    }
+                };
+                checkValue();
+            } else {
+                resolve(null);
+            }
+        })
+        """,
         key="hora_fin_cert"
     )
 
     if st.button("📥 Enviar Certificación"):
-        try:
-            formato = "%H:%M"
-            inicio_dt = datetime.strptime(hora_inicio, formato)
-            fin_dt = datetime.strptime(hora_fin, formato)
-            duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
-            if duracion < 0:
-                st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
-            else:
-                hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
-                site = "Dispositivo externo"
-                hoja = conectar_funcion().worksheet("TCertificaciones")
-                hoja.append_row([
-                    fecha_cert, ruta, certificador, persona_conteo,
-                    hora_inicio, hora_fin,
-                    duracion, hora_registro, site
-                ])
-                st.success("✅ Certificación enviada correctamente.")
-        except Exception as e:
-            st.error(f"❌ Error al enviar certificación: {e}")
+        if not hora_inicio or not hora_fin:
+            st.error("⚠️ No se pudo capturar la hora seleccionada. Intenta seleccionar nuevamente.")
+        else:
+            try:
+                formato = "%H:%M"
+                inicio_dt = datetime.strptime(hora_inicio, formato)
+                fin_dt = datetime.strptime(hora_fin, formato)
+                duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
+                if duracion < 0:
+                    st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
+                else:
+                    hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
+                    site = "Dispositivo externo"
+                    hoja = conectar_funcion().worksheet("TCertificaciones")
+                    hoja.append_row([
+                        fecha_cert, ruta, certificador, persona_conteo,
+                        hora_inicio, hora_fin,
+                        duracion, hora_registro, site
+                    ])
+                    st.success("✅ Certificación enviada correctamente.")
+            except Exception as e:
+                st.error(f"❌ Error al enviar certificación: {e}")
 
 with tab2:
     st.subheader("📝 Gestión de jornada")
@@ -268,6 +303,7 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
 
 
