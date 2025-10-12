@@ -70,15 +70,55 @@ with tab1:
     certificador = st.selectbox("Certificador", usuarios, key="certificador_cert")
     persona_conteo = st.selectbox("Persona conteo", usuarios, key="conteo_cert")
 
-    hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
-    hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc, key="inicio_cert")
-    hora_fin = st.time_input("Hora fin", value=hora_actual_crc, key="fin_cert")
+    hora_actual_str = datetime.now(cr_timezone).strftime("%H:%M")
+
+    # 🕒 Hora inicio visual
+    st.markdown("### 🕒 Hora inicio")
+    components.html(f"""
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <input type="text" id="hora_inicio_cert" value="{hora_actual_str}" style="padding:8px; font-size:16px; width:200px;">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+    flatpickr("#hora_inicio_cert", {{
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true
+    }});
+    </script>
+    """, height=100)
+
+    hora_inicio = streamlit_js_eval(
+        js_expressions="document.getElementById('hora_inicio_cert')?.value",
+        key="hora_inicio_cert"
+    )
+
+    # 🕒 Hora fin visual
+    st.markdown("### 🕒 Hora fin")
+    components.html(f"""
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <input type="text" id="hora_fin_cert" value="{hora_actual_str}" style="padding:8px; font-size:16px; width:200px;">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+    flatpickr("#hora_fin_cert", {{
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true
+    }});
+    </script>
+    """, height=100)
+
+    hora_fin = streamlit_js_eval(
+        js_expressions="document.getElementById('hora_fin_cert')?.value",
+        key="hora_fin_cert"
+    )
 
     if st.button("📥 Enviar Certificación"):
         try:
             formato = "%H:%M"
-            inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
-            fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
+            inicio_dt = datetime.strptime(hora_inicio, formato)
+            fin_dt = datetime.strptime(hora_fin, formato)
             duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
             if duracion < 0:
                 st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
@@ -88,7 +128,7 @@ with tab1:
                 hoja = conectar_funcion().worksheet("TCertificaciones")
                 hoja.append_row([
                     fecha_cert, ruta, certificador, persona_conteo,
-                    hora_inicio.strftime(formato), hora_fin.strftime(formato),
+                    hora_inicio, hora_fin,
                     duracion, hora_registro, site
                 ])
                 st.success("✅ Certificación enviada correctamente.")
@@ -246,5 +286,6 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
 
