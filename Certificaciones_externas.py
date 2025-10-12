@@ -71,23 +71,7 @@ with tab1:
     """, height=100)
 
     hora_inicio = streamlit_js_eval(
-        js_expressions="""
-        new Promise((resolve) => {
-            const el = document.getElementById('hora_inicio_cert');
-            if (el) {
-                const checkValue = () => {
-                    if (el.value) {
-                        resolve(el.value);
-                    } else {
-                        setTimeout(checkValue, 300);
-                    }
-                };
-                checkValue();
-            } else {
-                resolve(null);
-            }
-        })
-        """,
+        js_expressions="document.getElementById('hora_inicio_cert')?.value || null",
         key="hora_inicio_cert"
     )
 
@@ -108,28 +92,12 @@ with tab1:
     """, height=100)
 
     hora_fin = streamlit_js_eval(
-        js_expressions="""
-        new Promise((resolve) => {
-            const el = document.getElementById('hora_fin_cert');
-            if (el) {
-                const checkValue = () => {
-                    if (el.value) {
-                        resolve(el.value);
-                    } else {
-                        setTimeout(checkValue, 300);
-                    }
-                };
-                checkValue();
-            } else {
-                resolve(null);
-            }
-        })
-        """,
+        js_expressions="document.getElementById('hora_fin_cert')?.value || null",
         key="hora_fin_cert"
     )
 
     if st.button("📥 Enviar Certificación"):
-        if not hora_inicio or not hora_fin:
+        if not isinstance(hora_inicio, str) or not isinstance(hora_fin, str):
             st.error("⚠️ No se pudo capturar la hora seleccionada. Intenta seleccionar nuevamente.")
         else:
             try:
@@ -303,6 +271,7 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
 
 
