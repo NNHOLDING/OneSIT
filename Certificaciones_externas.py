@@ -6,10 +6,21 @@ from math import radians, cos, sin, asin, sqrt
 from streamlit_js_eval import streamlit_js_eval
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import streamlit.components.v1 as components  # ✅ Import necesario para el reloj visual
 
 # Configuración visual
 st.set_page_config(page_title="HH HOLDING", page_icon="🏢", layout="centered")
+
+# Logo y encabezado
+url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
+st.markdown(
+    f"""
+    <div style='text-align: center; margin-bottom: 20px;'>
+        <img src="{url_logo}" width="200" />
+        <h2 style='margin-top: 10px;'>HH HOLDING</h2>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
@@ -71,40 +82,102 @@ with tab1:
 with tab2:
     st.subheader("Gestión de jornada")
 
-    # 🕒 Reloj visual interactivo
-    components.html("""
-    <div style="text-align:center; font-family:sans-serif;">
-      <h4>🕒 Selecciona la hora</h4>
-      <input type="range" id="hour" min="0" max="23" value="12" style="width:200px;">
-      <label for="hour">Hora: <span id="hourVal">12</span></label><br><br>
-      <input type="range" id="minute" min="0" max="59" value="30" style="width:200px;">
-      <label for="minute">Minuto: <span id="minuteVal">30</span></label><br><br>
-      <button onclick="setTime()">Establecer hora</button>
-      <p id="selectedTime" style="margin-top:10px; font-weight:bold;"></p>
-    </div>
+    LAT_CENTRO = 9.994116953453139
+    LON_CENTRO = -84.23354393628277
+    RADIO_METROS = 30
 
-    <script>
-      const hourSlider = document.getElementById("hour");
-      const minuteSlider = document.getElementById("minute");
-      const hourVal = document.getElementById("hourVal");
-      const minuteVal = document.getElementById("minuteVal");
-      const selectedTime = document.getElementById("selectedTime");
+    def calcular_distancia_m(lat1, lon1, lat2, lon2):
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a))
+        return 6371000 * c
 
-      hourSlider.oninput = () => hourVal.textContent = hourSlider.value;
-      minuteSlider.oninput = () => minuteVal.textContent = minuteSlider.value;
+    def esta_dentro_del_radio(lat1, lon1, lat2, lon2, radio_metros=30):
+        return calcular_distancia_m(lat1, lon1, lat2, lon2) <= radio_metros
 
-      function setTime() {
-        const h = hourSlider.value.padStart(2, '0');
-        const m = minuteSlider.value.padStart(2, '0');
-        selectedTime.textContent = `Hora seleccionada: ${h}:${m}`;
-      }
-    </script>
-    """, height=300)
+    def cargar_datos(conectar_funcion):
+        hoja = conectar_funcion().worksheet("Jornadas")
+        datos = hoja.get_all_values()
+        return pd.DataFrame(datos[1:], columns=datos[0])
 
-    # Aquí continúa tu lógica de jornada...
-    # Puedes mantener tus campos de usuario, fecha, bodega, ubicación, etc.
-    # Y seguir usando st.time_input para capturar la hora en Python si lo necesitas
+    def agregar_fila_inicio(conectar_funcion, fecha, usuario, bodega, hora):
+        hoja = conectar_funcion().worksheet("Jornadas")
+        hoja.append_row([fecha, usuario, bodega, hora, "", "", "", "", ""])
 
+    def actualizar_fecha_cierre(conectar_funcion, fecha, usuario, bodega, hora):
+        hoja = conectar_funcion().worksheet("Jornadas")
+        datos = hoja.get_all_values()
+        for i, fila in enumerate(datos[1:], start=2):
+            if fila[0] == fecha and fila[1] == usuario and fila[2] == bodega and fila[4] == "":
+                hoja.update_cell(i, 5, hora)
+                return True
+        return False
 
+    usuario_actual = st.text_input("Usuario", key="usuario_jornada")
+    fecha_jornada = datetime.now(cr_timezone).strftime("%Y-%m-%d")
+    hora_actual = datetime.now(cr_timezone).strftime("%H:%M:%S")
 
+    st.text_input("Fecha", value=fecha_jornada, disabled=True, key="fecha_jornada")
 
+    bodegas = [
+        "Bodega Barrio Cuba", "CEDI Coyol", "Sigma Coyol", "Bodega Cañas",
+        "Bodega Coto", "Bodega San Carlos", "Bodega Pérez Zeledón"
+    ]
+    bodega = st.selectbox("Selecciona la bodega", bodegas, key="bodega_jornada")
+
+    datos = cargar_datos(conectar_funcion)
+    registro_existente = datos[
+        (datos["usuario"] == usuario_actual) &
+        (datos["fecha"] == fecha_jornada) &
+        (datos["Bodega"] == bodega)
+    ]
+
+    st.subheader("📍 Verificación de ubicación automática")
+    ubicacion = streamlit_js_eval(
+        js_expressions="""
+        new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({latitude: pos.coords.latitude, longitude: pos.coords.longitude}),
+                (err) => reject(err)
+            );
+        })
+        """,
+        key="ubicacion_jornada"
+    )
+
+    if ubicacion and "latitude" in ubicacion and "longitude" in ubicacion:
+        lat_usuario = ubicacion["latitude"]
+        lon_usuario = ubicacion["longitude"]
+        distancia = calcular_distancia_m(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO)
+        st.success(f"Ubicación detectada: {lat_usuario:.6f}, {lon_usuario:.6f}")
+        st.info(f"📏 Distancia al punto autorizado: {distancia:.2f} metros")
+    else:
+        st.error("❌ No se pudo validar tu ubicación.")
+        lat_usuario = None
+        lon_usuario = None
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📌 Iniciar jornada"):
+            if not usuario_actual.strip():
+                st.warning("Debes ingresar tu usuario.")
+            elif not bodega.strip():
+                st.warning("Debes seleccionar una bodega.")
+            elif not registro_existente.empty:
+                st.warning("Ya registraste el inicio de jornada para hoy.")
+            elif lat_usuario is None or lon_usuario is None:
+                st.error("❌ No se pudo validar tu ubicación.")
+            elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
+                st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
+            else:
+                agregar_fila_inicio(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_actual)
+                st.success(f"✅ Inicio registrado a las {hora_actual}")
+
+    with col2:
+        if st.button("✅ Cerrar jornada"):
+            if not usuario_actual.strip():
+                st.warning("Debes ingresar tu usuario.")
+            elif registro_existente.empty:
+                st.warning("Debes iniciar jornada antes de cerrarla.")
