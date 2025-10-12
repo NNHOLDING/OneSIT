@@ -95,39 +95,7 @@ with tab1:
         except Exception as e:
             st.error(f"❌ Error al enviar certificación: {e}")
 
-# 📝 Gestión de Jornada
 with tab2:
-st.markdown("### 🕒 Hora de inicio")
-components.html(f"""
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<input type="text" id="hora_inicio" placeholder="Selecciona hora de inicio" style="padding:8px; font-size:16px; width:200px;">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-flatpickr("#hora_inicio", {{
-    enableTime: true,
-    noCalendar: true,
-    dateFormat: "H:i",
-    time_24hr: true,
-    defaultDate: "{datetime.now(cr_timezone).strftime('%H:%M')}"
-}});
-</script>
-""", height=100)
-
-st.markdown("### 🕒 Hora de cierre")
-components.html(f"""
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<input type="text" id="hora_cierre" placeholder="Selecciona hora de cierre" style="padding:8px; font-size:16px; width:200px;">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-flatpickr("#hora_cierre", {{
-    enableTime: true,
-    noCalendar: true,
-    dateFormat: "H:i",
-    time_24hr: true,
-    defaultDate: "{datetime.now(cr_timezone).strftime('%H:%M')}"
-}});
-</script>
-""", height=100)
     st.subheader("📝 Gestión de jornada")
 
     LAT_CENTRO = 9.994116953453139
@@ -173,67 +141,45 @@ flatpickr("#hora_cierre", {{
     ]
     bodega = st.selectbox("🏢 Selecciona la bodega", bodegas, key="bodega_jornada")
 
-    hora_actual_str = datetime.now(cr_timezone).strftime("%H:%M")
-
+    # 🕒 Hora de inicio con reloj visual
     st.markdown("### 🕒 Hora de inicio")
-    hora_inicio = streamlit_js_eval(
-        js_expressions=f"""
-        new Promise((resolve, reject) => {{
-            const input = document.createElement("input");
-            input.type = "text";
-            input.id = "hora_inicio";
-            input.placeholder = "Selecciona hora de inicio";
-            input.style = "padding:8px; font-size:16px; width:200px; margin-bottom:10px;";
-            document.body.appendChild(input);
+    components.html(f"""
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <input type="text" id="hora_inicio" value="{datetime.now(cr_timezone).strftime('%H:%M')}" style="padding:8px; font-size:16px; width:200px;">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+    flatpickr("#hora_inicio", {{
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true
+    }});
+    </script>
+    """, height=100)
 
-            const script = document.createElement("script");
-            script.src = "https://cdn.jsdelivr.net/npm/flatpickr";
-            script.onload = () => {{
-                flatpickr("#hora_inicio", {{
-                    enableTime: true,
-                    noCalendar: true,
-                    dateFormat: "H:i",
-                    time_24hr: true,
-                    defaultDate: "{hora_actual_str}",
-                    onChange: function(selectedDates, dateStr, instance) {{
-                        resolve(dateStr);
-                    }}
-                }});
-            }};
-            document.body.appendChild(script);
-        }})
-        """,
+    hora_inicio = streamlit_js_eval(
+        js_expressions="document.getElementById('hora_inicio')?.value",
         key="hora_inicio_reloj"
     )
 
+    # 🕒 Hora de cierre con reloj visual
     st.markdown("### 🕒 Hora de cierre")
-    hora_cierre = streamlit_js_eval(
-        js_expressions=f"""
-        new Promise((resolve, reject) => {{
-            const input = document.createElement("input");
-            input.type = "text";
-            input.id = "hora_cierre";
-            input.placeholder = "Selecciona hora de cierre";
-            input.style = "padding:8px; font-size:16px; width:200px; margin-bottom:10px;";
-            document.body.appendChild(input);
+    components.html(f"""
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <input type="text" id="hora_cierre" value="{datetime.now(cr_timezone).strftime('%H:%M')}" style="padding:8px; font-size:16px; width:200px;">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+    flatpickr("#hora_cierre", {{
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true
+    }});
+    </script>
+    """, height=100)
 
-            const script = document.createElement("script");
-            script.src = "https://cdn.jsdelivr.net/npm/flatpickr";
-            script.onload = () => {{
-                flatpickr("#hora_cierre", {{
-                    enableTime: true,
-                    noCalendar: true,
-                    dateFormat: "H:i",
-                    time_24hr: true,
-                    defaultDate: "{hora_actual_str}",
-                    onChange: function(selectedDates, dateStr, instance) {{
-                        resolve(dateStr);
-                    }}
-                }});
-            }};
-            document.body.appendChild(script);
-        }})
-        """,
+    hora_cierre = streamlit_js_eval(
+        js_expressions="document.getElementById('hora_cierre')?.value",
         key="hora_cierre_reloj"
     )
 
@@ -300,4 +246,5 @@ flatpickr("#hora_cierre", {{
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
