@@ -58,37 +58,25 @@ with tab1:
     hora_fin = st.time_input("Hora fin", value=hora_actual_crc, key="fin_cert")
 
     if st.button("📥 Enviar Certificación"):
-        campos = {
-            "Ruta": ruta,
-            "Certificador": certificador,
-            "Persona conteo": persona_conteo,
-            "Hora inicio": hora_inicio,
-            "Hora fin": hora_fin
-        }
-        faltantes = [campo for campo, valor in campos.items() if not valor]
-        if faltantes:
-            st.warning(f"⚠️ Debes completar los siguientes campos: {', '.join(faltantes)}")
-        else:
-            try:
-                formato = "%H:%M"
-                inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
-                fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
-                duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
-                if duracion < 0:
-                    st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
-                else:
-                    hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
-                    site = "Dispositivo externo"
-
-                    hoja = conectar_funcion().worksheet("TCertificaciones")
-                    hoja.append_row([
-                        fecha_cert, ruta, certificador, persona_conteo,
-                        hora_inicio.strftime(formato), hora_fin.strftime(formato),
-                        duracion, hora_registro, site
-                    ])
-                    st.success("✅ Certificación enviada correctamente.")
-            except Exception as e:
-                st.error(f"❌ Error al enviar certificación: {e}")
+        try:
+            formato = "%H:%M"
+            inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
+            fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
+            duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
+            if duracion < 0:
+                st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
+            else:
+                hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
+                site = "Dispositivo externo"
+                hoja = conectar_funcion().worksheet("TCertificaciones")
+                hoja.append_row([
+                    fecha_cert, ruta, certificador, persona_conteo,
+                    hora_inicio.strftime(formato), hora_fin.strftime(formato),
+                    duracion, hora_registro, site
+                ])
+                st.success("✅ Certificación enviada correctamente.")
+        except Exception as e:
+            st.error(f"❌ Error al enviar certificación: {e}")
 
 # 📝 Gestión de Jornada
 with tab2:
@@ -183,4 +171,14 @@ with tab2:
                     st.warning("Ya registraste el inicio de jornada para hoy.")
                 elif lat_usuario is None or lon_usuario is None:
                     st.error("❌ No se pudo validar tu ubicación.")
-                elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO,
+                elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
+                    st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
+                else:
+                    agregar_fila_inicio(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_actual)
+                    st.success(f"✅ Inicio registrado a las {hora_actual}")
+
+        with col2:
+            if st.button("✅ Cerrar jornada"):
+                if registro_existente.empty:
+                    st.warning("Debes iniciar jornada antes de cerrarla.")
+                elif
