@@ -180,4 +180,6 @@ with tab2:
             if not usuario_actual.strip():
                 st.warning("Debes ingresar tu usuario.")
             elif registro_existente.empty:
-                st.warning("Debes iniciar
+                st.warning("Debes iniciar jornada antes de cerrarla.")
+
+
