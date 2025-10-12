@@ -92,8 +92,7 @@ with tab2:
         dlon = lon2 - lon1
         a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
         c = 2 * asin(sqrt(a))
-        distancia = 6371000 * c
-        return distancia
+        return 6371000 * c
 
     def esta_dentro_del_radio(lat1, lon1, lat2, lon2, radio_metros=30):
         return calcular_distancia_m(lat1, lon1, lat2, lon2) <= radio_metros
@@ -101,13 +100,11 @@ with tab2:
     def cargar_datos(conectar_funcion):
         hoja = conectar_funcion().worksheet("Jornadas")
         datos = hoja.get_all_values()
-        df = pd.DataFrame(datos[1:], columns=datos[0])
-        return df
+        return pd.DataFrame(datos[1:], columns=datos[0])
 
     def agregar_fila_inicio(conectar_funcion, fecha, usuario, bodega, hora):
         hoja = conectar_funcion().worksheet("Jornadas")
-        nueva_fila = [fecha, usuario, bodega, hora, "", "", "", "", ""]
-        hoja.append_row(nueva_fila)
+        hoja.append_row([fecha, usuario, bodega, hora, "", "", "", "", ""])
 
     def actualizar_fecha_cierre(conectar_funcion, fecha, usuario, bodega, hora):
         hoja = conectar_funcion().worksheet("Jornadas")
@@ -158,7 +155,7 @@ with tab2:
             st.success(f"Ubicación detectada: {lat_usuario:.6f}, {lon_usuario:.6f}")
             st.info(f"📏 Distancia al punto autorizado: {distancia:.2f} metros")
         else:
-            st.error("❌ No se pudo validar tu ubicación. Asegúrate de permitir el acceso en el navegador.")
+            st.error("❌ No se pudo validar tu ubicación.")
             lat_usuario = None
             lon_usuario = None
 
@@ -181,4 +178,5 @@ with tab2:
             if st.button("✅ Cerrar jornada"):
                 if registro_existente.empty:
                     st.warning("Debes iniciar jornada antes de cerrarla.")
-                elif
+                elif registro_existente.iloc[0].get("fecha cierre", "") != "":
+                    st.warning("Ya has
