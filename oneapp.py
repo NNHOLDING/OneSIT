@@ -79,8 +79,8 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación"
-        "🎓 Control de Certificación"  # 👈 Nuevo módulo
+        "🧪 Prueba de Ubicación",
+        "🎓 Control de Certificación",  # 👈 Nuevo módulo
 
     ]
 
@@ -89,8 +89,8 @@ if st.session_state.logueado_handheld:
         "🕒 Productividad",
         "📝 Gestión de Jornada",
         "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación"
-        "🎓 Control de Certificación"  # 👈 Nuevo módulo
+        "🧪 Prueba de Ubicación",
+        "🎓 Control de Certificación",  # 👈 Nuevo módulo
     ]
 
     opciones_menu = modulos_admin if st.session_state.rol_handheld == "admin" else modulos_usuario
@@ -221,8 +221,8 @@ if st.session_state.logueado_handheld:
         for key in defaults.keys():
             st.session_state[key] = False if key == "logueado_handheld" else ""
         st.rerun()
-    # 🎓 Control de Certificación
-elif modulo == "🎓 Control de Certificación":
+      # 🎓 Control de Certificación
+    elif modulo == "🎓 Control de Certificación":
     st.title("🎓 Control de certificación de rutas Sigma Alimentos")
 
     fecha_actual = datetime.now(cr_timezone).strftime("%Y-%m-%d")
@@ -278,6 +278,7 @@ elif modulo == "🎓 Control de Certificación":
             except Exception as e:
                 st.error(f"❌ Error al registrar certificación: {e}")
 
+
 # 🧾 Footer institucional
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
@@ -285,4 +286,5 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
