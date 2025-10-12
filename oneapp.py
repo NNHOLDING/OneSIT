@@ -80,6 +80,8 @@ if st.session_state.logueado_handheld:
         "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura",
         "🧪 Prueba de Ubicación"
+        "🎓 Control de Certificación"  # 👈 Nuevo módulo
+
     ]
 
     modulos_usuario = [
@@ -88,6 +90,7 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🌡️ Registro de Temperatura",
         "🧪 Prueba de Ubicación"
+        "🎓 Control de Certificación"  # 👈 Nuevo módulo
     ]
 
     opciones_menu = modulos_admin if st.session_state.rol_handheld == "admin" else modulos_usuario
@@ -218,6 +221,62 @@ if st.session_state.logueado_handheld:
         for key in defaults.keys():
             st.session_state[key] = False if key == "logueado_handheld" else ""
         st.rerun()
+    # 🎓 Control de Certificación
+elif modulo == "🎓 Control de Certificación":
+    st.title("🎓 Control de certificación de rutas Sigma Alimentos")
+
+    fecha_actual = datetime.now(cr_timezone).strftime("%Y-%m-%d")
+    st.text_input("Fecha", value=fecha_actual, disabled=True)
+
+    ruta = st.selectbox("Ruta", ["100", "200", "300", "400", "500", "600", "700", "800", "otro"])
+
+    def obtener_usuarios_certificacion():
+        hoja = conectar_sit_hh().worksheet("usuarios")
+        datos = hoja.get_all_values()
+        return sorted([fila[1] for fila in datos[1:] if fila[1]])
+
+    usuarios = obtener_usuarios_certificacion()
+    certificador = st.selectbox("Certificador", usuarios)
+    persona_conteo = st.selectbox("Persona conteo", usuarios)
+
+    hora_inicio = st.time_input("Hora inicio", value=None)
+    hora_fin = st.time_input("Hora fin", value=None)
+
+    if st.button("📥 Guardar Certificación"):
+        campos = {
+            "Ruta": ruta,
+            "Certificador": certificador,
+            "Persona conteo": persona_conteo,
+            "Hora inicio": hora_inicio,
+            "Hora fin": hora_fin
+        }
+        faltantes = [campo for campo, valor in campos.items() if not valor]
+        if faltantes:
+            st.warning(f"⚠️ Debes completar los siguientes campos: {', '.join(faltantes)}")
+        else:
+            try:
+                formato = "%H:%M"
+                inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
+                fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
+                duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
+                if duracion < 0:
+                    st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
+                else:
+                    hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
+                    site = "Site Alajuela"
+
+                    hoja = conectar_sit_hh().parent.open_by_url(
+                        "https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit"
+                    ).worksheet("TCertificaciones")
+
+                    hoja.append_row([
+                        fecha_actual, ruta, certificador, persona_conteo,
+                        hora_inicio.strftime(formato), hora_fin.strftime(formato),
+                        duracion, hora_registro, site
+                    ])
+                    st.success("✅ Certificación registrada correctamente.")
+            except Exception as e:
+                st.error(f"❌ Error al registrar certificación: {e}")
 
 # 🧾 Footer institucional
 st.markdown("""
@@ -226,3 +285,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
