@@ -116,68 +116,68 @@ with tab2:
         return False
 
     usuario_actual = st.text_input("Usuario", key="usuario_jornada")
-    if usuario_actual:
-        fecha_jornada = datetime.now(cr_timezone).strftime("%Y-%m-%d")
-        hora_actual = datetime.now(cr_timezone).strftime("%H:%M:%S")
+    fecha_jornada = datetime.now(cr_timezone).strftime("%Y-%m-%d")
+    hora_actual = datetime.now(cr_timezone).strftime("%H:%M:%S")
 
-        st.text_input("Fecha", value=fecha_jornada, disabled=True, key="fecha_jornada")
+    st.text_input("Fecha", value=fecha_jornada, disabled=True, key="fecha_jornada")
 
-        bodegas = [
-            "Bodega Barrio Cuba", "CEDI Coyol", "Sigma Coyol", "Bodega Cañas",
-            "Bodega Coto", "Bodega San Carlos", "Bodega Pérez Zeledón"
-        ]
-        bodega = st.selectbox("Selecciona la bodega", bodegas, key="bodega_jornada")
+    bodegas = [
+        "Bodega Barrio Cuba", "CEDI Coyol", "Sigma Coyol", "Bodega Cañas",
+        "Bodega Coto", "Bodega San Carlos", "Bodega Pérez Zeledón"
+    ]
+    bodega = st.selectbox("Selecciona la bodega", bodegas, key="bodega_jornada")
 
-        datos = cargar_datos(conectar_funcion)
-        registro_existente = datos[
-            (datos["usuario"] == usuario_actual) &
-            (datos["fecha"] == fecha_jornada) &
-            (datos["Bodega"] == bodega)
-        ]
+    datos = cargar_datos(conectar_funcion)
+    registro_existente = datos[
+        (datos["usuario"] == usuario_actual) &
+        (datos["fecha"] == fecha_jornada) &
+        (datos["Bodega"] == bodega)
+    ]
 
-        st.subheader("📍 Verificación de ubicación automática")
-        ubicacion = streamlit_js_eval(
-            js_expressions="""
-            new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => resolve({latitude: pos.coords.latitude, longitude: pos.coords.longitude}),
-                    (err) => reject(err)
-                );
-            })
-            """,
-            key="ubicacion_jornada"
-        )
+    st.subheader("📍 Verificación de ubicación automática")
+    ubicacion = streamlit_js_eval(
+        js_expressions="""
+        new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({latitude: pos.coords.latitude, longitude: pos.coords.longitude}),
+                (err) => reject(err)
+            );
+        })
+        """,
+        key="ubicacion_jornada"
+    )
 
-        if ubicacion and "latitude" in ubicacion and "longitude" in ubicacion:
-            lat_usuario = ubicacion["latitude"]
-            lon_usuario = ubicacion["longitude"]
-            distancia = calcular_distancia_m(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO)
-            st.success(f"Ubicación detectada: {lat_usuario:.6f}, {lon_usuario:.6f}")
-            st.info(f"📏 Distancia al punto autorizado: {distancia:.2f} metros")
-        else:
-            st.error("❌ No se pudo validar tu ubicación.")
-            lat_usuario = None
-            lon_usuario = None
+    if ubicacion and "latitude" in ubicacion and "longitude" in ubicacion:
+        lat_usuario = ubicacion["latitude"]
+        lon_usuario = ubicacion["longitude"]
+        distancia = calcular_distancia_m(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO)
+        st.success(f"Ubicación detectada: {lat_usuario:.6f}, {lon_usuario:.6f}")
+        st.info(f"📏 Distancia al punto autorizado: {distancia:.2f} metros")
+    else:
+        st.error("❌ No se pudo validar tu ubicación.")
+        lat_usuario = None
+        lon_usuario = None
 
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("📌 Iniciar jornada"):
-                if not bodega.strip():
-                    st.warning("Debes seleccionar una bodega.")
-                elif not registro_existente.empty:
-                    st.warning("Ya registraste el inicio de jornada para hoy.")
-                elif lat_usuario is None or lon_usuario is None:
-                    st.error("❌ No se pudo validar tu ubicación.")
-                elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
-                    st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
-                else:
-                    agregar_fila_inicio(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_actual)
-                    st.success(f"✅ Inicio registrado a las {hora_actual}")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📌 Iniciar jornada"):
+            if not usuario_actual.strip():
+                st.warning("Debes ingresar tu usuario.")
+            elif not bodega.strip():
+                st.warning("Debes seleccionar una bodega.")
+            elif not registro_existente.empty:
+                st.warning("Ya registraste el inicio de jornada para hoy.")
+            elif lat_usuario is None or lon_usuario is None:
+                st.error("❌ No se pudo validar tu ubicación.")
+            elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
+                st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
+            else:
+                agregar_fila_inicio(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_actual)
+                st.success(f"✅ Inicio registrado a las {hora_actual}")
 
-        with col2:
-            if st.button("✅ Cerrar jornada"):
-                if registro_existente.empty:
-                    st.warning("Debes iniciar jornada antes de cerrarla.")
-                elif registro_existente.iloc[0].get("fecha cierre", "") != "":
-                    st.warning("Ya has cerrado la jornada de hoy.")
-
+    with col2:
+        if st.button("✅ Cerrar jornada"):
+            if not usuario_actual.strip():
+                st.warning("Debes ingresar tu usuario.")
+            elif registro_existente.empty:
+                st.warning("Debes iniciar
