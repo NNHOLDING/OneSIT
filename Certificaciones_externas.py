@@ -9,24 +9,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 import streamlit.components.v1 as components
 
-components.html("""
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<input type="text" id="timepicker" placeholder="Selecciona una hora" style="padding:8px; font-size:16px; width:200px;">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-flatpickr("#timepicker", {
-    enableTime: true,
-    noCalendar: true,
-    dateFormat: "H:i",
-    time_24hr: true,
-    defaultHour: new Date().getHours(),
-    defaultMinute: new Date().getMinutes()
-});
-</script>
-""", height=100)
-# Configuración visual
-st.set_page_config(page_title="HH HOLDING", page_icon="🏢", layout="centered")
-
 # Logo y encabezado
 url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
 st.markdown(
@@ -286,6 +268,7 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
 
 
