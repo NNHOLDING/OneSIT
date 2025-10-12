@@ -7,8 +7,37 @@ from streamlit_js_eval import streamlit_js_eval
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+import streamlit.components.v1 as components
+
+components.html("""
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<input type="text" id="timepicker" placeholder="Selecciona una hora" style="padding:8px; font-size:16px; width:200px;">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+flatpickr("#timepicker", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    defaultHour: new Date().getHours(),
+    defaultMinute: new Date().getMinutes()
+});
+</script>
+""", height=100)
 # Configuración visual
 st.set_page_config(page_title="HH HOLDING", page_icon="🏢", layout="centered")
+
+# Logo y encabezado
+url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
+st.markdown(
+    f"""
+    <div style='text-align: center; margin-bottom: 20px;'>
+        <img src="{url_logo}" width="200" />
+        <h2 style='margin-top: 10px;'>HH HOLDING</h2>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
@@ -41,72 +70,15 @@ with tab1:
     certificador = st.selectbox("Certificador", usuarios, key="certificador_cert")
     persona_conteo = st.selectbox("Persona conteo", usuarios, key="conteo_cert")
 
-    hora_actual_crc = datetime.now(cr_timezone).strftime("%H:%M")
-    hora_inicio = streamlit_js_eval(
-        js_expressions=f"""
-        new Promise((resolve, reject) => {{
-            const input = document.createElement("input");
-            input.type = "text";
-            input.id = "hora_inicio";
-            input.placeholder = "Hora de inicio";
-            input.style = "padding:8px; font-size:16px; width:200px; margin-bottom:10px;";
-            document.body.appendChild(input);
-
-            const script = document.createElement("script");
-            script.src = "https://cdn.jsdelivr.net/npm/flatpickr";
-            script.onload = () => {{
-                flatpickr("#hora_inicio", {{
-                    enableTime: true,
-                    noCalendar: true,
-                    dateFormat: "H:i",
-                    time_24hr: true,
-                    defaultDate: "{hora_actual_crc}",
-                    onChange: function(selectedDates, dateStr, instance) {{
-                        resolve(dateStr);
-                    }}
-                }});
-            }};
-            document.body.appendChild(script);
-        }})
-        """,
-        key="hora_inicio_reloj"
-    )
-
-    hora_fin = streamlit_js_eval(
-        js_expressions=f"""
-        new Promise((resolve, reject) => {{
-            const input = document.createElement("input");
-            input.type = "text";
-            input.id = "hora_fin";
-            input.placeholder = "Hora de cierre";
-            input.style = "padding:8px; font-size:16px; width:200px; margin-bottom:10px;";
-            document.body.appendChild(input);
-
-            const script = document.createElement("script");
-            script.src = "https://cdn.jsdelivr.net/npm/flatpickr";
-            script.onload = () => {{
-                flatpickr("#hora_fin", {{
-                    enableTime: true,
-                    noCalendar: true,
-                    dateFormat: "H:i",
-                    time_24hr: true,
-                    defaultDate: "{hora_actual_crc}",
-                    onChange: function(selectedDates, dateStr, instance) {{
-                        resolve(dateStr);
-                    }}
-                }});
-            }};
-            document.body.appendChild(script);
-        }})
-        """,
-        key="hora_fin_reloj"
-    )
+    hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
+    hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc, key="inicio_cert")
+    hora_fin = st.time_input("Hora fin", value=hora_actual_crc, key="fin_cert")
 
     if st.button("📥 Enviar Certificación"):
         try:
             formato = "%H:%M"
-            inicio_dt = datetime.strptime(hora_inicio, formato)
-            fin_dt = datetime.strptime(hora_fin, formato)
+            inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
+            fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
             duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
             if duracion < 0:
                 st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
@@ -116,9 +88,124 @@ with tab1:
                 hoja = conectar_funcion().worksheet("TCertificaciones")
                 hoja.append_row([
                     fecha_cert, ruta, certificador, persona_conteo,
-                    hora_inicio, hora_fin,
+                    hora_inicio.strftime(formato), hora_fin.strftime(formato),
                     duracion, hora_registro, site
                 ])
                 st.success("✅ Certificación enviada correctamente.")
         except Exception as e:
             st.error(f"❌ Error al enviar certificación: {e}")
+
+# 📝 Gestión de Jornada
+with tab2:
+    st.subheader("📝 Gestión de jornada")
+
+    LAT_CENTRO = 9.994116953453139
+    LON_CENTRO = -84.23354393628277
+    RADIO_METROS = 30
+
+    def calcular_distancia_m(lat1, lon1, lat2, lon2):
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a))
+        return 6371000 * c
+
+    def esta_dentro_del_radio(lat1, lon1, lat2, lon2, radio_metros=30):
+        return calcular_distancia_m(lat1, lon1, lat2, lon2) <= radio_metros
+
+    def cargar_datos(conectar_funcion):
+        hoja = conectar_funcion().worksheet("Jornadas")
+        datos = hoja.get_all_values()
+        return pd.DataFrame(datos[1:], columns=datos[0])
+
+    def agregar_fila_inicio(conectar_funcion, fecha, usuario, bodega, hora):
+        hoja = conectar_funcion().worksheet("Jornadas")
+        hoja.append_row([fecha, usuario, bodega, hora, "", "", "", "", ""])
+
+    def actualizar_fecha_cierre(conectar_funcion, fecha, usuario, bodega, hora):
+        hoja = conectar_funcion().worksheet("Jornadas")
+        datos = hoja.get_all_values()
+        for i, fila in enumerate(datos[1:], start=2):
+            if fila[0] == fecha and fila[1] == usuario and fila[2] == bodega and fila[4] == "":
+                hoja.update_cell(i, 5, hora)
+                return True
+        return False
+
+    usuario_actual = st.text_input("👤 Usuario", key="usuario_jornada")
+    fecha_jornada = datetime.now(cr_timezone).strftime("%Y-%m-%d")
+    st.text_input("📅 Fecha", value=fecha_jornada, disabled=True, key="fecha_jornada")
+
+    bodegas = [
+        "Bodega Barrio Cuba", "CEDI Coyol", "Sigma Coyol", "Bodega Cañas",
+        "Bodega Coto", "Bodega San Carlos", "Bodega Pérez Zeledón"
+    ]
+    bodega = st.selectbox("🏢 Selecciona la bodega", bodegas, key="bodega_jornada")
+
+    st.markdown("### 🕒 Selecciona la hora")
+    hora_inicio_manual = st.time_input("Hora de inicio", value=datetime.now(cr_timezone).time(), key="hora_inicio_manual")
+    hora_cierre_manual = st.time_input("Hora de cierre", value=datetime.now(cr_timezone).time(), key="hora_cierre_manual")
+
+    datos = cargar_datos(conectar_funcion)
+    registro_existente = datos[
+        (datos["usuario"] == usuario_actual) &
+        (datos["fecha"] == fecha_jornada) &
+        (datos["Bodega"] == bodega)
+    ]
+
+    st.subheader("📍 Verificación de ubicación automática")
+    ubicacion = streamlit_js_eval(
+        js_expressions="""
+        new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({latitude: pos.coords.latitude, longitude: pos.coords.longitude}),
+                (err) => reject(err)
+            );
+        })
+        """,
+        key="ubicacion_jornada"
+    )
+
+    if ubicacion and "latitude" in ubicacion and "longitude" in ubicacion:
+        lat_usuario = ubicacion["latitude"]
+        lon_usuario = ubicacion["longitude"]
+        distancia = calcular_distancia_m(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO)
+        st.success(f"📍 Ubicación detectada: {lat_usuario:.6f}, {lon_usuario:.6f}")
+        st.info(f"📏 Distancia al punto autorizado: {distancia:.2f} metros")
+    else:
+        st.error("❌ No se pudo validar tu ubicación.")
+        lat_usuario = None
+        lon_usuario = None
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📌 Iniciar jornada"):
+            if not usuario_actual.strip():
+                st.warning("Debes ingresar tu usuario.")
+            elif not bodega.strip():
+                st.warning("Debes seleccionar una bodega.")
+            elif not registro_existente.empty:
+                st.warning("Ya registraste el inicio de jornada para hoy.")
+            elif lat_usuario is None or lon_usuario is None:
+                st.error("❌ No se pudo validar tu ubicación.")
+            elif not esta_dentro_del_radio(lat_usuario, lon_usuario, LAT_CENTRO, LON_CENTRO, RADIO_METROS):
+                st.error("❌ Estás fuera del rango permitido para registrar la jornada.")
+            else:
+                hora_inicio_str = hora_inicio_manual.strftime("%H:%M:%S")
+                agregar_fila_inicio(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_inicio_str)
+                st.success(f"✅ Inicio registrado a las {hora_inicio_str}")
+
+    with col2:
+        if st.button("✅ Cerrar jornada"):
+            if not usuario_actual.strip():
+                st.warning("Debes ingresar tu usuario.")
+            elif registro_existente.empty:
+                st.warning("Debes iniciar jornada antes de cerrarla.")
+            elif registro_existente.iloc[0].get("fecha cierre", "") != "":
+                st.warning("Ya has cerrado la jornada de hoy.")
+            else:
+                hora_cierre_str = hora_cierre_manual.strftime("%H:%M:%S")
+                if actualizar_fecha_cierre(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_cierre_str):
+                    st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
+                else:
+                    st.error("❌ No se pudo registrar el cierre.")
