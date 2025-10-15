@@ -301,13 +301,13 @@ elif modulo == "📝 Gestión de Jornada":
     # 🚨 Registro de Errores
 elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores
-        # 🚪 Cierre de sesión
-        st.markdown("---")
+    # 🚪 Cierre de sesión
+		st.markdown("---")
 		st.markdown("### 🚪 Cerrar sesión")
-		if st.button("Salir", key="boton_salir"):
-        for key in defaults.keys():
-            st.session_state[key] = False if key == "logueado_handheld" else ""
-        st.rerun()
+	if st.button("Salir", key="boton_salir"):
+    for key in defaults.keys():
+        st.session_state[key] = False if key == "logueado_handheld" else ""
+    st.rerun()
     # 🎓 Control de Certificación
 elif modulo == "🎓 Control de Certificación":
     st.title("🎓 Control de certificación de rutas Sigma Alimentos")
@@ -372,7 +372,6 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
 
 
 
