@@ -202,12 +202,11 @@ if st.session_state.logueado_handheld:
                 codigo_empleado=st.session_state.codigo_empleado
            	 )
 	
-		# 📊 Panel de Certificaciones
-	elif modulo == "📊 Panel de Certificaciones":
+	# 📊 Panel de Certificaciones
+elif modulo == "📊 Panel de Certificaciones":
     st.title("📊 Panel de Certificaciones")
     hoja = conectar_sit_hh().worksheet("TCertificaciones")
     datos = hoja.get_all_values()
-
     if datos and len(datos) > 1:
         df = pd.DataFrame(datos[1:], columns=datos[0])
         df.columns = df.columns.str.strip().str.lower()
@@ -281,6 +280,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
