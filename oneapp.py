@@ -192,13 +192,14 @@ if st.session_state.logueado_handheld:
                 st.dataframe(resumen_eq)
                 st.bar_chart(resumen_eq.set_index("equipo"))
 
-            # 📥 Descargar CSV
-            st.subheader("📥 Descargar Datos")
-            csv = df_filtrado.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
-        else:
-            st.warning("⚠️ No se encontraron datos válidos en la hoja 'HH'.")
-   
+                    # 📥 Descargar CSV
+        st.subheader("📥 Descargar Datos")
+        csv = df_filtrado.to_csv(index=False).encode("utf-8")
+        st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+    else:
+        st.warning("⚠️ No se encontraron datos válidos en la hoja 'HH'.")
+
+
     # 🕒 Productividad
     elif modulo == "🕒 Productividad":
         if st.session_state.rol_handheld == "admin":
@@ -294,6 +295,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
    
+
 
 
 
