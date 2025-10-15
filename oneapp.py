@@ -75,6 +75,7 @@ if st.session_state.logueado_handheld:
     modulos_admin = [
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
+		"📊 Panel de Certificaciones",
         "🕒 Productividad",
         "📝 Gestión de Jornada",
         "🚨 Registro de Errores",
@@ -279,3 +280,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
