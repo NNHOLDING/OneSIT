@@ -123,133 +123,81 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion"
                 )
 
-    # 📋 Panel Administrativo
-    elif modulo == "📋 Panel Administrativo":
-        if st.session_state.rol_handheld != "admin":
-            st.error("⛔ No tienes permisos para acceder a este módulo.")
-        else:
-            st.title("📋 Panel Administrativo")
-            hoja = conectar_sit_hh().worksheet("HH")
-            datos = hoja.get_all_values()
+    # 📅 Certificaciones por Día
+            st.subheader("📅 Certificaciones por Día")
+            cert_por_dia = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size().reset_index(name="Certificaciones")
+            st.dataframe(cert_por_dia)
+            st.bar_chart(cert_por_dia.set_index("fecha"))
 
-            if datos and len(datos[0]) > 0:
-                df = pd.DataFrame(datos[1:], columns=datos[0])
-                df.columns = df.columns.str.strip().str.lower()
-                df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+            # 📄 Registros del Día Actual
+            st.subheader(f"📄 Registros del Día ({hoy})")
+            registros_hoy = df_filtrado[df_filtrado["fecha"].dt.date == hoy]
+            st.dataframe(registros_hoy)
 
-                usuarios = sorted(df["nombre"].dropna().unique())
-                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-                usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
-
-                df_filtrado = df[
-                    (df["fecha"].dt.date >= fecha_ini) &
-                    (df["fecha"].dt.date <= fecha_fin)
-                ]
-                if usuario_sel != "Todos":
-                    df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
-
-                st.subheader("📑 Registros")
-                st.dataframe(df_filtrado)
-
-                hoy = datetime.now(cr_timezone).date()
-                if "estatus" in df.columns:
-                    entregados_hoy = df[
-                        (df["fecha"].dt.date == hoy) &
-                        (df["estatus"].str.lower() == "entregado")
-                    ]
-                    devueltos_hoy = df[
-                        (df["fecha"].dt.date == hoy) &
-                        (df["estatus"].str.lower() == "devuelto")
-                    ]
-
-                    st.subheader("✅ Registros Entregados Hoy")
-                    st.dataframe(entregados_hoy)
-
-                    st.subheader("📤 Registros Devueltos Hoy")
-                    st.dataframe(devueltos_hoy)
-
-                    st.markdown("### 📊 Resumen de Movimientos Hoy")
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.metric("Entregados", len(entregados_hoy))
-                    with col2:
-                        st.metric("Devueltos", len(devueltos_hoy))
-                else:
-                    st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
-
-                csv = df_filtrado.to_csv(index=False).encode("utf-8")
-                st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
-
-                st.subheader("📊 Actividad por Usuario")
-                resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
-                st.dataframe(resumen)
-                st.bar_chart(resumen.set_index("nombre"))
-
-                st.subheader("🔧 Actividad por Equipo")
-                resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
-                st.dataframe(resumen_eq)
-                st.bar_chart(resumen_eq.set_index("equipo"))
-            else:
-                st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
-       # 📊 Cantidad de certificaciones por día
-                st.subheader("📅 Certificaciones por Día")
-                cert_por_dia = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size().reset_index(name="Certificaciones")
-                st.dataframe(cert_por_dia)
-                st.bar_chart(cert_por_dia.set_index("fecha"))
-
-    # 📄 Registros del día actual
-                hoy = datetime.now(cr_timezone).date()
-                st.subheader(f"📄 Registros del Día ({hoy})")
-                registros_hoy = df_filtrado[df_filtrado["fecha"].dt.date == hoy]
-                st.dataframe(registros_hoy)
-
-    # 🏢 Cantidad de rutas certificadas por empresa
+            # 🏢 Rutas Certificadas por Empresa
+            if "empresa" in df_filtrado.columns and "ruta" in df_filtrado.columns:
                 st.subheader("🏢 Rutas Certificadas por Empresa")
                 rutas_por_empresa = df_filtrado.groupby("empresa")["ruta"].nunique().reset_index(name="Rutas Certificadas")
                 st.dataframe(rutas_por_empresa)
 
-    # 📊 Duración promedio por ruta certificada
+                st.subheader("📊 Cantidad de Rutas Certificadas por Empresa")
+                st.bar_chart(rutas_por_empresa.set_index("empresa"))
+
+            # ⏱️ Duración Promedio por Ruta
+            if "ruta" in df_filtrado.columns and "duracion" in df_filtrado.columns:
                 st.subheader("⏱️ Duración Promedio por Ruta")
                 duracion_por_ruta = df_filtrado.groupby("ruta")["duracion"].mean().reset_index()
                 duracion_por_ruta["duracion"] = duracion_por_ruta["duracion"].round(2)
                 st.dataframe(duracion_por_ruta)
                 st.bar_chart(duracion_por_ruta.set_index("ruta"))
 
-    # 📊 Duración promedio por certificador
+            # ⏱️ Duración Promedio por Certificador
+            if "certificador" in df_filtrado.columns and "duracion" in df_filtrado.columns:
                 st.subheader("⏱️ Duración Promedio por Certificador")
                 duracion_por_cert = df_filtrado.groupby("certificador")["duracion"].mean().reset_index()
                 duracion_por_cert["duracion"] = duracion_por_cert["duracion"].round(2)
                 st.dataframe(duracion_por_cert)
                 st.bar_chart(duracion_por_cert.set_index("certificador"))
 
-    # 📋 Resumen del día actual por certificador
+                # 📋 Resumen del Día por Certificador
                 st.subheader(f"📋 Resumen del Día por Certificador ({hoy})")
                 resumen_hoy = registros_hoy.groupby("certificador").agg({
-                "ruta": "nunique",
-                "duracion": "mean"
+                    "ruta": "nunique",
+                    "duracion": "mean"
                 }).reset_index().rename(columns={"ruta": "Rutas Certificadas", "duracion": "Duración Promedio"})
                 resumen_hoy["Duración Promedio"] = resumen_hoy["Duración Promedio"].round(2)
                 st.dataframe(resumen_hoy)
 
-    # 🥧 Gráfico pastel del mes por usuario
+            # 🥧 Gráfico Pastel del Mes por Usuario
+            if "usuario" in df_filtrado.columns and "ruta" in df_filtrado.columns:
                 st.subheader("🥧 Rutas Certificadas por Usuario (Mes Actual)")
                 mes_actual = hoy.month
                 df_mes = df_filtrado[df_filtrado["fecha"].dt.month == mes_actual]
                 rutas_por_usuario = df_mes.groupby("usuario")["ruta"].nunique().reset_index(name="Rutas Certificadas")
                 st.dataframe(rutas_por_usuario)
+
+                import plotly.express as px
                 st.plotly_chart(px.pie(rutas_por_usuario, names="usuario", values="Rutas Certificadas", title="Distribución por Usuario"))
 
-    # 📊 Gráfico de barras por empresa
-               st.subheader("🏢 Cantidad de Rutas Certificadas por Empresa")
-               rutas_empresa = df_filtrado.groupby("empresa")["ruta"].nunique().reset_index(name="Rutas Certificadas")
-               st.dataframe(rutas_empresa)
-               st.bar_chart(rutas_empresa.set_index("empresa"))
+            # 📊 Actividad por Usuario
+            st.subheader("📊 Actividad por Usuario")
+            resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+            st.dataframe(resumen)
+            st.bar_chart(resumen.set_index("nombre"))
 
-    # 📥 Opciones de descarga
-              st.subheader("📥 Descargar Datos")
-              csv = df_filtrado.to_csv(index=False).encode("utf-8")
-             st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+            # 🔧 Actividad por Equipo
+            if "equipo" in df_filtrado.columns:
+                st.subheader("🔧 Actividad por Equipo")
+                resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
+                st.dataframe(resumen_eq)
+                st.bar_chart(resumen_eq.set_index("equipo"))
+
+            # 📥 Descargar CSV
+            st.subheader("📥 Descargar Datos")
+            csv = df_filtrado.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+        else:
+            st.warning("⚠️ No se encontraron datos válidos en la hoja 'HH'.")
    
     # 🕒 Productividad
     elif modulo == "🕒 Productividad":
@@ -346,6 +294,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
    
+
 
 
 
