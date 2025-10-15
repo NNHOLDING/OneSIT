@@ -79,9 +79,8 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación",
-        "🎓 Control de Certificación",  # 👈 Nuevo módulo
-        "📊 Panel de Certificaciones",  # ✅ Asegúrate de que esté aquí
+        "🧪 Prueba de Ubicación"
+        "🎓 Control de Certificación"  # 👈 Nuevo módulo
 
     ]
 
@@ -90,8 +89,8 @@ if st.session_state.logueado_handheld:
         "🕒 Productividad",
         "📝 Gestión de Jornada",
         "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación",
-        "🎓 Control de Certificación",  # 👈 Nuevo módulo
+        "🧪 Prueba de Ubicación"
+        "🎓 Control de Certificación"  # 👈 Nuevo módulo
     ]
 
     opciones_menu = modulos_admin if st.session_state.rol_handheld == "admin" else modulos_usuario
@@ -123,93 +122,88 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion"
                 )
 
-    # 📅 Certificaciones por Día
-            st.subheader("📅 Certificaciones por Día")
-            cert_por_dia = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size().reset_index(name="Certificaciones")
-            st.dataframe(cert_por_dia)
-            st.bar_chart(cert_por_dia.set_index("fecha"))
+    # 📋 Panel Administrativo
+    elif modulo == "📋 Panel Administrativo":
+        if st.session_state.rol_handheld != "admin":
+            st.error("⛔ No tienes permisos para acceder a este módulo.")
+        else:
+            st.title("📋 Panel Administrativo")
+            hoja = conectar_sit_hh().worksheet("HH")
+            datos = hoja.get_all_values()
 
-            # 📄 Registros del Día Actual
-            st.subheader(f"📄 Registros del Día ({hoy})")
-            registros_hoy = df_filtrado[df_filtrado["fecha"].dt.date == hoy]
-            st.dataframe(registros_hoy)
+            if datos and len(datos[0]) > 0:
+                df = pd.DataFrame(datos[1:], columns=datos[0])
+                df.columns = df.columns.str.strip().str.lower()
+                df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
 
-            # 🏢 Rutas Certificadas por Empresa
-            if "empresa" in df_filtrado.columns and "ruta" in df_filtrado.columns:
-                st.subheader("🏢 Rutas Certificadas por Empresa")
-                rutas_por_empresa = df_filtrado.groupby("empresa")["ruta"].nunique().reset_index(name="Rutas Certificadas")
-                st.dataframe(rutas_por_empresa)
+                usuarios = sorted(df["nombre"].dropna().unique())
+                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+                usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
 
-                st.subheader("📊 Cantidad de Rutas Certificadas por Empresa")
-                st.bar_chart(rutas_por_empresa.set_index("empresa"))
+                df_filtrado = df[
+                    (df["fecha"].dt.date >= fecha_ini) &
+                    (df["fecha"].dt.date <= fecha_fin)
+                ]
+                if usuario_sel != "Todos":
+                    df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
 
-            # ⏱️ Duración Promedio por Ruta
-            if "ruta" in df_filtrado.columns and "duracion" in df_filtrado.columns:
-                st.subheader("⏱️ Duración Promedio por Ruta")
-                duracion_por_ruta = df_filtrado.groupby("ruta")["duracion"].mean().reset_index()
-                duracion_por_ruta["duracion"] = duracion_por_ruta["duracion"].round(2)
-                st.dataframe(duracion_por_ruta)
-                st.bar_chart(duracion_por_ruta.set_index("ruta"))
+                st.subheader("📑 Registros")
+                st.dataframe(df_filtrado)
 
-            # ⏱️ Duración Promedio por Certificador
-            if "certificador" in df_filtrado.columns and "duracion" in df_filtrado.columns:
-                st.subheader("⏱️ Duración Promedio por Certificador")
-                duracion_por_cert = df_filtrado.groupby("certificador")["duracion"].mean().reset_index()
-                duracion_por_cert["duracion"] = duracion_por_cert["duracion"].round(2)
-                st.dataframe(duracion_por_cert)
-                st.bar_chart(duracion_por_cert.set_index("certificador"))
+                hoy = datetime.now(cr_timezone).date()
+                if "estatus" in df.columns:
+                    entregados_hoy = df[
+                        (df["fecha"].dt.date == hoy) &
+                        (df["estatus"].str.lower() == "entregado")
+                    ]
+                    devueltos_hoy = df[
+                        (df["fecha"].dt.date == hoy) &
+                        (df["estatus"].str.lower() == "devuelto")
+                    ]
 
-                # 📋 Resumen del Día por Certificador
-                st.subheader(f"📋 Resumen del Día por Certificador ({hoy})")
-                resumen_hoy = registros_hoy.groupby("certificador").agg({
-                    "ruta": "nunique",
-                    "duracion": "mean"
-                }).reset_index().rename(columns={"ruta": "Rutas Certificadas", "duracion": "Duración Promedio"})
-                resumen_hoy["Duración Promedio"] = resumen_hoy["Duración Promedio"].round(2)
-                st.dataframe(resumen_hoy)
+                    st.subheader("✅ Registros Entregados Hoy")
+                    st.dataframe(entregados_hoy)
 
-            # 🥧 Gráfico Pastel del Mes por Usuario
-            if "usuario" in df_filtrado.columns and "ruta" in df_filtrado.columns:
-                st.subheader("🥧 Rutas Certificadas por Usuario (Mes Actual)")
-                mes_actual = hoy.month
-                df_mes = df_filtrado[df_filtrado["fecha"].dt.month == mes_actual]
-                rutas_por_usuario = df_mes.groupby("usuario")["ruta"].nunique().reset_index(name="Rutas Certificadas")
-                st.dataframe(rutas_por_usuario)
+                    st.subheader("📤 Registros Devueltos Hoy")
+                    st.dataframe(devueltos_hoy)
 
-                import plotly.express as px
-                st.plotly_chart(px.pie(rutas_por_usuario, names="usuario", values="Rutas Certificadas", title="Distribución por Usuario"))
+                    st.markdown("### 📊 Resumen de Movimientos Hoy")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("Entregados", len(entregados_hoy))
+                    with col2:
+                        st.metric("Devueltos", len(devueltos_hoy))
+                else:
+                    st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
 
-            # 📊 Actividad por Usuario
-            st.subheader("📊 Actividad por Usuario")
-            resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
-            st.dataframe(resumen)
-            st.bar_chart(resumen.set_index("nombre"))
+                csv = df_filtrado.to_csv(index=False).encode("utf-8")
+                st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
 
-            # 🔧 Actividad por Equipo
-            if "equipo" in df_filtrado.columns:
+                st.subheader("📊 Actividad por Usuario")
+                resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+                st.dataframe(resumen)
+                st.bar_chart(resumen.set_index("nombre"))
+
                 st.subheader("🔧 Actividad por Equipo")
                 resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
                 st.dataframe(resumen_eq)
                 st.bar_chart(resumen_eq.set_index("equipo"))
-            st.subheader("📥 Descargar Datos")
-            csv = df_filtrado.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+            else:
+                st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
+
+    # 🕒 Productividad
+    elif modulo == "🕒 Productividad":
+        if st.session_state.rol_handheld == "admin":
+            mostrar_panel_alisto(conectar_sit_hh)
         else:
-            st.warning("⚠️ No se encontraron datos válidos en la hoja 'HH'.")
+            mostrar_formulario_alisto(
+                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+                service_account_info=st.secrets["gcp_service_account"],
+                nombre_empleado=st.session_state.nombre_empleado,
+                codigo_empleado=st.session_state.codigo_empleado
+            )
 
-elif modulo == "🕒 Productividad":
-    if st.session_state.rol_handheld == "admin":
-        mostrar_panel_alisto(conectar_sit_hh)
-    else:
-        mostrar_formulario_alisto(
-            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-            service_account_info=st.secrets["gcp_service_account"],
-            nombre_empleado=st.session_state.nombre_empleado,
-            codigo_empleado=st.session_state.codigo_empleado
-        )
-
-
-                 
     # 📝 Gestión de Jornada
     elif modulo == "📝 Gestión de Jornada":
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
@@ -217,72 +211,72 @@ elif modulo == "🕒 Productividad":
             st.markdown("---")
             mostrar_jornadas(conectar_sit_hh)
 
-          # 🚨 Registro de Errores
+    # 🚨 Registro de Errores
     elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores
-
-        # 🎓 Control de Certificación
-    elif modulo == "🎓 Control de Certificación":
-        st.title("🎓 Control de certificación de rutas Sigma Alimentos")
-
-        fecha_actual = datetime.now(cr_timezone).strftime("%Y-%m-%d")
-        st.text_input("Fecha", value=fecha_actual, disabled=True)
-
-        ruta = st.selectbox("Ruta", ["100", "200", "300", "400", "500", "600", "700", "800", "otro"])
-
-        def obtener_usuarios_certificacion():
-            hoja = conectar_sit_hh().worksheet("usuarios")
-            datos = hoja.get_all_values()
-            return sorted([fila[1] for fila in datos[1:] if fila[1]])
-
-        usuarios = obtener_usuarios_certificacion()
-        certificador = st.selectbox("Certificador", usuarios)
-        persona_conteo = st.selectbox("Persona conteo", usuarios)
-
-        hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
-        hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc)
-        hora_fin = st.time_input("Hora fin", value=hora_actual_crc)
-
-        if st.button("📥 Guardar Certificación"):
-            campos = {
-                "Ruta": ruta,
-                "Certificador": certificador,
-                "Persona conteo": persona_conteo,
-                "Hora inicio": hora_inicio,
-                "Hora fin": hora_fin
-            }
-            faltantes = [campo for campo, valor in campos.items() if not valor]
-            if faltantes:
-                st.warning(f"⚠️ Debes completar los siguientes campos: {', '.join(faltantes)}")
-            else:
-                try:
-                    formato = "%H:%M"
-                    inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
-                    fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
-                    duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
-                    if duracion < 0:
-                        st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
-                    else:
-                        hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
-                        site = "Site Alajuela"
-
-                        hoja = conectar_sit_hh().worksheet("TCertificaciones")
-                        hoja.append_row([
-                            fecha_actual, ruta, certificador, persona_conteo,
-                            hora_inicio.strftime(formato), hora_fin.strftime(formato),
-                            duracion, hora_registro, site
-                        ])
-                        st.success("✅ Certificación registrada correctamente.")
-                except Exception as e:
-                    st.error(f"❌ Error al registrar certificación: {e}")
-
-    # 🚪 Cierre de sesión
+        # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
     if st.button("Salir", key="boton_salir"):
         for key in defaults.keys():
             st.session_state[key] = False if key == "logueado_handheld" else ""
         st.rerun()
+    # 🎓 Control de Certificación
+elif modulo == "🎓 Control de Certificación":
+    st.title("🎓 Control de certificación de rutas Sigma Alimentos")
+
+    fecha_actual = datetime.now(cr_timezone).strftime("%Y-%m-%d")
+    st.text_input("Fecha", value=fecha_actual, disabled=True)
+
+    ruta = st.selectbox("Ruta", ["100", "200", "300", "400", "500", "600", "700", "800", "otro"])
+
+    def obtener_usuarios_certificacion():
+        hoja = conectar_sit_hh().worksheet("usuarios")
+        datos = hoja.get_all_values()
+        return sorted([fila[1] for fila in datos[1:] if fila[1]])
+
+    usuarios = obtener_usuarios_certificacion()
+    certificador = st.selectbox("Certificador", usuarios)
+    persona_conteo = st.selectbox("Persona conteo", usuarios)
+
+    hora_inicio = st.time_input("Hora inicio", value=None)
+    hora_fin = st.time_input("Hora fin", value=None)
+
+    if st.button("📥 Guardar Certificación"):
+        campos = {
+            "Ruta": ruta,
+            "Certificador": certificador,
+            "Persona conteo": persona_conteo,
+            "Hora inicio": hora_inicio,
+            "Hora fin": hora_fin
+        }
+        faltantes = [campo for campo, valor in campos.items() if not valor]
+        if faltantes:
+            st.warning(f"⚠️ Debes completar los siguientes campos: {', '.join(faltantes)}")
+        else:
+            try:
+                formato = "%H:%M"
+                inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
+                fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
+                duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
+                if duracion < 0:
+                    st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
+                else:
+                    hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
+                    site = "Site Alajuela"
+
+                    hoja = conectar_sit_hh().parent.open_by_url(
+                        "https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit"
+                    ).worksheet("TCertificaciones")
+
+                    hoja.append_row([
+                        fecha_actual, ruta, certificador, persona_conteo,
+                        hora_inicio.strftime(formato), hora_fin.strftime(formato),
+                        duracion, hora_registro, site
+                    ])
+                    st.success("✅ Certificación registrada correctamente.")
+            except Exception as e:
+                st.error(f"❌ Error al registrar certificación: {e}")
 
 # 🧾 Footer institucional
 st.markdown("""
@@ -291,14 +285,5 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
-   
-
-
-
-
-
-
-
 
 
