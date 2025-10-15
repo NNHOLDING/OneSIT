@@ -255,14 +255,14 @@ if st.session_state.logueado_handheld:
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
 		
     # 📝 Gestión de Jornada
-elif modulo == "📝 Gestión de Jornada":
-    gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+    elif modulo == "📝 Gestión de Jornada":
+        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
     if st.session_state.rol_handheld == "admin":
         st.markdown("---")
         mostrar_jornadas(conectar_sit_hh)
 
 # 🚨 Registro de Errores
-elif modulo == "🚨 Registro de Errores":
+    elif modulo == "🚨 Registro de Errores":
     mostrar_formulario_errores()
 
 # 🚪 Cierre de sesión
