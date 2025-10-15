@@ -256,7 +256,7 @@ if st.session_state.logueado_handheld:
 		
     # 📝 Gestión de Jornada
     elif modulo == "📝 Gestión de Jornada":
-        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+    gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
     if st.session_state.rol_handheld == "admin":
         st.markdown("---")
         mostrar_jornadas(conectar_sit_hh)
@@ -280,6 +280,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
