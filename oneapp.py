@@ -79,8 +79,7 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación",
-         "📊 Panel de Certificaciones",
+        "🧪 Prueba de Ubicación"
     ]
 
     modulos_usuario = [
@@ -253,23 +252,25 @@ elif modulo == "📊 Panel de Certificaciones":
         st.bar_chart(resumen_ruta.set_index("ruta"))
     else:
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+		
     # 📝 Gestión de Jornada
-    elif modulo == "📝 Gestión de Jornada":
-        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
-        if st.session_state.rol_handheld == "admin":
-            st.markdown("---")
-            mostrar_jornadas(conectar_sit_hh)
+elif modulo == "📝 Gestión de Jornada":
+    gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+    if st.session_state.rol_handheld == "admin":
+        st.markdown("---")
+        mostrar_jornadas(conectar_sit_hh)
 
-    # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
-        mostrar_formulario_errores
-        # 🚪 Cierre de sesión
-    st.markdown("---")
-    st.markdown("### 🚪 Cerrar sesión")
-    if st.button("Salir", key="boton_salir"):
-        for key in defaults.keys():
-            st.session_state[key] = False if key == "logueado_handheld" else ""
-        st.rerun()
+# 🚨 Registro de Errores
+elif modulo == "🚨 Registro de Errores":
+    mostrar_formulario_errores()
+
+# 🚪 Cierre de sesión
+st.markdown("---")
+st.markdown("### 🚪 Cerrar sesión")
+if st.button("Salir", key="boton_salir"):
+    for key in defaults.keys():
+        st.session_state[key] = False if key == "logueado_handheld" else ""
+    st.rerun()
 
 # 🧾 Footer institucional
 st.markdown("""
