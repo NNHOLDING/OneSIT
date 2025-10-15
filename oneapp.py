@@ -280,10 +280,10 @@ elif modulo == "📊 Panel de Certificaciones":
     else:
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
     # 🕒 Productividad
-    elif modulo == "🕒 Productividad":
-        if st.session_state.rol_handheld == "admin":
+elif modulo == "🕒 Productividad":
+    if st.session_state.rol_handheld == "admin":
             mostrar_panel_alisto(conectar_sit_hh)
-        else:
+    else:
             mostrar_formulario_alisto(
                 GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
                 service_account_info=st.secrets["gcp_service_account"],
@@ -372,8 +372,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
