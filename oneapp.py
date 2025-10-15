@@ -191,27 +191,25 @@ if st.session_state.logueado_handheld:
                 resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
                 st.dataframe(resumen_eq)
                 st.bar_chart(resumen_eq.set_index("equipo"))
-
-                    # 📥 Descargar CSV
-        st.subheader("📥 Descargar Datos")
-        csv = df_filtrado.to_csv(index=False).encode("utf-8")
-        st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+            st.subheader("📥 Descargar Datos")
+            csv = df_filtrado.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
         else:
-        st.warning("⚠️ No se encontraron datos válidos en la hoja 'HH'.")
+            st.warning("⚠️ No se encontraron datos válidos en la hoja 'HH'.")
+
+elif modulo == "🕒 Productividad":
+    if st.session_state.rol_handheld == "admin":
+        mostrar_panel_alisto(conectar_sit_hh)
+    else:
+        mostrar_formulario_alisto(
+            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+            service_account_info=st.secrets["gcp_service_account"],
+            nombre_empleado=st.session_state.nombre_empleado,
+            codigo_empleado=st.session_state.codigo_empleado
+        )
 
 
-    # 🕒 Productividad
-    elif modulo == "🕒 Productividad":
-        if st.session_state.rol_handheld == "admin":
-            mostrar_panel_alisto(conectar_sit_hh)
-        else:
-            mostrar_formulario_alisto(
-                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-                service_account_info=st.secrets["gcp_service_account"],
-                nombre_empleado=st.session_state.nombre_empleado,
-                codigo_empleado=st.session_state.codigo_empleado
-            )
-
+                 
     # 📝 Gestión de Jornada
     elif modulo == "📝 Gestión de Jornada":
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
@@ -295,6 +293,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
    
+
 
 
 
