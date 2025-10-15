@@ -79,8 +79,8 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación"
-        "🎓 Control de Certificación"  # 👈 Nuevo módulo
+        "🧪 Prueba de Ubicación",
+        "🎓 Control de Certificación",  # 👈 Nuevo módulo
 
     ]
 
@@ -373,6 +373,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
