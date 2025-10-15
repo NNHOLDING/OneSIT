@@ -196,7 +196,7 @@ if st.session_state.logueado_handheld:
         st.subheader("📥 Descargar Datos")
         csv = df_filtrado.to_csv(index=False).encode("utf-8")
         st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
-    else:
+        else:
         st.warning("⚠️ No se encontraron datos válidos en la hoja 'HH'.")
 
 
@@ -295,6 +295,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
    
+
 
 
 
