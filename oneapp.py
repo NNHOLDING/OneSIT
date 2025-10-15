@@ -302,12 +302,12 @@ elif modulo == "📝 Gestión de Jornada":
 elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores
     # 🚪 Cierre de sesión
-		st.markdown("---")
-		st.markdown("### 🚪 Cerrar sesión")
+	st.markdown("---")
+	st.markdown("### 🚪 Cerrar sesión")
 	if st.button("Salir", key="boton_salir"):
-    for key in defaults.keys():
-        st.session_state[key] = False if key == "logueado_handheld" else ""
-    st.rerun()
+		for key in defaults.keys():
+			st.session_state[key] = False if key == "logueado_handheld" else ""
+		st.rerun()
     # 🎓 Control de Certificación
 elif modulo == "🎓 Control de Certificación":
     st.title("🎓 Control de certificación de rutas Sigma Alimentos")
