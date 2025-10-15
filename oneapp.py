@@ -292,14 +292,14 @@ elif modulo == "🕒 Productividad":
             )
 
     # 📝 Gestión de Jornada
-    elif modulo == "📝 Gestión de Jornada":
+elif modulo == "📝 Gestión de Jornada":
         gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
         if st.session_state.rol_handheld == "admin":
             st.markdown("---")
             mostrar_jornadas(conectar_sit_hh)
 
     # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
+elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores
         # 🚪 Cierre de sesión
     st.markdown("---")
@@ -372,3 +372,6 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
+
+
