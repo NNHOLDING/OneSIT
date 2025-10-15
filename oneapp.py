@@ -192,38 +192,32 @@ if st.session_state.logueado_handheld:
             else:
                 st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
-    elif modulo == "📊 Panel de Certificaciones":
-    st.title("📊 Panel de Certificaciones")
+            elif modulo == "📊 Panel de Certificaciones":
+                st.title("📊 Panel de Certificaciones")
+                hoja = conectar_sit_hh().worksheet("TCertificaciones")
+                datos = hoja.get_all_values()
 
-    hoja = conectar_sit_hh().worksheet("TCertificaciones")
-    datos = hoja.get_all_values()
-
-    if datos and len(datos) > 1:
-        df = pd.DataFrame(datos[1:], columns=datos[0])
-        df.columns = df.columns.str.strip().str.lower()
-
-        df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
-        df["duracion"] = pd.to_numeric(df["duracion"], errors="coerce")
-
-        rutas = sorted(df["ruta"].dropna().unique())
-        certificadores = sorted(df["certificador"].dropna().unique())
-
-        col1, col2 = st.columns(2)
-        with col1:
-            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-        with col2:
-            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-
-        ruta_sel = st.selectbox("Filtrar por Ruta", ["Todas"] + rutas)
-        cert_sel = st.selectbox("Filtrar por Certificador", ["Todos"] + certificadores)
-
-        df_filtrado = df[
-            (df["fecha"].dt.date >= fecha_ini) &
-            (df["fecha"].dt.date <= fecha_fin)
-        ]
-        if ruta_sel != "Todas":
+            if datos and len(datos) > 1:
+                df = pd.DataFrame(datos[1:], columns=datos[0])
+                df.columns = df.columns.str.strip().str.lower()
+                df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+                df["duracion"] = pd.to_numeric(df["duracion"], errors="coerce")
+                rutas = sorted(df["ruta"].dropna().unique())
+                certificadores = sorted(df["certificador"].dropna().unique())
+                col1, col2 = st.columns(2)
+                with col1:
+                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+                with col2:
+                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+                ruta_sel = st.selectbox("Filtrar por Ruta", ["Todas"] + rutas)
+                cert_sel = st.selectbox("Filtrar por Certificador", ["Todos"] + certificadores)
+                df_filtrado = df[
+                (df["fecha"].dt.date >= fecha_ini) &
+                (df["fecha"].dt.date <= fecha_fin)
+                 ]
+           if ruta_sel != "Todas":
             df_filtrado = df_filtrado[df_filtrado["ruta"] == ruta_sel]
-        if cert_sel != "Todos":
+           if cert_sel != "Todos":
             df_filtrado = df_filtrado[df_filtrado["certificador"] == cert_sel]
 
         hoy = datetime.now(cr_timezone).date()
@@ -376,6 +370,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
