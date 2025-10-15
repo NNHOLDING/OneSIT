@@ -279,7 +279,8 @@ elif modulo == "📊 Panel de Certificaciones":
         st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
     else:
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
-    # 🕒 Productividad
+   
+# 🕒 Productividad
 elif modulo == "🕒 Productividad":
     if st.session_state.rol_handheld == "admin":
             mostrar_panel_alisto(conectar_sit_hh)
@@ -301,13 +302,13 @@ elif modulo == "📝 Gestión de Jornada":
     # 🚨 Registro de Errores
 elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores
-    # 🚪 Cierre de sesión
-	st.markdown("---")
-	st.markdown("### 🚪 Cerrar sesión")
-	if st.button("Salir", key="boton_salir"):
-		for key in defaults.keys():
-			st.session_state[key] = False if key == "logueado_handheld" else ""
-		st.rerun()
+   # 🚪 Cierre de sesión
+st.markdown("---")
+st.markdown("### 🚪 Cerrar sesión")
+if st.button("Salir", key="boton_salir"):
+    for key in defaults.keys():
+        st.session_state[key] = False if key == "logueado_handheld" else ""
+    st.rerun()
     # 🎓 Control de Certificación
 elif modulo == "🎓 Control de Certificación":
     st.title("🎓 Control de certificación de rutas Sigma Alimentos")
@@ -372,6 +373,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
