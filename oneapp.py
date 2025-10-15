@@ -192,6 +192,97 @@ if st.session_state.logueado_handheld:
             else:
                 st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
+    elif modulo == "📊 Panel de Certificaciones":
+    st.title("📊 Panel de Certificaciones")
+
+    hoja = conectar_sit_hh().worksheet("TCertificaciones")
+    datos = hoja.get_all_values()
+
+    if datos and len(datos) > 1:
+        df = pd.DataFrame(datos[1:], columns=datos[0])
+        df.columns = df.columns.str.strip().str.lower()
+
+        df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+        df["duracion"] = pd.to_numeric(df["duracion"], errors="coerce")
+
+        rutas = sorted(df["ruta"].dropna().unique())
+        certificadores = sorted(df["certificador"].dropna().unique())
+
+        col1, col2 = st.columns(2)
+        with col1:
+            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+        with col2:
+            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+
+        ruta_sel = st.selectbox("Filtrar por Ruta", ["Todas"] + rutas)
+        cert_sel = st.selectbox("Filtrar por Certificador", ["Todos"] + certificadores)
+
+        df_filtrado = df[
+            (df["fecha"].dt.date >= fecha_ini) &
+            (df["fecha"].dt.date <= fecha_fin)
+        ]
+        if ruta_sel != "Todas":
+            df_filtrado = df_filtrado[df_filtrado["ruta"] == ruta_sel]
+        if cert_sel != "Todos":
+            df_filtrado = df_filtrado[df_filtrado["certificador"] == cert_sel]
+
+        hoy = datetime.now(cr_timezone).date()
+        mes_actual = hoy.month
+
+        st.subheader("📄 Registros Filtrados")
+        st.dataframe(df_filtrado)
+
+        st.subheader("📅 Certificaciones por Día")
+        cert_por_dia = df_filtrado.groupby(df_filtrado["fecha"].dt.date).size().reset_index(name="Certificaciones")
+        st.dataframe(cert_por_dia)
+        st.bar_chart(cert_por_dia.set_index("fecha"))
+
+        st.subheader(f"📄 Registros del Día ({hoy})")
+        registros_hoy = df_filtrado[df_filtrado["fecha"].dt.date == hoy]
+        st.dataframe(registros_hoy)
+
+        st.subheader("🏢 Rutas Certificadas por Empresa")
+        rutas_por_empresa = df_filtrado.groupby("empresa")["ruta"].nunique().reset_index(name="Rutas Certificadas")
+        st.dataframe(rutas_por_empresa)
+
+        st.subheader("⏱️ Duración Promedio por Ruta")
+        duracion_por_ruta = df_filtrado.groupby("ruta")["duracion"].mean().reset_index()
+        duracion_por_ruta["duracion"] = duracion_por_ruta["duracion"].round(2)
+        st.dataframe(duracion_por_ruta)
+        st.bar_chart(duracion_por_ruta.set_index("ruta"))
+
+        st.subheader("⏱️ Duración Promedio por Certificador")
+        duracion_por_cert = df_filtrado.groupby("certificador")["duracion"].mean().reset_index()
+        duracion_por_cert["duracion"] = duracion_por_cert["duracion"].round(2)
+        st.dataframe(duracion_por_cert)
+        st.bar_chart(duracion_por_cert.set_index("certificador"))
+
+        st.subheader(f"📋 Resumen del Día por Certificador ({hoy})")
+        resumen_hoy = registros_hoy.groupby("certificador").agg({
+            "ruta": "nunique",
+            "duracion": "mean"
+        }).reset_index().rename(columns={"ruta": "Rutas Certificadas", "duracion": "Duración Promedio"})
+        resumen_hoy["Duración Promedio"] = resumen_hoy["Duración Promedio"].round(2)
+        st.dataframe(resumen_hoy)
+
+        st.subheader("🥧 Rutas Certificadas por Usuario (Mes Actual)")
+        df_mes = df_filtrado[df_filtrado["fecha"].dt.month == mes_actual]
+        rutas_por_usuario = df_mes.groupby("usuario")["ruta"].nunique().reset_index(name="Rutas Certificadas")
+        st.dataframe(rutas_por_usuario)
+
+        import plotly.express as px
+        st.plotly_chart(px.pie(rutas_por_usuario, names="usuario", values="Rutas Certificadas", title="Distribución por Usuario"))
+
+        st.subheader("📊 Cantidad de Rutas Certificadas por Empresa")
+        rutas_empresa = df_filtrado.groupby("empresa")["ruta"].nunique().reset_index(name="Rutas Certificadas")
+        st.dataframe(rutas_empresa)
+        st.bar_chart(rutas_empresa.set_index("empresa"))
+
+        st.subheader("📥 Descargar Datos")
+        csv = df_filtrado.to_csv(index=False).encode("utf-8")
+        st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+    else:
+        st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
     # 🕒 Productividad
     elif modulo == "🕒 Productividad":
         if st.session_state.rol_handheld == "admin":
@@ -285,5 +376,6 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
