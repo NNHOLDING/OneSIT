@@ -85,7 +85,7 @@ with tab1:
     certificador = st.selectbox("Certificador", usuarios, key="certificador_cert")
     persona_conteo = st.selectbox("Persona conteo", usuarios, key="conteo_cert")
 
-    # Campos ocultos: Tipo de ruta y Empresa
+    # Campos ocultos: Tipo de ruta (Sección) y Empresa del certificador
     tipo_ruta = df_rutas[df_rutas["Numero ruta"] == ruta]["Seccion"].values[0] if ruta in df_rutas["Numero ruta"].values else ""
     empresa_certificador = df_usuarios[df_usuarios["nombreEmpleado"] == certificador]["Empresa"].values[0] if certificador in df_usuarios["nombreEmpleado"].values else ""
 
@@ -104,12 +104,14 @@ with tab1:
             else:
                 hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
                 site = "Dispositivo externo"
+
                 hoja = conectar_funcion().worksheet("TCertificaciones")
                 hoja.append_row([
                     fecha_cert, ruta, certificador, persona_conteo,
                     hora_inicio.strftime(formato), hora_fin.strftime(formato),
                     duracion, hora_registro, site,
-                    tipo_ruta, empresa_certificador  # Nuevos campos ocultos
+                    empresa_certificador,  # Columna J → Personal
+                    tipo_ruta              # Columna K → Tipo de ruta
                 ])
                 st.success("✅ Certificación enviada correctamente.")
         except Exception as e:
@@ -228,4 +230,5 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
 
