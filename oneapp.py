@@ -121,19 +121,17 @@ if st.session_state.logueado_handheld:
                     equipo, "devolucion"
                 )
 
-        # 🕒 Productividad
-    elif modulo == "🕒 Productividad":
-        if st.session_state.rol_handheld == "admin":
-            mostrar_panel_alisto(conectar_sit_hh)
-        else:
-            mostrar_formulario_alisto(
-                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-                service_account_info=st.secrets["gcp_service_account"],
-                nombre_empleado=st.session_state.nombre_empleado,
-                codigo_empleado=st.session_state.codigo_empleado
-            )
-
-    
+# 🕒 Productividad
+elif modulo == "🕒 Productividad":
+    if st.session_state.rol_handheld == "admin":
+        mostrar_panel_alisto(conectar_sit_hh)
+    else:
+        mostrar_formulario_alisto(
+            GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+            service_account_info=st.secrets["gcp_service_account"],
+            nombre_empleado=st.session_state.nombre_empleado,
+            codigo_empleado=st.session_state.codigo_empleado
+        )
 
 # 📊 Panel de Certificaciones
 elif modulo == "📊 Panel de Certificaciones":
@@ -228,17 +226,19 @@ elif modulo == "📊 Panel de Certificaciones":
             st.bar_chart(resumen_ruta.set_index("ruta"))
     else:
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
-    # 📝 Gestión de Jornada
-    elif modulo == "📝 Gestión de Jornada":
-        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
-        if st.session_state.rol_handheld == "admin":
-            st.markdown("---")
-            mostrar_jornadas(conectar_sit_hh)
 
-    # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
-        mostrar_formulario_errores()
-    # 🚪 Cierre de sesión
+# 📝 Gestión de Jornada
+elif modulo == "📝 Gestión de Jornada":
+    gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+    if st.session_state.rol_handheld == "admin":
+        st.markdown("---")
+        mostrar_jornadas(conectar_sit_hh)
+
+# 🚨 Registro de Errores
+elif modulo == "🚨 Registro de Errores":
+    mostrar_formulario_errores()
+   
+# 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
     if st.button("Salir", key="boton_salir"):
@@ -253,6 +253,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
