@@ -261,6 +261,7 @@ elif modulo == "📝 Gestión de Jornada":
     if st.session_state.rol_handheld == "admin":
         st.markdown("---")
         mostrar_jornadas(conectar_sit_hh)
+
 # 🚨 Registro de Errores
 elif modulo == "🚨 Registro de Errores":
     mostrar_formulario_errores()
