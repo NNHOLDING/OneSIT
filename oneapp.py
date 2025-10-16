@@ -3,7 +3,6 @@ import pandas as pd
 from datetime import datetime
 import pytz
 import requests
-import matplotlib.pyplot as plt
 from PIL import Image
 from io import BytesIO
 
@@ -246,6 +245,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
