@@ -208,8 +208,8 @@ elif modulo == "📊 Panel de Certificaciones":
 		hoja = conectar_sit_hh().worksheet("TCertificaciones")
 		datos = hoja.get_all_values()
 		if datos and len(datos) > 1:
-        df = pd.DataFrame(datos[1:], columns=datos[0])
-        df.columns = df.columns.str.strip().str.lower()
+        	df = pd.DataFrame(datos[1:], columns=datos[0])
+        	df.columns = df.columns.str.strip().str.lower()
 
         df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
         df["duracion"] = pd.to_numeric(df["duracion"], errors="coerce")
@@ -280,6 +280,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
