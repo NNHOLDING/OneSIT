@@ -176,9 +176,13 @@ if st.session_state.logueado_handheld:
                 # 📅 Certificaciones en los últimos 7 días
                 ultima_semana = datetime.now(cr_timezone).date() - pd.Timedelta(days=7)
                 df_ultimos_7 = df[df["fecha"].dt.date >= ultima_semana]
-                rutas_por_dia = df_ultimos_7.groupby(df_ultimos_7["fecha"].dt.date).size().reset_index(name="Certificaciones")
+
+                # Agrupar por fecha en formato texto para evitar escala temporal continua
+                df_ultimos_7["fecha_str"] = df_ultimos_7["fecha"].dt.strftime("%Y-%m-%d")
+                rutas_por_dia = df_ultimos_7.groupby("fecha_str").size().reset_index(name="Certificaciones")
+
                 st.subheader("📅 Certificaciones en los últimos 7 días")
-                st.bar_chart(rutas_por_dia.set_index("fecha"))
+                st.bar_chart(rutas_por_dia.set_index("fecha_str"))
 
                 # 🧑‍💼 Certificaciones por Usuario
                 st.subheader("🧑‍💼 Certificaciones por Usuario")
@@ -246,6 +250,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
