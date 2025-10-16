@@ -232,3 +232,4 @@ with tab2:
                     st.error("❌ No se pudo registrar el cierre.")
 
 
+
