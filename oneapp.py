@@ -239,37 +239,7 @@ elif modulo == "📊 Panel de Certificaciones":
         st.subheader("📄 Registros Filtrados")
         st.dataframe(df_filtrado)
 
-        # 📊 Nuevos gráficos de análisis
-
-        # 1. Gráfico de barras: cantidad de rutas certificadas en los últimos 7 días
-        ultima_semana = datetime.now(cr_timezone).date() - pd.Timedelta(days=7)
-        df_ultimos_7 = df[df["fecha"].dt.date >= ultima_semana]
-        rutas_por_dia = df_ultimos_7.groupby(df_ultimos_7["fecha"].dt.date).size().reset_index(name="Certificaciones")
-        st.subheader("📅 Certificaciones en los últimos 7 días")
-        st.bar_chart(rutas_por_dia.set_index("fecha"))
-
-        # 2. Gráfico pastel: cantidad de rutas certificadas por usuario
-        st.subheader("🧑‍💼 Certificaciones por Usuario")
-        cert_por_usuario = df_filtrado["certificador"].value_counts()
-        st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
-
-        # 3. Gráfico pastel: cantidad de rutas certificadas por empresa (si existe columna 'empresa')
-        if "empresa" in df_filtrado.columns:
-            st.subheader("🏢 Certificaciones por Empresa")
-            cert_por_empresa = df_filtrado["empresa"].value_counts()
-            st.pyplot(cert_por_empresa.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
-        else:
-            st.info("ℹ️ No se encontró la columna 'empresa' para mostrar certificaciones por empresa.")
-
-        # 4. Gráfico de barras: cantidad de rutas certificadas por tipo de ruta (si existe columna 'tipo_ruta')
-        if "tipo_ruta" in df_filtrado.columns:
-            st.subheader("🛣️ Certificaciones por Tipo de Ruta")
-            resumen_tipo = df_filtrado["tipo_ruta"].value_counts().reset_index()
-            resumen_tipo.columns = ["Tipo de Ruta", "Certificaciones"]
-            st.bar_chart(resumen_tipo.set_index("Tipo de Ruta"))
-        else:
-            st.info("ℹ️ No se encontró la columna 'tipo_ruta' para mostrar certificaciones por tipo.")
-
+       
         # 📥 Descarga CSV
         csv = df_filtrado.to_csv(index=False).encode("utf-8")
         st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
@@ -314,6 +284,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
