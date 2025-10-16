@@ -53,22 +53,41 @@ def conectar_funcion():
 tab1, tab2 = st.tabs(["📥 Certificación", "📝 Gestión de Jornada"])
 
 # 📥 Certificación
+# 📥 Certificación
 with tab1:
     st.subheader("Registro de certificación de ruta")
 
     fecha_cert = datetime.now(cr_timezone).strftime("%Y-%m-%d")
     st.text_input("Fecha", value=fecha_cert, disabled=True, key="fecha_cert")
 
-    ruta = st.selectbox("Ruta", ["100", "200", "300", "400", "500", "600", "700", "800", "otro"], key="ruta_cert")
+    # Cargar rutas desde hoja TRutas
+    def obtener_rutas():
+        hoja_rutas = conectar_funcion().worksheet("TRutas")
+        datos_rutas = hoja_rutas.get_all_values()
+        df_rutas = pd.DataFrame(datos_rutas[1:], columns=datos_rutas[0])
+        df_rutas.columns = df_rutas.columns.str.strip()
+        return df_rutas
 
-    def obtener_usuarios():
-        hoja = conectar_funcion().worksheet("usuarios")
-        datos = hoja.get_all_values()
-        return sorted([fila[1] for fila in datos[1:] if fila[1]])
+    df_rutas = obtener_rutas()
+    rutas_disponibles = sorted(df_rutas["Numero ruta"].dropna().unique())
+    ruta = st.selectbox("Ruta", rutas_disponibles, key="ruta_cert")
 
-    usuarios = obtener_usuarios()
+    # Cargar usuarios desde hoja usuarios
+    def obtener_usuarios_df():
+        hoja_usuarios = conectar_funcion().worksheet("usuarios")
+        datos_usuarios = hoja_usuarios.get_all_values()
+        df_usuarios = pd.DataFrame(datos_usuarios[1:], columns=datos_usuarios[0])
+        df_usuarios.columns = df_usuarios.columns.str.strip()
+        return df_usuarios
+
+    df_usuarios = obtener_usuarios_df()
+    usuarios = sorted(df_usuarios["nombreEmpleado"].dropna().unique())
     certificador = st.selectbox("Certificador", usuarios, key="certificador_cert")
     persona_conteo = st.selectbox("Persona conteo", usuarios, key="conteo_cert")
+
+    # Campos ocultos: Tipo de ruta y Empresa
+    tipo_ruta = df_rutas[df_rutas["Numero ruta"] == ruta]["Seccion"].values[0] if ruta in df_rutas["Numero ruta"].values else ""
+    empresa_certificador = df_usuarios[df_usuarios["nombreEmpleado"] == certificador]["Empresa"].values[0] if certificador in df_usuarios["nombreEmpleado"].values else ""
 
     hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
     hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc, key="inicio_cert")
@@ -89,12 +108,12 @@ with tab1:
                 hoja.append_row([
                     fecha_cert, ruta, certificador, persona_conteo,
                     hora_inicio.strftime(formato), hora_fin.strftime(formato),
-                    duracion, hora_registro, site
+                    duracion, hora_registro, site,
+                    tipo_ruta, empresa_certificador  # Nuevos campos ocultos
                 ])
                 st.success("✅ Certificación enviada correctamente.")
         except Exception as e:
             st.error(f"❌ Error al enviar certificación: {e}")
-
 # 📝 Gestión de Jornada
 with tab2:
     st.subheader("📝 Gestión de jornada")
@@ -209,3 +228,4 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+
