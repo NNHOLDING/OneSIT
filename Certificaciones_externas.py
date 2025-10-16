@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 
 
 # Configuración visual
-st.set_page_config(page_title="HH HOLDING", page_icon="🏢", layout="centered")
+st.set_page_config(page_title="SIGMA ALIMENTOS", page_icon="🏢", layout="centered")
 
 # Logo y encabezado
 url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
@@ -216,6 +216,13 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
+# 🧾 Footer institucional
+st.markdown("""
+    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
+        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+    </div>
+""", unsafe_allow_html=True)
 
 
 
