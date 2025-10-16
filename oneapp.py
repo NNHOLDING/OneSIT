@@ -119,12 +119,75 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion"
                 )
-    # 📋 Panel Administrativo
-    if modulo == "📋 Panel Administrativo":
+      # 📋 Panel Administrativo
+    elif modulo == "📋 Panel Administrativo":
         if st.session_state.rol_handheld != "admin":
             st.error("⛔ No tienes permisos para acceder a este módulo.")
         else:
-            # ... contenido del panel administrativo ...
+            st.title("📋 Panel Administrativo")
+            hoja = conectar_sit_hh().worksheet("HH")
+            datos = hoja.get_all_values()
+
+            if datos and len(datos[0]) > 0:
+                df = pd.DataFrame(datos[1:], columns=datos[0])
+                df.columns = df.columns.str.strip().str.lower()
+                df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+
+                usuarios = sorted(df["nombre"].dropna().unique())
+                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+                usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
+
+                df_filtrado = df[
+                    (df["fecha"].dt.date >= fecha_ini) &
+                    (df["fecha"].dt.date <= fecha_fin)
+                ]
+                if usuario_sel != "Todos":
+                    df_filtrado = df_filtrado[df_filtrado["nombre"] == usuario_sel]
+
+                st.subheader("📑 Registros")
+                st.dataframe(df_filtrado)
+
+                hoy = datetime.now(cr_timezone).date()
+                if "estatus" in df.columns:
+                    entregados_hoy = df[
+                        (df["fecha"].dt.date == hoy) &
+                        (df["estatus"].str.lower() == "entregado")
+                    ]
+                    devueltos_hoy = df[
+                        (df["fecha"].dt.date == hoy) &
+                        (df["estatus"].str.lower() == "devuelto")
+                    ]
+
+                    st.subheader("✅ Registros Entregados Hoy")
+                    st.dataframe(entregados_hoy)
+
+                    st.subheader("📤 Registros Devueltos Hoy")
+                    st.dataframe(devueltos_hoy)
+
+                    st.markdown("### 📊 Resumen de Movimientos Hoy")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("Entregados", len(entregados_hoy))
+                    with col2:
+                        st.metric("Devueltos", len(devueltos_hoy))
+                else:
+                    st.info("ℹ️ No se encontró la columna 'estatus' para mostrar entregas y devoluciones de hoy.")
+
+                csv = df_filtrado.to_csv(index=False).encode("utf-8")
+                st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
+
+                st.subheader("📊 Actividad por Usuario")
+                resumen = df_filtrado.groupby("nombre").size().reset_index(name="Registros")
+                st.dataframe(resumen)
+                st.bar_chart(resumen.set_index("nombre"))
+
+                st.subheader("🔧 Actividad por Equipo")
+                resumen_eq = df_filtrado.groupby("equipo").size().reset_index(name="Movimientos")
+                st.dataframe(resumen_eq)
+                st.bar_chart(resumen_eq.set_index("equipo"))
+            else:
+                st.warning("⚠️ No se encontró la columna 'nombre' en los datos.")
 
     # 🕒 Productividad
     elif modulo == "🕒 Productividad":
@@ -140,7 +203,56 @@ if st.session_state.logueado_handheld:
 
     # 📊 Panel de Certificaciones
     elif modulo == "📊 Panel de Certificaciones":
-        # ... contenido del panel de certificaciones ...
+        st.title("📊 Panel de Certificaciones")
+        hoja = conectar_sit_hh().worksheet("TCertificaciones")
+        datos = hoja.get_all_values()
+
+        if datos and len(datos) > 1:
+            df = pd.DataFrame(datos[1:], columns=datos[0])
+            df.columns = df.columns.str.strip().str.lower()
+
+            df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+            df["duracion"] = pd.to_numeric(df["duracion"], errors="coerce")
+
+            rutas = sorted(df["ruta"].dropna().unique())
+            certificadores = sorted(df["certificador"].dropna().unique())
+
+            col1, col2 = st.columns(2)
+            with col1:
+                fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
+            with col2:
+                fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
+
+            ruta_sel = st.selectbox("Filtrar por Ruta", ["Todas"] + rutas)
+            cert_sel = st.selectbox("Filtrar por Certificador", ["Todos"] + certificadores)
+
+            df_filtrado = df[
+                (df["fecha"].dt.date >= fecha_ini) &
+                (df["fecha"].dt.date <= fecha_fin)
+            ]
+            if ruta_sel != "Todas":
+                df_filtrado = df_filtrado[df_filtrado["ruta"] == ruta_sel]
+            if cert_sel != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["certificador"] == cert_sel]
+
+            st.subheader("📄 Registros Filtrados")
+            st.dataframe(df_filtrado)
+
+            csv = df_filtrado.to_csv(index=False).encode("utf-8")
+            st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+
+            st.subheader("📈 Duración promedio por certificador")
+            resumen_cert = df_filtrado.groupby("certificador")["duracion"].mean().reset_index()
+            resumen_cert["duracion"] = resumen_cert["duracion"].round(2)
+            st.dataframe(resumen_cert)
+            st.bar_chart(resumen_cert.set_index("certificador"))
+
+            st.subheader("📊 Total de certificaciones por ruta")
+            resumen_ruta = df_filtrado.groupby("ruta").size().reset_index(name="Certificaciones")
+            st.dataframe(resumen_ruta)
+            st.bar_chart(resumen_ruta.set_index("ruta"))
+        else:
+            st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
 
     # 📝 Gestión de Jornada
     elif modulo == "📝 Gestión de Jornada":
@@ -168,4 +280,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
