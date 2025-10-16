@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 
 
 # Configuración visual
-st.set_page_config(page_title="SIGMA ALIMENTOS", page_icon="🏢", layout="centered")
+st.set_page_config(page_title="SIT", page_icon="🏢", layout="centered")
 
 # Logo y encabezado
 url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
@@ -19,7 +19,7 @@ st.markdown(
     f"""
     <div style='text-align: center; margin-bottom: 20px;'>
         <img src="{url_logo}" width="200" />
-        <h2 style='margin-top: 10px;'>HH HOLDING</h2>
+        <h2 style='margin-top: 10px;'>SIGMA ALIMENTOS/h2>
     </div>
     """,
     unsafe_allow_html=True
@@ -223,6 +223,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
