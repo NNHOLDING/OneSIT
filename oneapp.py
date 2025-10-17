@@ -253,9 +253,9 @@ if st.session_state.logueado_handheld:
                 st.bar_chart(rutas_por_dia.set_index("fecha_str"))
 
                  # 🧑‍💼 Certificaciones por Usuario
-				st.subheader("🧑‍💼 Certificaciones por Usuario")
-				cert_por_usuario = df_filtrado["certificador"].value_counts()
-				st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
+					st.subheader("🧑‍💼 Certificaciones por Usuario")
+					cert_por_usuario = df_filtrado["certificador"].value_counts()
+					st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
 				
 				# 🏢 Certificaciones por Empresa
 				if "empresa" in df_filtrado.columns:
@@ -322,3 +322,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
