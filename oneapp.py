@@ -201,7 +201,7 @@ if st.session_state.logueado_handheld:
                 codigo_empleado=st.session_state.codigo_empleado
             )
 
-    # 📊 Panel de Certificaciones
+# 📊 Panel de Certificaciones
 elif modulo == "📊 Panel de Certificaciones":
     st.title("📊 Panel de Certificaciones")
     hoja = conectar_sit_hh().worksheet("TCertificaciones")
@@ -211,7 +211,8 @@ elif modulo == "📊 Panel de Certificaciones":
         df = pd.DataFrame(datos[1:], columns=datos[0])
         df.columns = df.columns.str.strip().str.lower()
 
-        if "fecha" not in df.columns or "certificador" not in df.columns or "ruta" not in df.columns:
+        columnas_necesarias = {"fecha", "certificador", "ruta"}
+        if not columnas_necesarias.issubset(df.columns):
             st.warning("⚠️ Las columnas necesarias no se encuentran en los datos.")
         else:
             df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
@@ -304,16 +305,17 @@ elif modulo == "📊 Panel de Certificaciones":
             st.bar_chart(resumen_ruta.set_index("ruta"))
     else:
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
-    # 📝 Gestión de Jornada
-    elif modulo == "📝 Gestión de Jornada":
-        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
-        if st.session_state.rol_handheld == "admin":
-            st.markdown("---")
-            mostrar_jornadas(conectar_sit_hh)
 
-    # 🚨 Registro de Errores
-    elif modulo == "🚨 Registro de Errores":
-        mostrar_formulario_errores()   
+# 📝 Gestión de Jornada
+elif modulo == "📝 Gestión de Jornada":
+    gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+    if st.session_state.rol_handheld == "admin":
+        st.markdown("---")
+        mostrar_jornadas(conectar_sit_hh)
+
+# 🚨 Registro de Errores
+elif modulo == "🚨 Registro de Errores":
+    mostrar_formulario_errores()   
 # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
@@ -329,6 +331,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
