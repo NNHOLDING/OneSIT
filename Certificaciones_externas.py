@@ -79,7 +79,7 @@ with tab1:
     tipo_ruta = df_rutas[df_rutas["Numero ruta"] == ruta]["Seccion"].values[0] if ruta in df_rutas["Numero ruta"].values else ""
     empresa_certificador = df_usuarios[df_usuarios["nombreEmpleado"] == certificador]["Empresa"].values[0] if certificador in df_usuarios["nombreEmpleado"].values else ""
 
-    hfrom datetime import datetime, timedelta
+    from datetime import datetime, timedelta
 
     # Obtener hora actual sin segundos ni microsegundos
     hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
@@ -254,6 +254,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
