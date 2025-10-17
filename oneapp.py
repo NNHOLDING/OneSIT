@@ -1,4 +1,3 @@
-Copia
 
 import streamlit as st
 import pandas as pd
@@ -261,7 +260,7 @@ if st.session_state.logueado_handheld:
 
                 # 🏢 Certificaciones por Empresa
 				if "empresa" in df_filtrado.columns:
-				st.subheader("🏢 Certificaciones por Empresa")
+					st.subheader("🏢 Certificaciones por Empresa")
 
 				# Contar certificaciones por empresa
 				cert_por_empresa = df_filtrado["empresa"].value_counts().reset_index()
@@ -325,3 +324,4 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
