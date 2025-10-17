@@ -79,39 +79,12 @@ with tab1:
     tipo_ruta = df_rutas[df_rutas["Numero ruta"] == ruta]["Seccion"].values[0] if ruta in df_rutas["Numero ruta"].values else ""
     empresa_certificador = df_usuarios[df_usuarios["nombreEmpleado"] == certificador]["Empresa"].values[0] if certificador in df_usuarios["nombreEmpleado"].values else ""
 
-    from datetime import datetime, timedelta
-
-    # Obtener hora actual sin segundos ni microsegundos
     hora_actual_crc = datetime.now(cr_timezone).time().replace(second=0, microsecond=0)
-    
-    # Entradas del usuario
     hora_inicio = st.time_input("Hora inicio", value=hora_actual_crc, key="inicio_cert")
     hora_fin = st.time_input("Hora fin", value=hora_actual_crc, key="fin_cert")
-    
-    # Fecha base (puede ser la fecha actual o seleccionada por el usuario)
-    fecha_base = datetime.now(cr_timezone).date()
-    
-    # Combinar fecha con hora
-    inicio_dt = datetime.combine(fecha_base, hora_inicio)
-    fin_dt = datetime.combine(fecha_base, hora_fin)
-    
-    # Si la hora de fin es menor o igual, asumimos que es del día siguiente
-    if fin_dt <= inicio_dt:
-        fin_dt += timedelta(days=1)
-    
-    # Calcular duración
-    duracion = fin_dt - inicio_dt
-    
-    # Mostrar resultado
-    st.write(f"🕒 Duración registrada: {duracion}")
 
-    # Botón de envío
     if st.button("📥 Enviar Certificación"):
-        st.success("✅ Certificación enviada correctamente.")
-        # Aquí puedes agregar la lógica para guardar los datos
-    
-        if st.button("📥 Enviar Certificación"):
-            try:
+        try:
             formato = "%H:%M"
             inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
             fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
@@ -254,11 +227,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
