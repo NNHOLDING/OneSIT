@@ -264,18 +264,6 @@ if st.session_state.logueado_handheld:
                     st.pyplot(cert_por_empresa.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
                 else:
                     st.info("ℹ️ No se encontró la columna 'empresa' para mostrar certificaciones por empresa.")
-					# 🏢 Certificaciones por Empresa
-				if "empresa" in df_filtrado.columns:
-				    st.subheader("🏢 Certificaciones por Empresa")
-				
-				    # Contar certificaciones por empresa
-				    cert_por_empresa = df_filtrado["empresa"].value_counts().reset_index()
-				    cert_por_empresa.columns = ["Empresa", "Certificaciones"]
-				
-				    # Mostrar gráfico de barras
-				    st.bar_chart(cert_por_empresa.set_index("Empresa"))
-				else:
-				    st.info("ℹ️ No se encontró la columna 'empresa' para mostrar certificaciones por empresa.")
 
                 # 🛣️ Certificaciones por Tipo de Ruta
                 if "tipo_ruta" in df_filtrado.columns:
