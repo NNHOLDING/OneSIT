@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt  # 👈 Aquí va
@@ -253,36 +252,35 @@ if st.session_state.logueado_handheld:
                 st.subheader("📅 Certificaciones en los últimos 7 días")
                 st.bar_chart(rutas_por_dia.set_index("fecha_str"))
 
-                # 🧑‍💼 Certificaciones por Usuario
-                st.subheader("🧑‍💼 Certificaciones por Usuario")
-                cert_por_usuario = df_filtrado["certificador"].value_counts()
-                st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
-
-                # 🏢 Certificaciones por Empresa
+                 # 🧑‍💼 Certificaciones por Usuario
+				st.subheader("🧑‍💼 Certificaciones por Usuario")
+				cert_por_usuario = df_filtrado["certificador"].value_counts()
+				st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
+				
+				# 🏢 Certificaciones por Empresa
 				if "empresa" in df_filtrado.columns:
-						st.subheader("🏢 Certificaciones por Empresa")
-
-					# Contar certificaciones por empresa
-					cert_por_empresa = df_filtrado["empresa"].value_counts().reset_index()
-					cert_por_empresa.columns = ["Empresa", "Certificaciones"]
-
-					# Mostrar gráfico de barras
-					st.bar_chart(cert_por_empresa.set_index("Empresa"))
+				    st.subheader("🏢 Certificaciones por Empresa")
+				
+				    # Contar certificaciones por empresa
+				    cert_por_empresa = df_filtrado["empresa"].value_counts().reset_index()
+				    cert_por_empresa.columns = ["Empresa", "Certificaciones"]
+				
+				    # Mostrar gráfico de barras
+				    st.bar_chart(cert_por_empresa.set_index("Empresa"))
 				else:
-					st.info("ℹ️ No se encontró la columna 'empresa' para mostrar certificaciones por empresa.")
-
-                # 🛣️ Certificaciones por Tipo de Ruta
-                if "tipo_ruta" in df_filtrado.columns:
-                    st.subheader("🛣️ Certificaciones por Tipo de Ruta")
-                    resumen_tipo = df_filtrado["tipo_ruta"].value_counts().reset_index()
-                    resumen_tipo.columns = ["Tipo de Ruta", "Certificaciones"]
-                    st.bar_chart(resumen_tipo.set_index("Tipo de Ruta"))
-                else:
-                    st.info("ℹ️ No se encontró la columna 'tipo_ruta' para mostrar certificaciones por tipo.")
-
-                # 📥 Descargar CSV
-                csv = df_filtrado.to_csv(index=False).encode("utf-8")
-                st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
+				    st.info("ℹ️ No se encontró la columna 'empresa' para mostrar certificaciones por empresa.")
+				
+				# 🛣️ Certificaciones por Tipo de Ruta
+				if "tipo_ruta" in df_filtrado.columns:
+				    st.subheader("🛣️ Certificaciones por Tipo de Ruta")
+				    resumen_tipo = df_filtrado["tipo_ruta"].value_counts().reset_index()
+				    resumen_tipo.columns = ["Tipo de Ruta", "Certificaciones"]
+				    st.bar_chart(resumen_tipo.set_index("Tipo de Ruta"))
+				else:
+				    st.info("ℹ️ No se encontró la columna 'tipo_ruta' para mostrar certificaciones por tipo.")
+				                # 📥 Descargar CSV
+				                csv = df_filtrado.to_csv(index=False).encode("utf-8")
+				                st.download_button("📥 Descargar CSV", csv, "certificaciones.csv", "text/csv")
 
                 # 📈 Duración promedio por certificador
                 st.subheader("📈 Duración promedio por certificador")
@@ -324,7 +322,3 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
-
-
-
