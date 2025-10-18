@@ -84,28 +84,40 @@ with tab1:
     hora_fin = st.time_input("Hora fin", value=hora_actual_crc, key="fin_cert")
 
     if st.button("📥 Enviar Certificación"):
-        try:
-            formato = "%H:%M"
-            inicio_dt = datetime.strptime(hora_inicio.strftime(formato), formato)
-            fin_dt = datetime.strptime(hora_fin.strftime(formato), formato)
-            duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
-            if duracion < 0:
-                st.error("⚠️ La hora de fin no puede ser anterior a la hora de inicio.")
-            else:
-                hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
-                site = "Dispositivo externo"
+    try:
+        formato = "%H:%M"
+        fecha_base = datetime.now(cr_timezone).date()
 
-                hoja = conectar_funcion().worksheet("TCertificaciones")
-                hoja.append_row([
-                    fecha_cert, ruta, certificador, persona_conteo,
-                    hora_inicio.strftime(formato), hora_fin.strftime(formato),
-                    duracion, hora_registro, site,
-                    empresa_certificador,  # Columna J → Personal
-                    tipo_ruta              # Columna K → Tipo de ruta
-                ])
-                st.success("✅ Certificación enviada correctamente.")
-        except Exception as e:
-            st.error(f"❌ Error al enviar certificación: {e}")
+        # Combinar fecha base con hora de inicio y fin
+        inicio_dt = datetime.combine(fecha_base, hora_inicio)
+        fin_dt = datetime.combine(fecha_base, hora_fin)
+
+        # Si la hora de fin es menor o igual, asumimos que es al día siguiente
+        if fin_dt <= inicio_dt:
+            fin_dt += pd.Timedelta(days=1)
+
+        # Calcular duración en minutos
+        duracion = int((fin_dt - inicio_dt).total_seconds() / 60)
+
+        hora_registro = datetime.now(cr_timezone).strftime("%H:%M:%S")
+        site = "Dispositivo externo"
+
+        hoja = conectar_funcion().worksheet("TCertificaciones")
+        hoja.append_row([
+            fecha_cert, ruta, certificador, persona_conteo,
+            hora_inicio.strftime(formato), hora_fin.strftime(formato),
+            duracion, hora_registro, site,
+            empresa_certificador,  # Columna J → Personal
+            tipo_ruta              # Columna K → Tipo de ruta
+        ])
+
+        # Mostrar confirmación con duración en formato legible
+        horas = duracion // 60
+        minutos = duracion % 60
+        duracion_legible = f"{horas} horas y {minutos} minutos" if horas else f"{minutos} minutos"
+        st.success(f"✅ Certificación enviada correctamente. Duración registrada: {duracion_legible}.")
+    except Exception as e:
+        st.error(f"❌ Error al enviar certificación: {e}")
 # 📝 Gestión de Jornada
 with tab2:
     st.subheader("📝 Gestión de jornada")
