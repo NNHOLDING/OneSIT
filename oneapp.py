@@ -18,6 +18,7 @@ from registro_errores import mostrar_formulario_errores
 from modulo_temperatura import mostrar_formulario_temperatura
 from panel_administrativo import mostrar_panel_administrativo
 from panel_certificaciones import mostrar_panel_certificaciones
+from prueba_ubicacion import mostrar_prueba_ubicacion
 
 
 st.set_page_config(
@@ -156,7 +157,10 @@ if st.session_state.logueado_handheld:
         mostrar_formulario_errores()
     # 🌡️ Registro de Temperatura
     elif modulo == "🌡️ Registro de Temperatura":
-        mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)        
+        mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)
+    # 🧪 Prueba de Ubicación
+    elif modulo == "🧪 Prueba de Ubicación":
+    mostrar_prueba_ubicacion()
     # 🚪 Cierre de sesión
         st.markdown("---")
         st.markdown("### 🚪 Cerrar sesión")
@@ -172,6 +176,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
