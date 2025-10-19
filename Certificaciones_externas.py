@@ -142,7 +142,7 @@ with tab2:
         return pd.DataFrame(datos[1:], columns=datos[0])
 
     def obtener_usuarios(conectar_funcion):
-        hoja_usuarios = conectar_funcion().worksheet("Usuarios")
+        hoja_usuarios = conectar_funcion().worksheet("usuarios")
         datos_usuarios = hoja_usuarios.get_all_values()
         return [fila[0] for fila in datos_usuarios[1:] if fila[0].strip()]
 
@@ -271,6 +271,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
