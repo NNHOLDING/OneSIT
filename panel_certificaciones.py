@@ -17,6 +17,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
 
         df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
         df["duracion"] = pd.to_numeric(df["duracion"], errors="coerce")
+
         rutas = sorted(df["ruta"].dropna().unique())
         certificadores = sorted(df["certificador"].dropna().unique())
 
@@ -47,28 +48,20 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
 
         st.subheader("📅 Certificaciones en los últimos 7 días")
         st.bar_chart(rutas_por_dia.set_index("fecha_str"))
-        
-        
-        # 📋 Resumen de certificaciones por usuario (tipo tabla dinámica)
-       st.subheader("📊 Certificaciones por usuario (gráfico de barras)")
 
-        # Agrupar por certificador y contar
-        resumen = (
-            df_filtrado.groupby("certificador")
-            .size()
-            .reset_index(name="Total certificaciones realizadas")
-            .rename(columns={"certificador": "Nombre del certificador"})
-        )
-        
-        # Mostrar gráfico de barras
+        st.subheader("🧑‍💼 Certificaciones por Usuario")
+        cert_por_usuario = df_filtrado["certificador"].value_counts()
+        st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
+	
+	# Mostrar gráfico de barras
         st.bar_chart(resumen.set_index("Nombre del certificador"))
                 st.subheader("🧑‍💼 Certificaciones por Usuario")
                 cert_por_usuario = df_filtrado["certificador"].value_counts()
                 st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
                 # 👤 Certificaciones por Persona
                 st.subheader("👤 Certificaciones por Persona")
-                
-        # Contar ocurrencias por persona
+
+	 # Contar ocurrencias por persona
         cert_por_persona = df_filtrado["persona"].value_counts()
 
         # Mostrar gráfico circular
@@ -77,7 +70,6 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
             figsize=(6, 6),
             ylabel=""  # Oculta el título automático del eje
         ).figure)
-
         if "empresa" in df_filtrado.columns:
             st.subheader("🏢 Certificaciones por Empresa")
             cert_por_empresa = df_filtrado["empresa"].value_counts().reset_index()
@@ -108,11 +100,3 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
     else:
 
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
-
-
-
-
-
-
-
-
