@@ -61,7 +61,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
         st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6), ylabel="").figure)
         
         st.subheader("📊 Certificaciones por Usuario (Gráfico de Barras)")
-        st.bar_chart(resumen_certificadores.set_index("certificador"))
+        st.bar_chart(resumen_certificadores.set_index("Certificador"))
 
        
         # Gráfico circular por empresa
@@ -98,6 +98,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
         st.bar_chart(resumen_ruta.set_index("ruta"))
     else:
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+
 
 
 
