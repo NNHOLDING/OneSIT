@@ -141,6 +141,11 @@ with tab2:
         datos = hoja.get_all_values()
         return pd.DataFrame(datos[1:], columns=datos[0])
 
+    def obtener_usuarios(conectar_funcion):
+        hoja_usuarios = conectar_funcion().worksheet("Usuarios")
+        datos_usuarios = hoja_usuarios.get_all_values()
+        return [fila[0] for fila in datos_usuarios[1:] if fila[0].strip()]
+
     def agregar_fila_inicio(conectar_funcion, fecha, usuario, bodega, hora):
         hoja = conectar_funcion().worksheet("Jornadas")
         hoja.append_row([fecha, usuario, bodega, hora, "", "", "", "", ""])
@@ -154,7 +159,9 @@ with tab2:
                 return True
         return False
 
-    usuario_actual = st.text_input("👤 Usuario", key="usuario_jornada")
+    usuarios_disponibles = obtener_usuarios(conectar_funcion)
+    usuario_actual = st.selectbox("👤 Usuario", usuarios_disponibles, key="usuario_jornada")
+
     fecha_jornada = datetime.now(cr_timezone).strftime("%Y-%m-%d")
     st.text_input("📅 Fecha", value=fecha_jornada, disabled=True, key="fecha_jornada")
 
@@ -199,9 +206,26 @@ with tab2:
         lat_usuario = None
         lon_usuario = None
 
+    # Estilos personalizados para botones
+    st.markdown("""
+        <style>
+        .stButton > button:first-child {
+            font-weight: bold;
+        }
+        div.stButton > button.boton-inicio {
+            background-color: #FFDAB9;
+            color: black;
+        }
+        div.stButton > button.boton-cierre {
+            background-color: #ADD8E6;
+            color: black;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("📌 Iniciar jornada"):
+        if st.button("📌 Iniciar jornada", key="btn_inicio"):
             if not usuario_actual.strip():
                 st.warning("Debes ingresar tu usuario.")
             elif not bodega.strip():
@@ -218,7 +242,7 @@ with tab2:
                 st.success(f"✅ Inicio registrado a las {hora_inicio_str}")
 
     with col2:
-        if st.button("✅ Cerrar jornada"):
+        if st.button("✅ Cerrar jornada", key="btn_cierre"):
             if not usuario_actual.strip():
                 st.warning("Debes ingresar tu usuario.")
             elif registro_existente.empty:
@@ -226,7 +250,15 @@ with tab2:
             elif registro_existente.iloc[0].get("fecha cierre", "") != "":
                 st.warning("Ya has cerrado la jornada de hoy.")
             else:
-                hora_cierre_str = hora_cierre_manual.strftime("%H:%M:%S")
+                hora_inicio_str = registro_existente.iloc[0].get("hora inicio", "00:00:00")
+                hora_inicio_dt = datetime.strptime(hora_inicio_str, "%H:%M:%S")
+                hora_cierre_dt = datetime.combine(datetime.today(), hora_cierre_manual)
+
+                if hora_cierre_dt.time() < hora_inicio_dt.time():
+                    hora_cierre_dt += timedelta(days=1)
+
+                hora_cierre_str = hora_cierre_dt.strftime("%H:%M:%S")
+
                 if actualizar_fecha_cierre(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_cierre_str):
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
@@ -239,5 +271,6 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
