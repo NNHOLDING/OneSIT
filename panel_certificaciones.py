@@ -17,7 +17,6 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
 
         df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
         df["duracion"] = pd.to_numeric(df["duracion"], errors="coerce")
-
         rutas = sorted(df["ruta"].dropna().unique())
         certificadores = sorted(df["certificador"].dropna().unique())
 
@@ -109,6 +108,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
     else:
 
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+
 
 
 
