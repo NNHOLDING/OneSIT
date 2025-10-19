@@ -171,10 +171,15 @@ with tab2:
     ]
     bodega = st.selectbox("🏢 Selecciona la bodega", bodegas, key="bodega_jornada")
 
-    with st.empty():
-    hora_inicio_manual = st.time_input("Hora de inicio", value=datetime.now(cr_timezone).time(), key="hora_inicio_manual")
-    hora_cierre_manual = st.time_input("Hora de cierre", value=datetime.now(cr_timezone).time(), key="hora_cierre_manual")
-    
+    # Ocultar campos de hora pero mantener funcionalidad
+    if "hora_inicio_manual" not in st.session_state:
+        st.session_state.hora_inicio_manual = datetime.now(cr_timezone).time()
+    if "hora_cierre_manual" not in st.session_state:
+        st.session_state.hora_cierre_manual = datetime.now(cr_timezone).time()
+
+    hora_inicio_manual = st.session_state.hora_inicio_manual
+    hora_cierre_manual = st.session_state.hora_cierre_manual
+
     datos = cargar_datos(conectar_funcion)
     registro_existente = datos[
         (datos["usuario"] == usuario_actual) &
@@ -246,7 +251,7 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
-                    ##bloque2##
+
 # 🧾 Footer institucional
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
