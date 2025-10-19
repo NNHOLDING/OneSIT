@@ -142,9 +142,9 @@ with tab2:
         return pd.DataFrame(datos[1:], columns=datos[0])
 
     def obtener_usuarios(conectar_funcion):
-        hoja_usuarios = conectar_funcion().worksheet("usuarios")
+        hoja_usuarios = conectar_funcion().worksheet("Usuarios")
         datos_usuarios = hoja_usuarios.get_all_values()
-        return [fila[0] for fila in datos_usuarios[1:] if fila[0].strip()]
+        return [fila[1] for fila in datos_usuarios[1:] if len(fila) > 1 and fila[1].strip()]
 
     def agregar_fila_inicio(conectar_funcion, fecha, usuario, bodega, hora):
         hoja = conectar_funcion().worksheet("Jornadas")
@@ -206,26 +206,9 @@ with tab2:
         lat_usuario = None
         lon_usuario = None
 
-    # Estilos personalizados para botones
-    st.markdown("""
-        <style>
-        .stButton > button:first-child {
-            font-weight: bold;
-        }
-        div.stButton > button.boton-inicio {
-            background-color: #FFDAB9;
-            color: black;
-        }
-        div.stButton > button.boton-cierre {
-            background-color: #ADD8E6;
-            color: black;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("📌 Iniciar jornada", key="btn_inicio"):
+        if st.button("📌 Iniciar jornada"):
             if not usuario_actual.strip():
                 st.warning("Debes ingresar tu usuario.")
             elif not bodega.strip():
@@ -242,7 +225,7 @@ with tab2:
                 st.success(f"✅ Inicio registrado a las {hora_inicio_str}")
 
     with col2:
-        if st.button("✅ Cerrar jornada", key="btn_cierre"):
+        if st.button("✅ Cerrar jornada"):
             if not usuario_actual.strip():
                 st.warning("Debes ingresar tu usuario.")
             elif registro_existente.empty:
@@ -271,6 +254,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
