@@ -53,6 +53,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
         # 📋 Resumen de certificaciones por usuario (según filtro)
         st.subheader("📌 Resumen de certificaciones por usuario")
         
+        # Contar certificaciones por certificador
         resumen_usuarios = (
             df_filtrado["certificador"]
             .value_counts()
@@ -60,17 +61,17 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
             .rename(columns={"index": "Certificador", "certificador": "Total Certificaciones"})
         )
         
-        # Agregar fila de total general correctamente
-        fila_total = pd.DataFrame([{
-            "Certificador": "🧮 Total",
-            "Total Certificaciones": resumen_usuarios["Total Certificaciones"].sum()
-        }])
+        # Agregar fila de total general
+        total = pd.DataFrame({
+            "Certificador": ["🧮 Total"],
+            "Total Certificaciones": [resumen_usuarios["Total Certificaciones"].sum()]
+        })
         
-        resumen_usuarios = pd.concat([resumen_usuarios, fila_total], ignore_index=True)
+        # Concatenar la fila de total
+        resumen_usuarios = pd.concat([resumen_usuarios, total], ignore_index=True)
         
         # Mostrar tabla
-        st.dataframe(resumen_usuarios)
-        
+        st.dataframe(resumen_usuarios)        
         st.subheader("🧑‍💼 Certificaciones por Usuario")
         cert_por_usuario = df_filtrado["certificador"].value_counts()
         st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
@@ -105,6 +106,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
     else:
 
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+
 
 
 
