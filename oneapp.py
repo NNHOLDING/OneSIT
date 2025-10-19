@@ -160,7 +160,7 @@ if st.session_state.logueado_handheld:
         mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)
     # 🧪 Prueba de Ubicación
     elif modulo == "🧪 Prueba de Ubicación":
-    mostrar_prueba_ubicacion()
+        mostrar_prueba_ubicacion()
     # 🚪 Cierre de sesión
         st.markdown("---")
         st.markdown("### 🚪 Cerrar sesión")
@@ -173,9 +173,10 @@ if st.session_state.logueado_handheld:
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
     <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
-        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+        Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
