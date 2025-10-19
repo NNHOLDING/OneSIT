@@ -69,11 +69,20 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
         st.subheader("📊 Certificaciones por Usuario (Gráfico de Barras)")
         st.bar_chart(resumen_certificadores.set_index("certificador"))
 
-        # Gráfico circular por persona
+       # 👤 Gráfico circular por Persona conteo
         if "persona conteo" in df_filtrado.columns and df_filtrado["persona conteo"].notna().any():
             st.subheader("👤 Certificaciones por Persona")
+        
+            # Contar certificaciones por persona
             cert_por_persona = df_filtrado["persona conteo"].value_counts()
-            st.pyplot(cert_por_persona.plot.pie(autopct="%1.1f%%", figsize=(6, 6), ylabel="").figure)
+        
+            # Crear y mostrar gráfico circular
+            st.pyplot(cert_por_persona.plot.pie(
+                autopct="%1.1f%%",
+                figsize=(6, 6),
+                ylabel="",  # Oculta el eje vertical
+                title="Distribución de certificaciones por persona"
+            ).figure)
 
         # Gráfico circular por empresa
         if "empresa" in df_filtrado.columns:
@@ -109,3 +118,4 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
         st.bar_chart(resumen_ruta.set_index("ruta"))
     else:
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+
