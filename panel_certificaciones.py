@@ -51,8 +51,8 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
         
         
         # 📋 Resumen de certificaciones por usuario (tipo tabla dinámica)
-        st.subheader("📌 Resumen de certificaciones por usuario")
-        
+       st.subheader("📊 Certificaciones por usuario (gráfico de barras)")
+
         # Agrupar por certificador y contar
         resumen = (
             df_filtrado.groupby("certificador")
@@ -61,20 +61,23 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
             .rename(columns={"certificador": "Nombre del certificador"})
         )
         
-        # Agregar fila de total general
-        total_fila = pd.DataFrame([{
-            "Nombre del certificador": "🧮 Total",
-            "Total certificaciones realizadas": resumen["Total certificaciones realizadas"].sum()
-        }])
-        
-        # Concatenar
-        resumen = pd.concat([resumen, total_fila], ignore_index=True)
-        
-        # Mostrar tabla
-        st.dataframe(resumen)        
-        st.subheader("🧑‍💼 Certificaciones por Usuario")
-        cert_por_usuario = df_filtrado["certificador"].value_counts()
-        st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
+        # Mostrar gráfico de barras
+        st.bar_chart(resumen.set_index("Nombre del certificador"))
+                st.subheader("🧑‍💼 Certificaciones por Usuario")
+                cert_por_usuario = df_filtrado["certificador"].value_counts()
+                st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
+                # 👤 Certificaciones por Persona
+                st.subheader("👤 Certificaciones por Persona")
+                
+        # Contar ocurrencias por persona
+        cert_por_persona = df_filtrado["persona"].value_counts()
+
+        # Mostrar gráfico circular
+        st.pyplot(cert_por_persona.plot.pie(
+            autopct="%1.1f%%",
+            figsize=(6, 6),
+            ylabel=""  # Oculta el título automático del eje
+        ).figure)
 
         if "empresa" in df_filtrado.columns:
             st.subheader("🏢 Certificaciones por Empresa")
@@ -106,6 +109,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
     else:
 
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+
 
 
 
