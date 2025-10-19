@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
 
-def main():
+def mostrar_prueba_ubicacion():
     st.title("📍 Prueba de ubicación automática")
 
     ubicacion = streamlit_js_eval(
@@ -21,3 +21,4 @@ def main():
         st.json(ubicacion)
     else:
         st.error("❌ No se pudo obtener la ubicación. Verifica los permisos del navegador y recarga la página.")
+
