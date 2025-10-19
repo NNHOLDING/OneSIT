@@ -50,28 +50,28 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
         st.bar_chart(rutas_por_dia.set_index("fecha_str"))
         
         
-        # 📋 Resumen de certificaciones por usuario (según filtro)
+        # 📋 Resumen de certificaciones por usuario (tipo tabla dinámica)
         st.subheader("📌 Resumen de certificaciones por usuario")
         
-        # Contar certificaciones por certificador
-        resumen_usuarios = (
-            df_filtrado["certificador"]
-            .value_counts()
-            .reset_index()
-            .rename(columns={"index": "Certificador", "certificador": "Total Certificaciones"})
+        # Agrupar por certificador y contar
+        resumen = (
+            df_filtrado.groupby("certificador")
+            .size()
+            .reset_index(name="Total certificaciones realizadas")
+            .rename(columns={"certificador": "Nombre del certificador"})
         )
         
         # Agregar fila de total general
-        total = pd.DataFrame({
-            "Certificador": ["🧮 Total"],
-            "Total Certificaciones": [resumen_usuarios["Total Certificaciones"].sum()]
-        })
+        total_fila = pd.DataFrame([{
+            "Nombre del certificador": "🧮 Total",
+            "Total certificaciones realizadas": resumen["Total certificaciones realizadas"].sum()
+        }])
         
-        # Concatenar la fila de total
-        resumen_usuarios = pd.concat([resumen_usuarios, total], ignore_index=True)
+        # Concatenar
+        resumen = pd.concat([resumen, total_fila], ignore_index=True)
         
         # Mostrar tabla
-        st.dataframe(resumen_usuarios)        
+        st.dataframe(resumen)        
         st.subheader("🧑‍💼 Certificaciones por Usuario")
         cert_por_usuario = df_filtrado["certificador"].value_counts()
         st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
@@ -106,6 +106,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
     else:
 
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+
 
 
 
