@@ -142,7 +142,7 @@ with tab2:
         return pd.DataFrame(datos[1:], columns=datos[0])
 
     def obtener_usuarios(conectar_funcion):
-        hoja_usuarios = conectar_funcion().worksheet("usuarios")
+        hoja_usuarios = conectar_funcion().worksheet("usuarios")  # nombre exacto en minúsculas
         datos_usuarios = hoja_usuarios.get_all_values()
         return [fila[1] for fila in datos_usuarios[1:] if len(fila) > 1 and fila[1].strip()]
 
@@ -246,7 +246,7 @@ with tab2:
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
                 else:
                     st.error("❌ No se pudo registrar el cierre.")
-##bloque2##
+                    ##bloque2##
 # 🧾 Footer institucional
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
@@ -254,6 +254,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
