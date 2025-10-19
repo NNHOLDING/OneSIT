@@ -48,7 +48,21 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
 
         st.subheader("📅 Certificaciones en los últimos 7 días")
         st.bar_chart(rutas_por_dia.set_index("fecha_str"))
-
+        # 📋 Resumen de certificaciones por usuario (según filtro)
+        st.subheader("📌 Resumen de certificaciones por usuario")
+        
+        resumen_usuarios = (
+            df_filtrado["certificador"]
+            .value_counts()
+            .reset_index()
+            .rename(columns={"index": "Certificador", "certificador": "Total Certificaciones"})
+        )
+        # Agregar fila de total general
+        total_certificaciones = resumen_usuarios["Total Certificaciones"].sum()
+        resumen_usuarios.loc[len(resumen_usuarios.index)] = ["🧮 Total", total_certificaciones]
+        # Mostrar tabla
+        st.dataframe(resumen_usuarios)
+        
         st.subheader("🧑‍💼 Certificaciones por Usuario")
         cert_por_usuario = df_filtrado["certificador"].value_counts()
         st.pyplot(cert_por_usuario.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
@@ -83,3 +97,4 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
     else:
 
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+
