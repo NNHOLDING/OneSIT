@@ -48,8 +48,7 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
 
         st.subheader("📅 Certificaciones en los últimos 7 días")
         st.bar_chart(rutas_por_dia.set_index("fecha_str"))
-        # 📋 Resumen de certificaciones por usuario (según filtro)
-        st.subheader("📌 Resumen de certificaciones por usuario")
+        
         
         # 📋 Resumen de certificaciones por usuario (según filtro)
         st.subheader("📌 Resumen de certificaciones por usuario")
@@ -106,5 +105,6 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
     else:
 
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
+
 
 
