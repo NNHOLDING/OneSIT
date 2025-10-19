@@ -18,6 +18,7 @@ from registro_errores import mostrar_formulario_errores
 from modulo_temperatura import mostrar_formulario_temperatura
 from panel_administrativo import mostrar_panel_administrativo
 from panel_certificaciones import mostrar_panel_certificaciones
+from Registro_de_Temperatura import mostrar_formulario_temperatura
 
 st.set_page_config(
     page_title="Smart Intelligence Tools",
@@ -152,7 +153,10 @@ if st.session_state.logueado_handheld:
             mostrar_jornadas(conectar_sit_hh)
         # 🚨 Registro de Errores
         elif modulo == "🚨 Registro de Errores":
-            mostrar_formulario_errores()   
+            mostrar_formulario_errores()
+    # 🌡️ Registro de Temperatura
+        elif modulo == "🌡️ Registro de Temperatura":
+            mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)        
     # 🚪 Cierre de sesión
         st.markdown("---")
         st.markdown("### 🚪 Cerrar sesión")
@@ -168,6 +172,7 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
