@@ -121,23 +121,23 @@ if st.session_state.logueado_handheld:
                     st.session_state.nombre_empleado,
                     equipo, "devolucion"
                 )
-# 📋 Panel Administrativo
-elif modulo == "📋 Panel Administrativo":
-    if st.session_state.rol_handheld != "admin":
-        st.error("⛔ No tienes permisos para acceder a este módulo.")
-    else:
-        mostrar_panel_administrativo(conectar_sit_hh, cr_timezone)
-# 🕒 Productividad
-    elif modulo == "🕒 Productividad":
-        if st.session_state.rol_handheld == "admin":
-            mostrar_panel_alisto(conectar_sit_hh)
+    # 📋 Panel Administrativo
+    elif modulo == "📋 Panel Administrativo":
+        if st.session_state.rol_handheld != "admin":
+            st.error("⛔ No tienes permisos para acceder a este módulo.")
         else:
-            mostrar_formulario_alisto(
-                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
-                service_account_info=st.secrets["gcp_service_account"],
-                nombre_empleado=st.session_state.nombre_empleado,
-                codigo_empleado=st.session_state.codigo_empleado
-            )
+            mostrar_panel_administrativo(conectar_sit_hh, cr_timezone)
+    # 🕒 Productividad
+        elif modulo == "🕒 Productividad":
+            if st.session_state.rol_handheld == "admin":
+                mostrar_panel_alisto(conectar_sit_hh)
+            else:
+                mostrar_formulario_alisto(
+                    GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
+                    service_account_info=st.secrets["gcp_service_account"],
+                    nombre_empleado=st.session_state.nombre_empleado,
+                    codigo_empleado=st.session_state.codigo_empleado
+                )
 
     # 📊 Panel de Certificaciones
     elif modulo == "📊 Panel de Certificaciones":
@@ -256,4 +256,5 @@ st.markdown("""
         NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
