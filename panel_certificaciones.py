@@ -55,8 +55,11 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
 
         if "empresa" in df_filtrado.columns:
             st.subheader("🏢 Certificaciones por Empresa")
-            cert_por_empresa = df_filtrado["empresa"].value_counts()
-            st.pyplot(cert_por_empresa.plot.pie(autopct="%1.1f%%", figsize=(6, 6)).figure)
+            cert_por_empresa = df_filtrado["empresa"].value_counts().reset_index()
+            cert_por_empresa.columns = ["Empresa", "Certificaciones"]
+            st.pyplot(cert_por_empresa.set_index("Empresa").plot.pie(
+                y="Certificaciones", autopct="%1.1f%%", figsize=(6, 6)
+            ).figure)
 
         if "tipo_ruta" in df_filtrado.columns:
             st.subheader("🛣️ Certificaciones por Tipo de Ruta")
@@ -78,4 +81,5 @@ def mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone):
         st.dataframe(resumen_ruta)
         st.bar_chart(resumen_ruta.set_index("ruta"))
     else:
+
         st.warning("⚠️ No se encontraron registros en la hoja 'TCertificaciones'.")
