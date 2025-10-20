@@ -1,14 +1,8 @@
 from datetime import datetime, timedelta
 import pandas as pd
+import streamlit as st
 
 def redondear_media_hora(dt):
-    """
-    Redondea una hora a la media hora más cercana.
-    Ejemplo:
-    - 03:14 → 03:00
-    - 03:16 → 03:30
-    - 03:46 → 04:00
-    """
     minutos = dt.minute
     if minutos <= 15:
         return dt.replace(minute=0, second=0)
@@ -19,6 +13,8 @@ def redondear_media_hora(dt):
         return dt.replace(minute=0, second=0)
 
 def procesar_jornadas(conectar_funcion):
+    st.write("🔍 Iniciando procesamiento de jornadas...")
+
     hoja_jornadas = conectar_funcion().worksheet("Jornadas")
     hoja_bd = conectar_funcion().worksheet("BD")
 
@@ -34,11 +30,25 @@ def procesar_jornadas(conectar_funcion):
 
     for i, fila in df_jornadas.iterrows():
         try:
-            if not fila["Hora inicio"] or not fila["fecha cierre"]:
+            fila_id = i + 2  # índice real en hoja
+            usuario = fila.get("usuario", "¿Sin nombre?")
+            hora_inicio_raw = fila.get("Hora inicio", "").strip()
+            hora_cierre_raw = fila.get("fecha cierre", "").strip()
+
+            if not hora_inicio_raw or not hora_cierre_raw:
+                st.write(f"⚠️ Fila {fila_id} ({usuario}): sin hora de inicio o cierre.")
                 continue
 
-            hora_inicio = datetime.strptime(fila["Hora inicio"], "%H:%M:%S")
-            hora_cierre = datetime.strptime(fila["fecha cierre"], "%H:%M:%S")
+            # Intentar parsear hora inicio y cierre
+            try:
+                hora_inicio = datetime.strptime(hora_inicio_raw, "%H:%M:%S")
+            except:
+                hora_inicio = datetime.strptime(hora_inicio_raw, "%H:%M")
+
+            try:
+                hora_cierre = datetime.strptime(hora_cierre_raw, "%H:%M:%S")
+            except:
+                hora_cierre = datetime.strptime(hora_cierre_raw, "%H:%M")
 
             # Ajuste si la hora de cierre es del día siguiente
             if hora_cierre < hora_inicio:
@@ -47,10 +57,10 @@ def procesar_jornadas(conectar_funcion):
             inicio_redondeado = redondear_media_hora(hora_inicio)
             cierre_redondeado = redondear_media_hora(hora_cierre)
 
+            # Buscar jornada estándar
             jornada_estandar = None
             for _, regla in df_bd.iterrows():
-                hora_limite = regla["Hora"]
-                if hora_inicio.time() <= hora_limite:
+                if hora_inicio.time() <= regla["Hora"]:
                     jornada_estandar = float(regla["Jornada"])
                     break
             if jornada_estandar is None:
@@ -59,10 +69,14 @@ def procesar_jornadas(conectar_funcion):
             duracion_real = (cierre_redondeado - inicio_redondeado).total_seconds() / 3600
             horas_extras = max(0, round(duracion_real - jornada_estandar, 2))
 
-            hoja_jornadas.update_cell(i + 2, 6, inicio_redondeado.strftime("%H:%M"))  # Redondeo Inicio
-            hoja_jornadas.update_cell(i + 2, 7, cierre_redondeado.strftime("%H:%M"))  # Redondeo Fin
-            hoja_jornadas.update_cell(i + 2, 8, jornada_estandar)                     # Jornada
-            hoja_jornadas.update_cell(i + 2, 9, horas_extras)                         # Total horas extras
+            # Mostrar trazas
+            st.write(f"✅ Fila {fila_id} ({usuario}): {inicio_redondeado.strftime('%H:%M')} → {cierre_redondeado.strftime('%H:%M')} | Jornada={jornada_estandar} | Extras={horas_extras}")
+
+            # Actualizar hoja
+            hoja_jornadas.update_cell(fila_id, 6, inicio_redondeado.strftime("%H:%M"))  # Redondeo Inicio
+            hoja_jornadas.update_cell(fila_id, 7, cierre_redondeado.strftime("%H:%M"))  # Redondeo Fin
+            hoja_jornadas.update_cell(fila_id, 8, jornada_estandar)                     # Jornada
+            hoja_jornadas.update_cell(fila_id, 9, horas_extras)                         # Total horas extras
 
         except Exception as e:
-            print(f"Error en fila {i+2}: {e}")
+            st.write(f"❌ Error en fila {i+2} ({usuario}): {e}")
