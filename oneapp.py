@@ -154,10 +154,10 @@ if st.session_state.logueado_handheld:
             st.markdown("---")
             mostrar_jornadas(conectar_sit_hh)
     # 🧮 Botón para procesar cálculos
-        if st.button("⚙️ Procesar jornadas y calcular extras"):
-            from calculos_jornada import procesar_jornadas
-            procesar_jornadas(conectar_sit_hh)
-            st.success("✅ Cálculos completados y hoja actualizada.")
+            if st.button("⚙️ Procesar jornadas y calcular extras"):
+                from calculos_jornada import procesar_jornadas
+                procesar_jornadas(conectar_sit_hh)
+                st.success("✅ Cálculos completados y hoja actualizada.")
 
     # 🚨 Registro de Errores
     elif modulo == "🚨 Registro de Errores":
@@ -183,6 +183,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
