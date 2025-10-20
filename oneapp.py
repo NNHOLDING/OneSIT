@@ -19,6 +19,7 @@ from modulo_temperatura import mostrar_formulario_temperatura
 from panel_administrativo import mostrar_panel_administrativo
 from panel_certificaciones import mostrar_panel_certificaciones
 from prueba_ubicacion import mostrar_prueba_ubicacion
+from calculos_jornada import procesar_jornadas
 
 
 st.set_page_config(
@@ -152,6 +153,12 @@ if st.session_state.logueado_handheld:
         if st.session_state.rol_handheld == "admin":
             st.markdown("---")
             mostrar_jornadas(conectar_sit_hh)
+    # 🧮 Botón para procesar cálculos
+        if st.button("⚙️ Procesar jornadas y calcular extras"):
+            from calculos_jornada import procesar_jornadas
+            procesar_jornadas(conectar_sit_hh)
+            st.success("✅ Cálculos completados y hoja actualizada.")
+
     # 🚨 Registro de Errores
     elif modulo == "🚨 Registro de Errores":
         mostrar_formulario_errores()
@@ -176,6 +183,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
