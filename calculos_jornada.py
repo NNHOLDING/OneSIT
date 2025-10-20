@@ -2,6 +2,13 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 def redondear_media_hora(dt):
+    """
+    Redondea una hora a la media hora más cercana.
+    Ejemplo:
+    - 03:14 → 03:00
+    - 03:16 → 03:30
+    - 03:46 → 04:00
+    """
     minutos = dt.minute
     if minutos <= 15:
         return dt.replace(minute=0, second=0)
@@ -32,6 +39,10 @@ def procesar_jornadas(conectar_funcion):
 
             hora_inicio = datetime.strptime(fila["Hora inicio"], "%H:%M:%S")
             hora_cierre = datetime.strptime(fila["fecha cierre"], "%H:%M:%S")
+
+            # Ajuste si la hora de cierre es del día siguiente
+            if hora_cierre < hora_inicio:
+                hora_cierre += timedelta(days=1)
 
             inicio_redondeado = redondear_media_hora(hora_inicio)
             cierre_redondeado = redondear_media_hora(hora_cierre)
