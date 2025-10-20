@@ -18,7 +18,7 @@ st.set_page_config(
 st.set_page_config(page_title="SIT", page_icon="🏢", layout="centered")
 
 # Logo y encabezado
-url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
+url_logo = "https://drive.google.com/uc?export=view&id=1P6OSXZMR4DI_cEgwjk1ZVJ6B8aLS1_qq" width="250""
 st.markdown(
     f"""
     <div style='text-align: center; margin-bottom: 20px;'>
@@ -259,6 +259,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
