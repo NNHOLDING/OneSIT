@@ -14,26 +14,6 @@ st.set_page_config(
     layout="centered"
 )
 
-def obtener_estado_mantenimiento(conectar_funcion):
-    try:
-        hoja_config = conectar_funcion().worksheet("configuracion")
-        datos = hoja_config.get_all_values()
-        config_df = pd.DataFrame(datos[1:], columns=datos[0])
-        estado = config_df.loc[config_df["clave"] == "mantenimiento", "valor"].values
-        return estado[0].strip().lower() if len(estado) > 0 else "inactivo"
-    except Exception as e:
-        st.error("❌ No se pudo verificar el estado de mantenimiento.")
-        return "inactivo"
-
-# Mostrar mensaje si el sitio está en mantenimiento
-if obtener_estado_mantenimiento(conectar_funcion) == "activo":
-    st.markdown("""
-        <div style='text-align: center; padding: 40px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 10px;'>
-            <h2>🛠️ Sitio en mantenimiento</h2>
-            <p>Estamos realizando mejoras. Por favor, vuelve más tarde.</p>
-        </div>
-    """, unsafe_allow_html=True)
-    st.stop()
 # Logo y encabezado
 url_logo = "https://drive.google.com/uc?export=view&id=1P6OSXZMR4DI_cEgwjk1ZVJ6B8aLS1_qq"
 st.markdown(
@@ -211,4 +191,5 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
