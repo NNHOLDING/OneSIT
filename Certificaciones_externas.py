@@ -14,6 +14,39 @@ st.set_page_config(
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
     layout="centered"
 )
+# Conexión al libro con manejo de errores
+def conectar_funcion():
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
+    client = gspread.authorize(creds)
+    try:
+        return client.open_by_url("https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit")
+    except gspread.exceptions.APIError:
+        st.error("❌ Error al acceder a la hoja de cálculo. Verifica permisos, URL o credenciales.")
+        st.stop()
+
+# Verificar estado de mantenimiento
+def obtener_estado_mantenimiento(conectar_funcion):
+    try:
+        hoja_config = conectar_funcion().worksheet("configuracion")
+        datos = hoja_config.get_all_values()
+        config_df = pd.DataFrame(datos[1:], columns=datos[0])
+        estado = config_df.loc[config_df["clave"] == "mantenimiento", "valor"].values
+        return estado[0].strip().lower() if len(estado) > 0 else "inactivo"
+    except Exception as e:
+        st.error("❌ No se pudo verificar el estado de mantenimiento.")
+        return "inactivo"
+
+# Mostrar mensaje si el sitio está en mantenimiento
+if obtener_estado_mantenimiento(conectar_funcion) == "activo":
+    st.markdown("""
+    <div style='text-align: center; padding: 40px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 10px; color: #000000;'>
+        <h2 style='color: #000000;'>🛠️ Sitio en mantenimiento</h2>
+        <p style='color: #000000;'>Estamos realizando mejoras. Por favor, vuelve más tarde.</p>
+    </div>
+""", unsafe_allow_html=True)
+    st.stop()
+
 # Configuración visual
 st.set_page_config(page_title="SIT", page_icon="🏢", layout="centered")
 
@@ -126,6 +159,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
