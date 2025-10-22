@@ -163,17 +163,27 @@ with tab2:
                 st.success(f"✅ Inicio registrado a las {hora_inicio_str}")
 
     with col2:
-        if st.button("✅ Cerrar jornada"):
-            if not usuario_actual.strip():
-                st.warning("Debes ingresar tu usuario.")
-            elif registro_existente.empty:
-                st.warning("Debes iniciar jornada antes de cerrarla.")
-            elif registro_existente.iloc[0].get("fecha cierre", "") != "":
-                st.warning("Ya has cerrado la jornada de hoy.")
-            else:
-                hora_inicio_str = registro_existente.iloc[0].get("hora inicio", "00:00:00")
-                hora_inicio_dt = datetime.strptime(hora_inicio_str, "%H:%M:%S")
-                hora_cierre_dt = datetime.combine(datetime.today(), hora_cierre_manual)
+    if st.button("✅ Cerrar jornada"):
+        if not usuario_actual.strip():
+            st.warning("Debes ingresar tu usuario.")
+        elif registro_existente.empty:
+            st.warning("Debes iniciar jornada antes de cerrarla.")
+        elif registro_existente.iloc[0].get("fecha cierre", "") != "":
+            st.warning("Ya has cerrado la jornada de hoy.")
+        else:
+            hora_inicio_str = registro_existente.iloc[0].get("hora inicio", "00:00:00")
+            hora_inicio_dt = datetime.strptime(hora_inicio_str, "%H:%M:%S")
+            hora_cierre_dt = datetime.combine(datetime.today(), hora_cierre_manual)
 
-                if hora_cierre_dt.time():
+            # ✅ Corrección aquí: condición completa con ":"
+            if hora_cierre_dt.time() < hora_inicio_dt.time():
+                hora_cierre_dt += timedelta(days=1)
+
+            hora_cierre_str = hora_cierre_dt.strftime("%H:%M:%S")
+
+            if actualizar_fecha_cierre(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_cierre_str):
+                st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
+            else:
+                st.error("❌ No se pudo registrar el cierre.")
+
 
