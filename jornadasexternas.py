@@ -6,7 +6,6 @@ from math import radians, cos, sin, asin, sqrt
 from streamlit_js_eval import streamlit_js_eval
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-
 import streamlit.components.v1 as components
 
 st.set_page_config(
@@ -14,8 +13,6 @@ st.set_page_config(
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
     layout="centered"
 )
-# Configuración visual
-st.set_page_config(page_title="SIT", page_icon="🏢", layout="centered")
 
 # Logo y encabezado
 url_logo = "https://drive.google.com/uc?export=view&id=1P6OSXZMR4DI_cEgwjk1ZVJ6B8aLS1_qq"
@@ -32,12 +29,16 @@ st.markdown(
 # Zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
-# Conexión al libro
+# Conexión al libro con manejo de errores
 def conectar_funcion():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
     client = gspread.authorize(creds)
-    return client.open_by_url("https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit")
+    try:
+        return client.open_by_url("https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit")
+    except gspread.exceptions.APIError:
+        st.error("❌ Error al acceder a la hoja de cálculo. Verifica permisos, URL o credenciales.")
+        st.stop()
 
 # Tabs
 tab1, tab2 = st.tabs(["📥 Certificación", "📝 Gestión de Jornada"])
@@ -62,14 +63,22 @@ with tab2:
         return calcular_distancia_m(lat1, lon1, lat2, lon2) <= radio_metros
 
     def cargar_datos(conectar_funcion):
-        hoja = conectar_funcion().worksheet("Jornadas")
-        datos = hoja.get_all_values()
-        return pd.DataFrame(datos[1:], columns=datos[0])
+        try:
+            hoja = conectar_funcion().worksheet("Jornadas")
+            datos = hoja.get_all_values()
+            return pd.DataFrame(datos[1:], columns=datos[0])
+        except gspread.exceptions.WorksheetNotFound:
+            st.error("❌ La hoja 'Jornadas' no fue encontrada.")
+            st.stop()
 
     def obtener_usuarios(conectar_funcion):
-        hoja_usuarios = conectar_funcion().worksheet("usuarios")  # nombre exacto en minúsculas
-        datos_usuarios = hoja_usuarios.get_all_values()
-        return [fila[1] for fila in datos_usuarios[1:] if len(fila) > 1 and fila[1].strip()]
+        try:
+            hoja_usuarios = conectar_funcion().worksheet("usuarios")
+            datos_usuarios = hoja_usuarios.get_all_values()
+            return [fila[1] for fila in datos_usuarios[1:] if len(fila) > 1 and fila[1].strip()]
+        except gspread.exceptions.WorksheetNotFound:
+            st.error("❌ La hoja 'usuarios' no fue encontrada.")
+            st.stop()
 
     def agregar_fila_inicio(conectar_funcion, fecha, usuario, bodega, hora):
         hoja = conectar_funcion().worksheet("Jornadas")
@@ -96,7 +105,6 @@ with tab2:
     ]
     bodega = st.selectbox("🏢 Selecciona la bodega", bodegas, key="bodega_jornada")
 
-    # Ocultar campos de hora pero mantener funcionalidad
     if "hora_inicio_manual" not in st.session_state:
         st.session_state.hora_inicio_manual = datetime.now(cr_timezone).time()
     if "hora_cierre_manual" not in st.session_state:
@@ -167,34 +175,4 @@ with tab2:
                 hora_inicio_dt = datetime.strptime(hora_inicio_str, "%H:%M:%S")
                 hora_cierre_dt = datetime.combine(datetime.today(), hora_cierre_manual)
 
-                if hora_cierre_dt.time() < hora_inicio_dt.time():
-                    hora_cierre_dt += timedelta(days=1)
-
-                hora_cierre_str = hora_cierre_dt.strftime("%H:%M:%S")
-
-                if actualizar_fecha_cierre(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_cierre_str):
-                    st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
-                else:
-                    st.error("❌ No se pudo registrar el cierre.")
-
-# 🧾 Footer institucional
-st.markdown("""
-    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
-    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
-        Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
-    </div>
-""", unsafe_allow_html=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                if hora_cierre_dt.time()
