@@ -39,11 +39,11 @@ def obtener_estado_mantenimiento(conectar_funcion):
 # Mostrar mensaje si el sitio está en mantenimiento
 if obtener_estado_mantenimiento(conectar_funcion) == "activo":
     st.markdown("""
-        <div style='text-align: center; padding: 40px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 10px;'>
-            <h2>🛠️ Sitio en mantenimiento</h2>
-            <p>Estamos realizando mejoras. Por favor, vuelve más tarde.</p>
-        </div>
-    """, unsafe_allow_html=True)
+    <div style='text-align: center; padding: 40px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 10px; color: #000000;'>
+        <h2 style='color: #000000;'>🛠️ Sitio en mantenimiento</h2>
+        <p style='color: #000000;'>Estamos realizando mejoras. Por favor, vuelve más tarde.</p>
+    </div>
+""", unsafe_allow_html=True)
     st.stop()
 
 # Logo y encabezado
@@ -223,6 +223,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
