@@ -182,4 +182,5 @@ with tab2:
                 hora_cierre_str = hora_cierre_dt.strftime("%H:%M:%S")
 
                 if actualizar_fecha_cierre(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_cierre_str):
-                    st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str
+                    st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
+
