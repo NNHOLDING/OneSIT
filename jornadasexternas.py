@@ -175,4 +175,5 @@ with tab2:
                 hora_inicio_dt = datetime.strptime(hora_inicio_str, "%H:%M:%S")
                 hora_cierre_dt = datetime.combine(datetime.today(), hora_cierre_manual)
 
-                if hora_cierre_dt.time()
+                if hora_cierre_dt.time():
+
