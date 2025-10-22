@@ -184,3 +184,10 @@ with tab2:
                 if actualizar_fecha_cierre(conectar_funcion, fecha_jornada, usuario_actual, bodega, hora_cierre_str):
                     st.success(f"✅ Jornada cerrada correctamente a las {hora_cierre_str}")
 
+# 🧾 Footer institucional
+st.markdown("""
+    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
+        Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+    </div>
+""", unsafe_allow_html=True)
