@@ -21,7 +21,7 @@ def conectar_funcion():
     try:
         return client.open_by_url("https://docs.google.com/spreadsheets/d/1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0/edit")
     except gspread.exceptions.APIError:
-        st.error("❌ Error al acceder a la hoja de cálculo. Verifica permisos, URL o credenciales.")
+        st.error("❌ Error al acceder al servidor. Verifica su conexión o permisos, vuelva intentarlo cerrando completamente el navegador.")
         st.stop()
 
 # Verificar estado de mantenimiento
@@ -223,6 +223,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
