@@ -19,6 +19,7 @@ from panel_administrativo import mostrar_panel_administrativo
 from panel_certificaciones import mostrar_panel_certificaciones
 from prueba_ubicacion import mostrar_prueba_ubicacion
 from calculos_jornada import procesar_jornadas
+from modulo_lpn import mostrar_formulario_lpn
 
 # Configuración de página
 st.set_page_config(
@@ -110,7 +111,8 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación"
+        "🧪 Prueba de Ubicación",
+        "🏷️ Generación de LPNs",  # ← Nuevo módulo agregado aquí
     ]
     modulos_usuario = [
         "📦 Registro de Handhelds",
@@ -190,3 +192,4 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
