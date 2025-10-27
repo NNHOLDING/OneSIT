@@ -47,12 +47,19 @@ def actualizar_estado_lpn(libro, lpn):
         st.warning(f"No se encontró el LPN {lpn_normalizado} en la hoja.")
         return False
 
-    col_estado = hoja.find("Estado")
-    if not col_estado:
+    # Buscar columna 'Estado' de forma flexible
+    encabezados_hoja = hoja.row_values(1)
+    col_estado_idx = None
+    for idx, nombre in enumerate(encabezados_hoja):
+        if nombre.strip().lower() == "estado":
+            col_estado_idx = idx + 1
+            break
+
+    if not col_estado_idx:
         st.warning("No se encontró la columna 'Estado' en la hoja LPNs Generados.")
         return False
 
-    hoja.update_cell(fila[0] + 2, col_estado.col, "No disponible")
+    hoja.update_cell(fila[0] + 2, col_estado_idx, "No disponible")
     return True
 
 def mostrar_formulario_almacenamiento_lpn():
@@ -83,7 +90,6 @@ def mostrar_formulario_almacenamiento_lpn():
             st.error("Debes ingresar el LPN y la ubicación.")
             return
 
-        # Validar que el LPN esté disponible
         df_lpns["Número LPN"] = df_lpns["Número LPN"].str.strip().str.upper()
         lpn_row = df_lpns[df_lpns["Número LPN"] == lpn]
         if lpn_row.empty:
@@ -93,13 +99,11 @@ def mostrar_formulario_almacenamiento_lpn():
             st.error("El LPN no está disponible para almacenamiento.")
             return
 
-        # Verificar si el LPN ya fue asignado en Ubicaciones
         df_ubicaciones["LPN Asignado"] = df_ubicaciones["LPN Asignado"].str.strip().str.upper()
         if lpn in df_ubicaciones["LPN Asignado"].values:
             st.error("Este LPN ya fue asignado a una ubicación.")
             return
 
-        # Generar código de ubicación
         df_ubicaciones["codigo"] = df_ubicaciones.apply(
             lambda row: f"{str(row['Pasillo']).strip()}-{str(row['Tramo']).strip()}-{str(row['Nivel']).strip()}-{str(row['Posición']).strip()}",
             axis=1
