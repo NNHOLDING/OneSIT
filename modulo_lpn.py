@@ -8,7 +8,9 @@ def obtener_ultimo_consecutivo(libro, tipo_etiqueta, bodega):
     if not datos or len(datos) < 2:
         return 0
 
-    df = pd.DataFrame(datos[1:], columns=datos[0])
+    encabezados = [col.strip() for col in datos[0]]
+    df = pd.DataFrame(datos[1:], columns=encabezados)
+
     prefijo = "IB" if tipo_etiqueta == "Etiquetas IB" else "OB"
     base = f"{prefijo}{bodega}506"
 
@@ -47,7 +49,8 @@ def show_disponibles(libro):
             st.info("La hoja 'LPNs Generados' está vacía o sin registros.")
             return
 
-        df = pd.DataFrame(datos[1:], columns=datos[0])
+        encabezados = [col.strip() for col in datos[0]]
+        df = pd.DataFrame(datos[1:], columns=encabezados)
 
         if "Estado" not in df.columns:
             st.warning("La columna 'Estado' no está presente en la hoja.")
@@ -56,7 +59,7 @@ def show_disponibles(libro):
         df = df[df["Estado"].str.lower() == "disponible"]
 
         st.markdown("### 📦 LPNs Disponibles")
-        filtro_bodega = st.selectbox("Filtrar por bodega", ["Todas"] + sorted(df["Bodega"].unique().tolist()))
+        filtro_bodega = st.selectbox("Filtrar por bodega", ["Todas"] + sorted(df["Bodega"].unique()))
         if filtro_bodega != "Todas":
             df = df[df["Bodega"] == filtro_bodega]
 
