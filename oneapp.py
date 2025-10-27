@@ -1,26 +1,60 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 import pytz
 import requests
 from PIL import Image
 from io import BytesIO
 
+# Módulos personalizados
 from auth import validar_login
 from google_sheets import conectar_sit_hh
 from registro import registrar_handheld
 from jornadas import mostrar_jornadas
 from registro_jornada import gestionar_jornada
-from modulo_alisto import mostrar_formulario_alisto  # 👉 nuevo módulo integrado
+from modulo_alisto import mostrar_formulario_alisto
+from panel_productividad_alisto import mostrar_panel_alisto
+from registro_errores import mostrar_formulario_errores
+from modulo_temperatura import mostrar_formulario_temperatura
+from panel_administrativo import mostrar_panel_administrativo
+from panel_certificaciones import mostrar_panel_certificaciones
+from prueba_ubicacion import mostrar_prueba_ubicacion
+from calculos_jornada import procesar_jornadas
 
+# Configuración de página
 st.set_page_config(
     page_title="Smart Intelligence Tools",
-    page_icon="https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/NN25.ico",
+    page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
     layout="centered"
 )
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
+# Verificar estado de mantenimiento
+def obtener_estado_mantenimiento():
+    try:
+        libro = conectar_sit_hh()
+        hojas_disponibles = [hoja.title for hoja in libro.worksheets()]
+        if "configuracion" not in hojas_disponibles:
+            return "inactivo"
+        hoja_config = libro.worksheet("configuracion")
+        datos = hoja_config.get_all_values()
+        config_df = pd.DataFrame(datos[1:], columns=datos[0])
+        estado = config_df.loc[config_df["clave"] == "mantenimiento", "valor"].values
+        return estado[0].strip().lower() if len(estado) > 0 else "inactivo"
+    except Exception:
+        return "inactivo"
+
+# Mostrar aviso de mantenimiento
+if obtener_estado_mantenimiento() == "activo":
+    st.markdown("""
+        <div style='text-align: center; padding: 40px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 10px; color: #000000;'>
+            <h2 style='color: #000000;'>🛠️ Sitio en mantenimiento</h2>
+            <p style='color: #000000;'>Estamos realizando mejoras. Por favor, vuelve más tarde.</p>
+        </div>
+    """, unsafe_allow_html=True)
+    st.stop()
+
+# Inicializar sesión
 defaults = {
     "logueado_handheld": False,
     "rol_handheld": "",
@@ -32,17 +66,10 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-def cargar_handhelds():
-    hoja = conectar_sit_hh().worksheet("HH")
-    datos = hoja.get_all_values()
-    df = pd.DataFrame(datos[1:], columns=datos[0])
-    df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-    return df
-
 # 🔐 Login
 if not st.session_state.logueado_handheld:
-    url_logo = "https://drive.google.com/uc?export=view&id=1YzqBlolo6MZ8JYzUJVvr7LFvTPP5WpM2"
     try:
+        url_logo = "https://drive.google.com/uc?export=view&id=1CgMBkG3rUwWOE9OodfBN1Tjinrl0vMOh"
         response = requests.get(url_logo)
         if response.status_code == 200:
             image = Image.open(BytesIO(response.content))
@@ -67,122 +94,99 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🖼️ Logo institucional
-if st.session_state.logueado_handheld and not st.session_state.confirmar_salida:
-    st.markdown(
-        "<div style='text-align: center;'>"
-        "<img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>"
-        "</div>",
-        unsafe_allow_html=True
-    )
-
-# 🧭 Interfaz principal post-login
+# 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
-    tabs = st.tabs([
+    st.markdown("""
+        <div style='text-align: center;'>
+        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
+        </div>
+    """, unsafe_allow_html=True)
+
+    modulos_admin = [
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
+        "📊 Panel de Certificaciones",
         "🕒 Productividad",
-        "📝 Gestión de Jornada"
-    ])
+        "📝 Gestión de Jornada",
+        "🚨 Registro de Errores",
+        "🌡️ Registro de Temperatura",
+        "🧪 Prueba de Ubicación"
+    ]
+    modulos_usuario = [
+        "📦 Registro de Handhelds",
+        "🕒 Productividad",
+        "📝 Gestión de Jornada",
+        "🌡️ Registro de Temperatura",
+        "🧪 Prueba de Ubicación"
+    ]
 
-    # 📦 Registro — todos los usuarios
-    with tabs[0]:
+    opciones_menu = modulos_admin if st.session_state.rol_handheld == "admin" else modulos_usuario
+    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
+
+    if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
         if st.session_state.rol_handheld != "admin":
             st.text_input("Código", value=st.session_state.codigo_empleado, disabled=True)
-
         equipos = [f"Equipo {i}" for i in range(1, 25)]
         equipo = st.selectbox("Selecciona el equipo", equipos)
         col1, col2 = st.columns(2)
         with col1:
             if st.button("📌 Guardar Entrega"):
-                registrar_handheld(
-                    st.session_state.codigo_empleado,
-                    st.session_state.nombre_empleado,
-                    equipo, "entrega")
+                registrar_handheld(st.session_state.codigo_empleado, st.session_state.nombre_empleado, equipo, "entrega")
         with col2:
             if st.button("✅ Guardar Devolución"):
-                registrar_handheld(
-                    st.session_state.codigo_empleado,
-                    st.session_state.nombre_empleado,
-                    equipo, "devolucion")
+                registrar_handheld(st.session_state.codigo_empleado, st.session_state.nombre_empleado, equipo, "devolucion")
 
-    # 📋 Panel Administrativo — solo admin
-    with tabs[1]:
-        if st.session_state.rol_handheld == "admin":
-            st.title("📋 Panel Administrativo")
-            df = cargar_handhelds()
-
-            usuarios = sorted(df["Nombre"].dropna().unique())
-            fecha_ini = st.date_input("Desde", value=datetime.now(cr_timezone).date())
-            fecha_fin = st.date_input("Hasta", value=datetime.now(cr_timezone).date())
-            usuario_sel = st.selectbox("Filtrar por Usuario", ["Todos"] + usuarios)
-
-            df_filtrado = df[
-                (df["Fecha"].dt.date >= fecha_ini) &
-                (df["Fecha"].dt.date <= fecha_fin)
-            ]
-            if usuario_sel != "Todos":
-                df_filtrado = df_filtrado[df_filtrado["Nombre"] == usuario_sel]
-
-            st.subheader("📑 Registros")
-            st.dataframe(df_filtrado)
-
-            csv = df_filtrado.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar CSV", csv, "handhelds.csv", "text/csv")
-
-            st.subheader("📊 Actividad por Usuario")
-            resumen = df_filtrado.groupby("Nombre").size().reset_index(name="Registros")
-            st.dataframe(resumen)
-            st.bar_chart(resumen.set_index("Nombre"))
-
-            st.subheader("🔧 Actividad por Equipo")
-            resumen_eq = df_filtrado.groupby("Equipo").size().reset_index(name="Movimientos")
-            st.dataframe(resumen_eq)
-            st.bar_chart(resumen_eq.set_index("Equipo"))
-
-    # 🕒 Productividad
-    with tabs[2]:
+    elif modulo == "📋 Panel Administrativo":
         if st.session_state.rol_handheld != "admin":
+            st.error("⛔ No tienes permisos para acceder a este módulo.")
+        else:
+            mostrar_panel_administrativo(conectar_sit_hh, cr_timezone)
+
+    elif modulo == "🕒 Productividad":
+        if st.session_state.rol_handheld == "admin":
+            mostrar_panel_alisto(conectar_sit_hh)
+        else:
             mostrar_formulario_alisto(
-                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",  # 👉 cambia si usas otro ID
+                GOOGLE_SHEET_ID="1o-GozoYaU_4Ra2KgX05Yi4biDV9zcd6BGdqOdSxKAv0",
                 service_account_info=st.secrets["gcp_service_account"],
                 nombre_empleado=st.session_state.nombre_empleado,
                 codigo_empleado=st.session_state.codigo_empleado
             )
-        else:
+
+    elif modulo == "📊 Panel de Certificaciones":
+        mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone)
+
+    elif modulo == "📝 Gestión de Jornada":
+        gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+        if st.session_state.rol_handheld == "admin":
+            st.markdown("---")
             mostrar_jornadas(conectar_sit_hh)
+            if st.button("⚙️ Procesar jornadas y calcular extras"):
+                procesar_jornadas(conectar_sit_hh)
+                st.success("✅ Cálculos completados y hoja actualizada.")
 
-    # 📝 Gestión de Jornada — solo empleados
-    if st.session_state.rol_handheld != "admin":
-        with tabs[3]:
-            gestionar_jornada(conectar_sit_hh, st.session_state.nombre_empleado)
+    elif modulo == "🚨 Registro de Errores":
+        mostrar_formulario_errores()
 
-    # 🚪 Cierre de sesión
-    if not st.session_state.confirmar_salida:
-        st.markdown("---")
-        st.markdown("### 🚪 Cerrar sesión")
-        if st.button("Salir", key="boton_salir"):
-            st.session_state.confirmar_salida = True
+    elif modulo == "🌡️ Registro de Temperatura":
+        mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)
 
-    elif st.session_state.confirmar_salida:
-        st.markdown("## ¿Estás seguro que deseas cerrar sesión?")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("✅ Sí, cerrar sesión", key="boton_confirmar_salir"):
-                st.success("¡Hasta pronto! 👋 La sesión se ha cerrado correctamente.")
-                for key in ["logueado_handheld", "rol_handheld", "nombre_empleado", "codigo_empleado", "confirmar_salida"]:
-                    st.session_state[key] = False if key == "logueado_handheld" else ""
-                st.rerun()
-        with col2:
-            if st.button("↩️ No, regresar", key="boton_cancelar_salir"):
-                st.session_state.confirmar_salida = False
+    elif modulo == "🧪 Prueba de Ubicación":
+        mostrar_prueba_ubicacion()
+
+    st.markdown("---")
+    st.markdown("### 🚪 Cerrar sesión")
+    if st.button("Salir", key="boton_salir"):
+        for key in defaults.keys():
+            st.session_state[key] = False if key == "logueado_handheld" else ""
+        st.rerun()
 
 # 🧾 Footer institucional
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
     <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
-        NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+        Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
