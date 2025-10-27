@@ -36,33 +36,60 @@ def generate_lpns(cantidad, usuario, bodega, tipo_etiqueta, libro):
     hoja.append_rows(lpns)
     return lpns
 
+def show_disponibles(libro):
+    try:
+        hoja = libro.worksheet("LPNs Generados")
+        datos = hoja.get_all_values()
+        df = pd.DataFrame(datos[1:], columns=datos[0])
+        df = df[df["Estado"].str.lower() == "disponible"]
+
+        if df.empty:
+            st.info("No hay LPNs disponibles actualmente.")
+        else:
+            st.markdown("### 📦 LPNs Disponibles")
+            filtro_bodega = st.selectbox("Filtrar por bodega", ["Todas"] + sorted(df["Bodega"].unique().tolist()))
+            if filtro_bodega != "Todas":
+                df = df[df["Bodega"] == filtro_bodega]
+
+            st.dataframe(df, use_container_width=True)
+    except Exception as e:
+        st.error(f"No se pudo cargar la hoja 'LPNs Generados': {e}")
+
 def mostrar_formulario_lpn():
     st.subheader("🏷️ Generar LPNs")
-    if st.session_state.get("rol_handheld") != "admin":
-        st.warning("⛔ Solo los administradores pueden generar LPNs.")
+
+    try:
+        from google_sheets import conectar_sit_hh
+        libro = st.session_state.get("libro_lpn")
+        if not libro:
+            libro = conectar_sit_hh()
+            st.session_state.libro_lpn = libro
+    except Exception as e:
+        st.error(f"No se pudo conectar con Google Sheets: {e}")
         return
 
-    with st.form("form_lpn"):
-        tipo_etiqueta = st.selectbox("Tipo de etiqueta", ["Etiquetas IB", "Etiquetas OB"])
-        cantidad = st.number_input("Cantidad a generar", min_value=1, step=1)
-        submitted = st.form_submit_button("Generar")
+    # 📦 GRILLA CON FILTROS Y PAGINACIÓN (visible para todos)
+    show_disponibles(libro)
 
-        if submitted:
-            usuario = st.session_state.get("codigo_empleado")
-            bodega = st.session_state.get("bodega", "61")
-            if not usuario or not bodega:
-                st.error("Usuario o bodega no definidos en sesión.")
-                return
+    # Solo admins pueden generar
+    if st.session_state.get("rol_handheld") == "admin":
+        with st.form("form_lpn"):
+            tipo_etiqueta = st.selectbox("Tipo de etiqueta", ["Etiquetas IB", "Etiquetas OB"])
+            cantidad = st.number_input("Cantidad a generar", min_value=1, step=1)
+            submitted = st.form_submit_button("Generar")
 
-            try:
-                libro = st.session_state.get("libro_lpn")
-                if not libro:
-                    from google_sheets import conectar_sit_hh
-                    libro = conectar_sit_hh()
-                    st.session_state.libro_lpn = libro
+            if submitted:
+                usuario = st.session_state.get("codigo_empleado")
+                bodega = st.session_state.get("bodega", "61")
+                if not usuario or not bodega:
+                    st.error("Usuario o bodega no definidos en sesión.")
+                    return
 
-                nuevos = generate_lpns(cantidad, usuario, bodega, tipo_etiqueta, libro)
-                st.success(f"{len(nuevos)} LPNs generados exitosamente.")
-                st.dataframe(pd.DataFrame(nuevos, columns=["Número LPN", "Fecha creación", "Creado por", "Estado", "Bodega"]))
-            except Exception as e:
-                st.error(f"Error al generar LPNs: {e}")
+                try:
+                    nuevos = generate_lpns(cantidad, usuario, bodega, tipo_etiqueta, libro)
+                    st.success(f"{len(nuevos)} LPNs generados exitosamente.")
+                    st.dataframe(pd.DataFrame(nuevos, columns=["Número LPN", "Fecha creación", "Creado por", "Estado", "Bodega"]))
+                except Exception as e:
+                    st.error(f"Error al generar LPNs: {e}")
+    else:
+        st.info("Solo los administradores pueden generar nuevos LPNs.")
