@@ -15,7 +15,6 @@ def actualizar_ubicacion(libro, fila, nuevo_estado, lpn, usuario):
     hoja.update_cell(fila + 2, hoja.find("Estado").col, nuevo_estado)
     hoja.update_cell(fila + 2, hoja.find("LPN Asignado").col, lpn)
 
-    # Registrar usuario y fecha si las columnas existen
     try:
         col_registrado = hoja.find("Registrado por")
         if col_registrado:
@@ -35,12 +34,25 @@ def actualizar_estado_lpn(libro, lpn):
     datos = hoja.get_all_values()
     encabezados = [col.strip() for col in datos[0]]
     df = pd.DataFrame(datos[1:], columns=encabezados)
+
+    df["Número LPN"] = df["Número LPN"].str.strip().str.upper()
+    lpn_normalizado = lpn.strip().upper()
+
     if "Número LPN" not in df.columns or "Estado" not in df.columns:
+        st.warning("La hoja LPNs Generados no tiene las columnas necesarias.")
         return False
-    fila = df[df["Número LPN"] == lpn].index
+
+    fila = df[df["Número LPN"] == lpn_normalizado].index
     if fila.empty:
+        st.warning(f"No se encontró el LPN {lpn_normalizado} en la hoja.")
         return False
-    hoja.update_cell(fila[0] + 2, hoja.find("Estado").col, "No disponible")
+
+    col_estado = hoja.find("Estado")
+    if not col_estado:
+        st.warning("No se encontró la columna 'Estado' en la hoja LPNs Generados.")
+        return False
+
+    hoja.update_cell(fila[0] + 2, col_estado.col, "No disponible")
     return True
 
 def mostrar_formulario_almacenamiento_lpn():
@@ -72,6 +84,7 @@ def mostrar_formulario_almacenamiento_lpn():
             return
 
         # Validar que el LPN esté disponible
+        df_lpns["Número LPN"] = df_lpns["Número LPN"].str.strip().str.upper()
         lpn_row = df_lpns[df_lpns["Número LPN"] == lpn]
         if lpn_row.empty:
             st.error("El LPN no existe en la hoja LPNs Generados.")
@@ -81,6 +94,7 @@ def mostrar_formulario_almacenamiento_lpn():
             return
 
         # Verificar si el LPN ya fue asignado en Ubicaciones
+        df_ubicaciones["LPN Asignado"] = df_ubicaciones["LPN Asignado"].str.strip().str.upper()
         if lpn in df_ubicaciones["LPN Asignado"].values:
             st.error("Este LPN ya fue asignado a una ubicación.")
             return
