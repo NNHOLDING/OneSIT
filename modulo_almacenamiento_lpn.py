@@ -14,8 +14,21 @@ def actualizar_ubicacion(libro, fila, nuevo_estado, lpn, usuario):
     hoja = libro.worksheet("Ubicaciones")
     hoja.update_cell(fila + 2, hoja.find("Estado").col, nuevo_estado)
     hoja.update_cell(fila + 2, hoja.find("LPN Asignado").col, lpn)
-    hoja.update_cell(fila + 2, hoja.find("Registrado por").col, usuario)
-    hoja.update_cell(fila + 2, hoja.find("Fecha de asignación").col, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+    # Registrar usuario y fecha si las columnas existen
+    try:
+        col_registrado = hoja.find("Registrado por")
+        if col_registrado:
+            hoja.update_cell(fila + 2, col_registrado.col, usuario)
+    except:
+        pass
+
+    try:
+        col_fecha = hoja.find("Fecha de asignación")
+        if col_fecha:
+            hoja.update_cell(fila + 2, col_fecha.col, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    except:
+        pass
 
 def actualizar_estado_lpn(libro, lpn):
     hoja = libro.worksheet("LPNs Generados")
@@ -50,8 +63,8 @@ def mostrar_formulario_almacenamiento_lpn():
         st.warning("Las hojas necesarias están vacías o mal formateadas.")
         return
 
-    lpn = st.text_input("📄 Escanea o ingresa el LPN IB")
-    ubicacion = st.text_input("📍 Escanea o ingresa la ubicación (ej. P01-1-1-1)")
+    lpn = st.text_input("📄 Escanea o ingresa el LPN IB").strip().upper()
+    ubicacion = st.text_input("📍 Escanea o ingresa la ubicación (ej. P01-1-1-1)").strip().upper()
 
     if st.button("📥 Almacenar"):
         if not lpn or not ubicacion:
@@ -60,26 +73,37 @@ def mostrar_formulario_almacenamiento_lpn():
 
         # Validar que el LPN esté disponible
         lpn_row = df_lpns[df_lpns["Número LPN"] == lpn]
-        if lpn_row.empty or lpn_row.iloc[0]["Estado"].lower() != "disponible":
-            st.error("El LPN no está disponible o no existe.")
+        if lpn_row.empty:
+            st.error("El LPN no existe en la hoja LPNs Generados.")
+            return
+        if lpn_row.iloc[0]["Estado"].strip().lower() != "disponible":
+            st.error("El LPN no está disponible para almacenamiento.")
             return
 
-        # Buscar ubicación
-        df_ubicaciones["codigo"] = df_ubicaciones.apply(
-            lambda row: f"{row['Pasillo']}-{row['Tramo']}-{row['Nivel']}-{row['Posición']}", axis=1
-        )
-        ubicacion_row = df_ubicaciones[df_ubicaciones["codigo"] == ubicacion]
+        # Verificar si el LPN ya fue asignado en Ubicaciones
+        if lpn in df_ubicaciones["LPN Asignado"].values:
+            st.error("Este LPN ya fue asignado a una ubicación.")
+            return
 
+        # Generar código de ubicación
+        df_ubicaciones["codigo"] = df_ubicaciones.apply(
+            lambda row: f"{str(row['Pasillo']).strip()}-{str(row['Tramo']).strip()}-{str(row['Nivel']).strip()}-{str(row['Posición']).strip()}",
+            axis=1
+        )
+        df_ubicaciones["codigo"] = df_ubicaciones["codigo"].str.upper().str.strip()
+
+        ubicacion_row = df_ubicaciones[df_ubicaciones["codigo"] == ubicacion]
         if ubicacion_row.empty:
             st.error("La ubicación no existe.")
             return
 
-        if ubicacion_row.iloc[0]["Estado"].lower() != "disponible":
+        if ubicacion_row.iloc[0]["Estado"].strip().lower() != "disponible":
             st.error("La ubicación está ocupada. No se puede almacenar aquí.")
             return
 
         fila_ubicacion = ubicacion_row.index[0]
         usuario = st.session_state.get("codigo_empleado", "Desconocido")
+
         actualizar_ubicacion(libro, fila_ubicacion, "Ocupado", lpn, usuario)
         actualizado = actualizar_estado_lpn(libro, lpn)
 
