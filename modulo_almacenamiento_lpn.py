@@ -10,10 +10,12 @@ def cargar_hoja(libro, nombre_hoja):
     encabezados = [col.strip() for col in datos[0]]
     return pd.DataFrame(datos[1:], columns=encabezados)
 
-def actualizar_ubicacion(libro, fila, nuevo_estado, lpn):
+def actualizar_ubicacion(libro, fila, nuevo_estado, lpn, usuario):
     hoja = libro.worksheet("Ubicaciones")
     hoja.update_cell(fila + 2, hoja.find("Estado").col, nuevo_estado)
     hoja.update_cell(fila + 2, hoja.find("LPN Asignado").col, lpn)
+    hoja.update_cell(fila + 2, hoja.find("Registrado por").col, usuario)
+    hoja.update_cell(fila + 2, hoja.find("Fecha de asignación").col, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 def actualizar_estado_lpn(libro, lpn):
     hoja = libro.worksheet("LPNs Generados")
@@ -77,7 +79,8 @@ def mostrar_formulario_almacenamiento_lpn():
             return
 
         fila_ubicacion = ubicacion_row.index[0]
-        actualizar_ubicacion(libro, fila_ubicacion, "Ocupado", lpn)
+        usuario = st.session_state.get("codigo_empleado", "Desconocido")
+        actualizar_ubicacion(libro, fila_ubicacion, "Ocupado", lpn, usuario)
         actualizado = actualizar_estado_lpn(libro, lpn)
 
         if actualizado:
