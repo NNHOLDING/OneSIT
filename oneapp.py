@@ -20,6 +20,7 @@ from panel_certificaciones import mostrar_panel_certificaciones
 from prueba_ubicacion import mostrar_prueba_ubicacion
 from calculos_jornada import procesar_jornadas
 from modulo_lpn import mostrar_formulario_lpn
+from modulo_almacenamiento_lpn import mostrar_formulario_almacenamiento_lpn
 
 # Configuración de página
 st.set_page_config(
@@ -113,6 +114,7 @@ if st.session_state.logueado_handheld:
         "🌡️ Registro de Temperatura",
         "🧪 Prueba de Ubicación",
         "🏷️ Generación de LPNs",  # ← Nuevo módulo agregado aquí
+        "📥 Almacenamiento LPN ",
     ]
     modulos_usuario = [
         "📦 Registro de Handhelds",
@@ -179,6 +181,8 @@ if st.session_state.logueado_handheld:
         mostrar_prueba_ubicacion()
     elif modulo == "🏷️ Generación de LPNs":
         mostrar_formulario_lpn()
+    elif modulo == "📥 Almacenar LPN IB":
+        mostrar_formulario_almacenamiento_lpn()   
     
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
@@ -194,6 +198,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
