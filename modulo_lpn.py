@@ -5,8 +5,10 @@ from datetime import datetime
 def obtener_ultimo_consecutivo(libro, tipo_etiqueta, bodega):
     hoja = libro.worksheet("LPNs Generados")
     datos = hoja.get_all_values()
-    df = pd.DataFrame(datos[1:], columns=datos[0])
+    if not datos or len(datos) < 2:
+        return 0
 
+    df = pd.DataFrame(datos[1:], columns=datos[0])
     prefijo = "IB" if tipo_etiqueta == "Etiquetas IB" else "OB"
     base = f"{prefijo}{bodega}506"
 
@@ -40,18 +42,26 @@ def show_disponibles(libro):
     try:
         hoja = libro.worksheet("LPNs Generados")
         datos = hoja.get_all_values()
+
+        if not datos or len(datos) < 2:
+            st.info("La hoja 'LPNs Generados' está vacía o sin registros.")
+            return
+
         df = pd.DataFrame(datos[1:], columns=datos[0])
+
+        if "Estado" not in df.columns:
+            st.warning("La columna 'Estado' no está presente en la hoja.")
+            return
+
         df = df[df["Estado"].str.lower() == "disponible"]
 
-        if df.empty:
-            st.info("No hay LPNs disponibles actualmente.")
-        else:
-            st.markdown("### 📦 LPNs Disponibles")
-            filtro_bodega = st.selectbox("Filtrar por bodega", ["Todas"] + sorted(df["Bodega"].unique().tolist()))
-            if filtro_bodega != "Todas":
-                df = df[df["Bodega"] == filtro_bodega]
+        st.markdown("### 📦 LPNs Disponibles")
+        filtro_bodega = st.selectbox("Filtrar por bodega", ["Todas"] + sorted(df["Bodega"].unique().tolist()))
+        if filtro_bodega != "Todas":
+            df = df[df["Bodega"] == filtro_bodega]
 
-            st.dataframe(df, use_container_width=True)
+        st.dataframe(df, use_container_width=True)
+
     except Exception as e:
         st.error(f"No se pudo cargar la hoja 'LPNs Generados': {e}")
 
@@ -71,7 +81,7 @@ def mostrar_formulario_lpn():
     # 📦 GRILLA CON FILTROS Y PAGINACIÓN (visible para todos)
     show_disponibles(libro)
 
-    # Solo admins pueden generar
+    # 🧾 FORMULARIO DE GENERACIÓN (solo para Admin)
     if st.session_state.get("rol_handheld") == "admin":
         with st.form("form_lpn"):
             tipo_etiqueta = st.selectbox("Tipo de etiqueta", ["Etiquetas IB", "Etiquetas OB"])
