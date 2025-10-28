@@ -37,7 +37,7 @@ def mostrar_formulario_bloqueo(libro):
         st.error("Credenciales inválidas o sin permiso de bloqueo.")
         return
 
-    rol_usuario = fila_usuario.iloc[0]["Rol"]
+    rol_usuario = fila_usuario.iloc[0]["Rol"].strip().lower()
 
     # Cargar motivos según rol
     try:
@@ -59,7 +59,7 @@ def mostrar_formulario_bloqueo(libro):
 
     opciones_motivo = motivos_filtrados.apply(
         lambda row: f"{row['Codigo']} - {row['Motivo']}", axis=1
-    ).tolist()
+    ).drop_duplicates().tolist()
 
     motivo_seleccionado = st.selectbox("📝 Selecciona el motivo de bloqueo", opciones_motivo)
     codigo_motivo, texto_motivo = motivo_seleccionado.split(" - ", 1)
