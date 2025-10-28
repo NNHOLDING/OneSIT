@@ -23,6 +23,7 @@ from modulo_lpn import mostrar_formulario_lpn
 from modulo_almacenamiento_lpn import mostrar_formulario_almacenamiento_lpn
 from panel_visual_ubicaciones import mostrar_panel_visual
 from panel_ocupacion_nave import mostrar_panel_ocupacion
+from modulo_bloqueo_ubicaciones import mostrar_formulario_bloqueo
 
 # Configuración de página
 st.set_page_config(
@@ -118,6 +119,7 @@ if st.session_state.logueado_handheld:
         "🏷️ Generación de LPNs",
         "📥 Almacenamiento LPN ",
         "📦 Panel de Ocupación Nave",  # ← nuevo módulo
+        "🚫 Bloqueo de Ubicaciones",  # ← nuevo módulo
     ]
     modulos_usuario = [
         "📦 Registro de Handhelds",
@@ -193,6 +195,8 @@ if st.session_state.logueado_handheld:
         mostrar_panel_visual(conectar_sit_hh())
     elif modulo == "📦 Panel de Ocupación Nave":
         mostrar_panel_ocupacion(conectar_sit_hh())
+    elif modulo == "🚫 Bloqueo de Ubicaciones":
+        mostrar_formulario_bloqueo(conectar_sit_hh())
 
     # 🚪 Cierre de sesión
     st.markdown("---")
@@ -208,4 +212,5 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
