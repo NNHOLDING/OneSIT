@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+from exportar_ubicaciones import mostrar_opcion_exportar  # ✅ Nuevo módulo integrado
 
 def cargar_hoja(libro, nombre_hoja):
     hoja = libro.worksheet(nombre_hoja)
@@ -129,3 +130,6 @@ def mostrar_formulario_almacenamiento_lpn():
             st.success(f"LPN {lpn} almacenado exitosamente en {ubicacion}.")
         else:
             st.warning("La ubicación fue actualizada, pero no se pudo cambiar el estado del LPN.")
+
+    # ✅ Opción de exportar hoja de ubicaciones
+    mostrar_opcion_exportar(libro)
