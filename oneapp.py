@@ -114,7 +114,7 @@ if st.session_state.logueado_handheld:
         "🚨 Registro de Errores",
         "🌡️ Registro de Temperatura",
         "🧪 Prueba de Ubicación",
-        "🏷️ Generación de LPNs",  # ← Nuevo módulo agregado aquí
+        "🏷️ Generación de LPNs",
         "📥 Almacenamiento LPN ",
     ]
     modulos_usuario = [
@@ -180,16 +180,15 @@ if st.session_state.logueado_handheld:
 
     elif modulo == "🧪 Prueba de Ubicación":
         mostrar_prueba_ubicacion()
+
     elif modulo == "🏷️ Generación de LPNs":
         mostrar_formulario_lpn()
+
     elif modulo == "📥 Almacenamiento LPN ":
-        mostrar_formulario_almacenamiento_lpn()   
-    
-    s # 🔍 Panel visual de ubicaciones
-    st.markdown("---")
-    st.subheader("🧭 Opciones avanzadas")
-    from panel_visual_ubicaciones import mostrar_panel_visual
-    mostrar_panel_visual(libro)
+        mostrar_formulario_almacenamiento_lpn()
+        st.markdown("---")
+        st.subheader("🧭 Opciones avanzadas")
+        mostrar_panel_visual(conectar_sit_hh())
 
     # 🚪 Cierre de sesión
     st.markdown("---")
@@ -197,11 +196,7 @@ if st.session_state.logueado_handheld:
     if st.button("Salir", key="boton_salir"):
         from defaults import defaults
         for key in defaults.keys():
-            st.session_state[key] = False if key == "logueado_handheld" else ""
-        st.rerun()
-
-
-
+            st.session_state[key] = False
 # 🧾 Footer institucional
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
@@ -209,10 +204,3 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
