@@ -21,6 +21,7 @@ from prueba_ubicacion import mostrar_prueba_ubicacion
 from calculos_jornada import procesar_jornadas
 from modulo_lpn import mostrar_formulario_lpn
 from modulo_almacenamiento_lpn import mostrar_formulario_almacenamiento_lpn
+from panel_visual_ubicaciones import mostrar_panel_visual
 
 # Configuración de página
 st.set_page_config(
@@ -184,12 +185,22 @@ if st.session_state.logueado_handheld:
     elif modulo == "📥 Almacenamiento LPN ":
         mostrar_formulario_almacenamiento_lpn()   
     
+    s # 🔍 Panel visual de ubicaciones
+    st.markdown("---")
+    st.subheader("🧭 Opciones avanzadas")
+    from panel_visual_ubicaciones import mostrar_panel_visual
+    mostrar_panel_visual(libro)
+
+    # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
     if st.button("Salir", key="boton_salir"):
+        from defaults import defaults
         for key in defaults.keys():
             st.session_state[key] = False if key == "logueado_handheld" else ""
         st.rerun()
+
+
 
 # 🧾 Footer institucional
 st.markdown("""
@@ -198,6 +209,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
