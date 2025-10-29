@@ -29,16 +29,20 @@ def mostrar_panel_visual(libro):
 
     df["Pasillo"] = df["Pasillo"].str.strip().str.upper()
     df["Estado"] = df["Estado"].str.strip()
+    df["Posición"] = df["Posición"].astype(str).str.strip()
+
+    # Conversión segura de Tramo y Nivel
+    df["Tramo"] = pd.to_numeric(df["Tramo"], errors="coerce")
+    df["Nivel"] = pd.to_numeric(df["Nivel"], errors="coerce")
+    df = df.dropna(subset=["Tramo", "Nivel"])
     df["Tramo"] = df["Tramo"].astype(int)
     df["Nivel"] = df["Nivel"].astype(int)
-    df["Posición"] = df["Posición"].astype(str).str.strip()
 
     pasillos = sorted(df["Pasillo"].unique())
     pasillo_seleccionado = st.selectbox("🧭 Selecciona el pasillo", pasillos)
 
     df_pasillo = df[df["Pasillo"] == pasillo_seleccionado]
 
-    # Detectar tramos y niveles reales del pasillo
     tramos = sorted(df_pasillo["Tramo"].unique())
     niveles = sorted(df_pasillo["Nivel"].unique(), reverse=True)
 
@@ -62,10 +66,12 @@ def mostrar_panel_visual(libro):
 
                 texto = "\n".join(posiciones)
 
-                if len(set(estados_validos)) == 1:
+                if len(estados_validos) == 1:
                     color = estado_color.get(estados_validos[0], "black")
-                elif len(estados_validos) > 1:
+                elif len(set(estados_validos)) > 1:
                     color = "gray"
+                elif len(estados_validos) == 0:
+                    color = "black"
                 else:
                     color = "black"
             else:
@@ -75,15 +81,12 @@ def mostrar_panel_visual(libro):
             ax.add_patch(plt.Rectangle((j, i), 1, 1, color=color, edgecolor="white"))
             ax.text(j + 0.5, i + 0.5, texto, ha="center", va="center", fontsize=8, color="white", wrap=True)
 
-    # Etiquetas de tramo (eje X)
     ax.set_xticks([x + 0.5 for x in range(len(tramos))])
     ax.set_xticklabels([f"Tramo {tramos[x]}" for x in range(len(tramos))], fontsize=10)
 
-    # Etiquetas de nivel (eje Y)
     ax.set_yticks([y + 0.5 for y in range(len(niveles))])
     ax.set_yticklabels([f"Nivel {niveles[y]}" for y in range(len(niveles))], fontsize=10)
 
-    # Etiquetas adicionales de tramos en la parte inferior
     for j, tramo in enumerate(tramos):
         ax.text(j + 0.5, len(niveles) + 0.2, f"Cuerpo {tramo}", ha="center", va="bottom", fontsize=9, color="black")
 
