@@ -66,9 +66,10 @@ def mostrar_panel_visual(libro):
 
                 texto = "\n".join(posiciones)
 
-                if len(estados_validos) == 1:
+                estado_unico = set(estados_validos)
+                if len(estado_unico) == 1:
                     color = estado_color[estados_validos[0]]
-                elif len(set(estados_validos)) > 1:
+                elif len(estado_unico) > 1:
                     color = "gray"
                 else:
                     color = "black"
