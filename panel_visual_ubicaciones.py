@@ -38,9 +38,9 @@ def mostrar_panel_visual(libro):
 
     df_pasillo = df[df["Pasillo"] == pasillo_seleccionado]
 
-    # Rango completo de tramos y niveles
-    tramos = list(range(1, 8))  # 7 tramos estándar
-    niveles = list(range(3, 0, -1))  # 3 niveles descendentes
+    # Detectar tramos y niveles reales del pasillo
+    tramos = sorted(df_pasillo["Tramo"].unique())
+    niveles = sorted(df_pasillo["Nivel"].unique(), reverse=True)
 
     fig, ax = plt.subplots(figsize=(len(tramos) * 1.5, len(niveles) * 1.5))
 
@@ -65,13 +65,17 @@ def mostrar_panel_visual(libro):
                 texto = ""
                 color = "black"
 
-            ax.add_patch(plt.Rectangle((j, i), 1, 1, color=color))
+            ax.add_patch(plt.Rectangle((j, i), 1, 1, color=color, edgecolor="white"))
             ax.text(j + 0.5, i + 0.5, texto, ha="center", va="center", fontsize=8, color="white", wrap=True)
 
+    # Etiquetas de tramo (eje X)
     ax.set_xticks([x + 0.5 for x in range(len(tramos))])
-    ax.set_xticklabels([f"Tramo {x}" for x in tramos])
+    ax.set_xticklabels([f"Tramo {tramos[x]}" for x in range(len(tramos))], fontsize=10)
+
+    # Etiquetas de nivel (eje Y)
     ax.set_yticks([y + 0.5 for y in range(len(niveles))])
-    ax.set_yticklabels([f"Nivel {y}" for y in niveles])
+    ax.set_yticklabels([f"Nivel {niveles[y]}" for y in range(len(niveles))], fontsize=10)
+
     ax.set_xlim(0, len(tramos))
     ax.set_ylim(0, len(niveles))
     ax.set_title(f"Pasillo {pasillo_seleccionado}", fontsize=14)
