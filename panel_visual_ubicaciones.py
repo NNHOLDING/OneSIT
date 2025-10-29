@@ -37,11 +37,11 @@ def mostrar_panel_visual(libro):
 
     df_pasillo = df[df["Pasillo"] == pasillo_seleccionado]
 
-    # Determinar rango completo de tramos y niveles
+    # Rango completo de tramos y niveles
     tramos = list(range(1, 8))  # 7 tramos estándar
-    niveles = list(range(3, 0, -1))  # 3 niveles en orden descendente
+    niveles = list(range(3, 0, -1))  # 3 niveles descendentes
 
-    fig, ax = plt.subplots(figsize=(len(tramos), len(niveles)))
+    fig, ax = plt.subplots(figsize=(len(tramos) * 1.2, len(niveles) * 1.2))
 
     for i, nivel in enumerate(niveles):
         for j, tramo in enumerate(tramos):
@@ -66,6 +66,7 @@ def mostrar_panel_visual(libro):
     ax.axis("off")
 
     leyenda = [mpatches.Patch(color=color, label=estado.capitalize()) for estado, color in estado_color.items()]
-    ax.legend(handles=leyenda, loc="lower center", bbox_to_anchor=(0.5, -0.1), ncol=len(leyenda))
+    ax.legend(handles=leyenda, loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=len(leyenda))
 
+    plt.tight_layout()
     st.pyplot(fig)
