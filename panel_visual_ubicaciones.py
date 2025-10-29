@@ -42,7 +42,7 @@ def mostrar_panel_visual(libro):
     tramos = sorted(df_pasillo["Tramo"].unique())
     niveles = sorted(df_pasillo["Nivel"].unique(), reverse=True)
 
-    fig, ax = plt.subplots(figsize=(len(tramos) * 1.5, len(niveles) * 1.5))
+    fig, ax = plt.subplots(figsize=(len(tramos) * 1.5, (len(niveles) + 1.5) * 1.5))
 
     for i, nivel in enumerate(niveles):
         for j, tramo in enumerate(tramos):
@@ -66,23 +66,4 @@ def mostrar_panel_visual(libro):
                 color = "black"
 
             ax.add_patch(plt.Rectangle((j, i), 1, 1, color=color, edgecolor="white"))
-            ax.text(j + 0.5, i + 0.5, texto, ha="center", va="center", fontsize=8, color="white", wrap=True)
-
-    # Etiquetas de tramo (eje X)
-    ax.set_xticks([x + 0.5 for x in range(len(tramos))])
-    ax.set_xticklabels([f"Tramo {tramos[x]}" for x in range(len(tramos))], fontsize=10)
-
-    # Etiquetas de nivel (eje Y)
-    ax.set_yticks([y + 0.5 for y in range(len(niveles))])
-    ax.set_yticklabels([f"Nivel {niveles[y]}" for y in range(len(niveles))], fontsize=10)
-
-    ax.set_xlim(0, len(tramos))
-    ax.set_ylim(0, len(niveles))
-    ax.set_title(f"Pasillo {pasillo_seleccionado}", fontsize=14)
-    ax.axis("off")
-
-    leyenda = [mpatches.Patch(color=color, label=estado.capitalize()) for estado, color in estado_color.items()]
-    ax.legend(handles=leyenda, loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=len(leyenda))
-
-    plt.tight_layout()
-    st.pyplot(fig)
+            ax.text(j + 0.5, i + 0.5, texto, ha="center", va="center", fontsize
