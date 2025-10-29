@@ -55,7 +55,7 @@ def mostrar_panel_visual(libro):
                 posiciones = []
                 colores = []
                 for _, fila in celdas.iterrows():
-                    estado = fila["Estado"]
+                    estado = fila["Estado"].strip().lower()
                     color = estado_color.get(estado, "black")
                     posiciones.append(fila["Posición"])
                     colores.append(color)
@@ -66,4 +66,27 @@ def mostrar_panel_visual(libro):
                 color = "black"
 
             ax.add_patch(plt.Rectangle((j, i), 1, 1, color=color, edgecolor="white"))
-            ax.text(j + 0.5, i + 0.5, texto, ha="center", va="center", fontsize
+            ax.text(j + 0.5, i + 0.5, texto, ha="center", va="center", fontsize=8, color="white", wrap=True)
+
+    # Etiquetas de tramo (eje X)
+    ax.set_xticks([x + 0.5 for x in range(len(tramos))])
+    ax.set_xticklabels([f"Tramo {tramos[x]}" for x in range(len(tramos))], fontsize=10)
+
+    # Etiquetas de nivel (eje Y)
+    ax.set_yticks([y + 0.5 for y in range(len(niveles))])
+    ax.set_yticklabels([f"Nivel {niveles[y]}" for y in range(len(niveles))], fontsize=10)
+
+    # Etiquetas adicionales de tramos en la parte inferior
+    for j, tramo in enumerate(tramos):
+        ax.text(j + 0.5, len(niveles) + 0.2, f"Cuerpo {tramo}", ha="center", va="bottom", fontsize=9, color="black")
+
+    ax.set_xlim(0, len(tramos))
+    ax.set_ylim(0, len(niveles) + 1)
+    ax.set_title(f"Pasillo {pasillo_seleccionado}", fontsize=14)
+    ax.axis("off")
+
+    leyenda = [mpatches.Patch(color=color, label=estado.capitalize()) for estado, color in estado_color.items()]
+    ax.legend(handles=leyenda, loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=len(leyenda))
+
+    plt.tight_layout()
+    st.pyplot(fig)
