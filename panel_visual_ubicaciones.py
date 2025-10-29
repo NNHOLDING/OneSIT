@@ -28,7 +28,7 @@ def mostrar_panel_visual(libro):
         return
 
     df["Pasillo"] = df["Pasillo"].str.strip().str.upper()
-    df["Estado"] = df["Estado"].str.strip()
+    df["Estado"] = df["Estado"].astype(str).str.strip()
     df["Posición"] = df["Posición"].astype(str).str.strip()
 
     # Conversión segura de Tramo y Nivel
@@ -59,19 +59,17 @@ def mostrar_panel_visual(libro):
                 posiciones = []
                 estados_validos = []
                 for _, fila in celdas.iterrows():
-                    estado = fila["Estado"].strip()
-                    posiciones.append(fila["Posición"])
+                    estado = str(fila["Estado"]).strip()
                     if estado in estado_color:
                         estados_validos.append(estado)
+                    posiciones.append(fila["Posición"])
 
                 texto = "\n".join(posiciones)
 
                 if len(estados_validos) == 1:
-                    color = estado_color.get(estados_validos[0], "black")
+                    color = estado_color[estados_validos[0]]
                 elif len(set(estados_validos)) > 1:
                     color = "gray"
-                elif len(estados_validos) == 0:
-                    color = "black"
                 else:
                     color = "black"
             else:
