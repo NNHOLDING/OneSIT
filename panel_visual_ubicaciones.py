@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 estado_color = {
-    "disponible": "green",
-    "ocupado": "red",
-    "reservado": "orange",
-    "mantenimiento": "gray"
+    "Disponible": "green",
+    "Ocupado": "red",
+    "Reservado": "orange",
+    "Mantenimiento": "gray"
 }
 
 def mostrar_panel_visual(libro):
@@ -90,3 +90,4 @@ def mostrar_panel_visual(libro):
 
     plt.tight_layout()
     st.pyplot(fig)
+
