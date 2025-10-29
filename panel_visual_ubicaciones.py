@@ -56,11 +56,17 @@ def mostrar_panel_visual(libro):
                 colores = []
                 for _, fila in celdas.iterrows():
                     estado = fila["Estado"].strip()
-                    color = estado_color.get(estado, "black")
+                    color = estado_color.get(estado, None)
+                    if color:
+                        colores.append(color)
                     posiciones.append(fila["Posición"])
-                    colores.append(color)
                 texto = "\n".join(posiciones)
-                color = colores[0] if len(set(colores)) == 1 else "gray"
+                if not colores:
+                    color = "black"
+                elif len(set(colores)) == 1:
+                    color = colores[0]
+                else:
+                    color = "gray"
             else:
                 texto = ""
                 color = "black"
