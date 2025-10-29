@@ -31,6 +31,7 @@ def mostrar_panel_visual(libro):
     df["Estado"] = df["Estado"].str.strip().str.lower()
     df["Tramo"] = df["Tramo"].astype(int)
     df["Nivel"] = df["Nivel"].astype(int)
+    df["Posición"] = df["Posición"].astype(str).str.strip()
 
     pasillos = sorted(df["Pasillo"].unique())
     pasillo_seleccionado = st.selectbox("🧭 Selecciona el pasillo", pasillos)
@@ -41,25 +42,36 @@ def mostrar_panel_visual(libro):
     tramos = list(range(1, 8))  # 7 tramos estándar
     niveles = list(range(3, 0, -1))  # 3 niveles descendentes
 
-    fig, ax = plt.subplots(figsize=(len(tramos) * 1.2, len(niveles) * 1.2))
+    fig, ax = plt.subplots(figsize=(len(tramos) * 1.5, len(niveles) * 1.5))
 
     for i, nivel in enumerate(niveles):
         for j, tramo in enumerate(tramos):
-            celda = df_pasillo[
+            celdas = df_pasillo[
                 (df_pasillo["Tramo"] == tramo) &
                 (df_pasillo["Nivel"] == nivel)
             ]
-            estado = celda["Estado"].values[0] if not celda.empty else "desconocido"
-            color = estado_color.get(estado, "black")
-            posicion = celda["Posición"].values[0] if not celda.empty else ""
+
+            if not celdas.empty:
+                posiciones = []
+                colores = []
+                for _, fila in celdas.iterrows():
+                    estado = fila["Estado"]
+                    color = estado_color.get(estado, "black")
+                    posiciones.append(fila["Posición"])
+                    colores.append(color)
+                texto = "\n".join(posiciones)
+                color = colores[0] if len(set(colores)) == 1 else "gray"
+            else:
+                texto = ""
+                color = "black"
 
             ax.add_patch(plt.Rectangle((j, i), 1, 1, color=color))
-            ax.text(j + 0.5, i + 0.5, f"{posicion}", ha="center", va="center", fontsize=8, color="white")
+            ax.text(j + 0.5, i + 0.5, texto, ha="center", va="center", fontsize=8, color="white", wrap=True)
 
     ax.set_xticks([x + 0.5 for x in range(len(tramos))])
-    ax.set_xticklabels([f"T{x}" for x in tramos])
+    ax.set_xticklabels([f"Tramo {x}" for x in tramos])
     ax.set_yticks([y + 0.5 for y in range(len(niveles))])
-    ax.set_yticklabels([f"N{y}" for y in niveles])
+    ax.set_yticklabels([f"Nivel {y}" for y in niveles])
     ax.set_xlim(0, len(tramos))
     ax.set_ylim(0, len(niveles))
     ax.set_title(f"Pasillo {pasillo_seleccionado}", fontsize=14)
