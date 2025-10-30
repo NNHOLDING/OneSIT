@@ -69,12 +69,10 @@ def mostrar_consulta_sku(conectar_sit_hh):
             st.info("ℹ️ No hay ubicaciones ocupadas para estos SKUs.")
             return
 
-        # Formatear columnas
         df_resultado["Cantidad"] = pd.to_numeric(df_resultado["Cantidad"], errors="coerce").fillna(0)
         df_resultado["Fecha caducidad"] = pd.to_datetime(df_resultado["Fecha caducidad"], errors="coerce")
         df_resultado["Ubicación"] = df_resultado.apply(construir_ubicacion, axis=1)
 
-        # Aplicar filtros
         df_filtrado = df_resultado[
             (df_resultado["Cantidad"] >= cantidad_minima) &
             (df_resultado["Fecha caducidad"] >= pd.to_datetime(fecha_caducidad_min))
@@ -84,33 +82,39 @@ def mostrar_consulta_sku(conectar_sit_hh):
             st.warning("⚠️ No hay resultados que cumplan con los filtros aplicados.")
             return
 
-        # Alertas de vencimiento
         hoy = datetime.today()
         df_filtrado["⚠️ Vencimiento"] = df_filtrado["Fecha caducidad"].apply(
             lambda x: "Próximo" if pd.notnull(x) and x <= hoy + timedelta(days=30) else ""
         )
 
         st.subheader("📋 Ubicaciones del producto")
-        seleccion = st.radio("Selecciona una fila para editar", df_filtrado.index.tolist(), horizontal=True)
-
+        df_filtrado = df_filtrado.reset_index(drop=True)
         st.dataframe(df_filtrado[[
             "sap", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "Fecha registro", "⚠️ Vencimiento"
         ]].sort_values(by="Ubicación"))
 
-        # Formulario de edición contextual
-        st.markdown("### ✏️ Editar cantidad y fecha de caducidad")
-        fila = df_filtrado.loc[seleccion]
-        nueva_cantidad = st.number_input("Nueva cantidad", value=int(fila["Cantidad"]), min_value=0)
-        nueva_fecha = st.date_input("Nueva fecha de caducidad", value=fila["Fecha caducidad"].date() if pd.notnull(fila["Fecha caducidad"]) else datetime.today())
+        seleccion = st.selectbox("Selecciona una ubicación para editar", options=df_filtrado.index.tolist())
 
-        if st.button("💾 Guardar cambios"):
-            hoja = libro.worksheet("TRecibo")
-            lpn = fila["LPN"]
-            fila_original = df_recibo[df_recibo["LPN"] == lpn].index
-            if not fila_original.empty:
-                idx = fila_original[0] + 2  # +2 por encabezado y base 1
-                hoja.update_cell(idx, df_recibo.columns.get_loc("Cantidad") + 1, str(nueva_cantidad))
-                hoja.update_cell(idx, df_recibo.columns.get_loc("Fecha caducidad") + 1, nueva_fecha.strftime("%Y-%m-%d"))
-                st.success("✅ Cambios guardados correctamente.")
-            else:
-                st.error("❌ No se pudo encontrar la fila original para actualizar.")
+        if st.button("✏️ Editar ubicación seleccionada"):
+            fila = df_filtrado.loc[seleccion]
+
+            st.markdown("### 🛠️ Formulario de edición")
+            with st.form("form_edicion"):
+                st.text_input("Código SAP", value=fila["sap"], disabled=True)
+                st.text_input("LPN", value=fila["LPN"], disabled=True)
+                st.text_input("Ubicación", value=fila["Ubicación"], disabled=True)
+                cantidad_editada = st.number_input("Cantidad", value=int(fila["Cantidad"]), min_value=0)
+                fecha_editada = st.date_input("Fecha de caducidad", value=fila["Fecha caducidad"].date() if pd.notnull(fila["Fecha caducidad"]) else datetime.today())
+                enviado = st.form_submit_button("💾 Guardar cambios")
+
+            if enviado:
+                hoja = libro.worksheet("TRecibo")
+                lpn = fila["LPN"]
+                fila_original = df_recibo[df_recibo["LPN"] == lpn].index
+                if not fila_original.empty:
+                    idx = fila_original[0] + 2
+                    hoja.update_cell(idx, df_recibo.columns.get_loc("Cantidad") + 1, str(cantidad_editada))
+                    hoja.update_cell(idx, df_recibo.columns.get_loc("Fecha caducidad") + 1, fecha_editada.strftime("%Y-%m-%d"))
+                    st.success("✅ Cambios guardados correctamente.")
+                else:
+                    st.error("❌ No se pudo encontrar la fila original para actualizar.")
