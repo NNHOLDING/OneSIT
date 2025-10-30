@@ -14,7 +14,7 @@ def cargar_hoja(libro, nombre_hoja):
         return pd.DataFrame()
 
 def construir_ubicacion(row):
-    pasillo = f"P{str(row['Pasillo']).strip().zfill(2)}"
+    pasillo = str(row['Pasillo']).strip().upper()  # ya viene como "P01"
     tramo = str(row['Tramo']).strip().zfill(2)
     nivel = str(row['Nivel']).strip().zfill(2)
     posicion = str(row['Posición']).strip().zfill(2)
