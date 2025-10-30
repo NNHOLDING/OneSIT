@@ -145,7 +145,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 def footer(canvas, doc):
                     page_num = canvas.getPageNumber()
                     fecha = datetime.today().strftime("%d/%m/%Y")
-                    texto = f"Powered by Smart Intelligence OnePlus · Generado automáticamente · {fecha} · Página {page_num} de {doc.pageCount}"
+                    texto = f"Powered by Smart Intelligence OnePlus · Generado automáticamente · {fecha} · Página {page_num}"
                     canvas.saveState()
                     canvas.setFont("Helvetica", 8)
                     canvas.drawString(40, 30, texto)
