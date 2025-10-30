@@ -24,13 +24,20 @@ def construir_ubicacion(row):
 def mostrar_consulta_sku(conectar_sit_hh):
     st.title("🔍 Consulta de SKU por código SAP")
 
-    codigos_sap_input = st.text_input("Ingrese uno o varios códigos SAP separados por coma").strip()
-    buscar = st.button("🔎 Buscar")
+    # Inicializar estado
+    if "datos_sku" not in st.session_state:
+        st.session_state["datos_sku"] = None
+    if "df_recibo" not in st.session_state:
+        st.session_state["df_recibo"] = None
+    if "libro" not in st.session_state:
+        st.session_state["libro"] = None
 
-    if buscar and codigos_sap_input:
+    codigos_sap_input = st.text_input("Ingrese uno o varios códigos SAP separados por coma").strip()
+
+    if st.button("🔎 Buscar"):
         codigos_sap = [c.strip() for c in codigos_sap_input.split(",") if c.strip().isdigit()]
         if not codigos_sap:
-            st.error("🚫 Debes ingresar al menos un código SAP válido (solo números).")
+            st.error("🚫 Debes ingresar al menos un código SAP válido.")
             return
 
         try:
@@ -77,6 +84,14 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
         df_resultado = df_resultado.reset_index(drop=True)
 
+        # Guardar en sesión
+        st.session_state["datos_sku"] = df_resultado
+        st.session_state["df_recibo"] = df_recibo
+        st.session_state["libro"] = libro
+
+    # Mostrar tabla si hay datos
+    if st.session_state["datos_sku"] is not None:
+        df_resultado = st.session_state["datos_sku"]
         st.subheader("📋 Ubicaciones del producto")
         edited_df = st.data_editor(
             df_resultado[[
@@ -89,21 +104,20 @@ def mostrar_consulta_sku(conectar_sit_hh):
         )
 
         if st.button("💾 Guardar cambios"):
-            cambios = edited_df
             actualizados = 0
-            for i, fila_editada in cambios.iterrows():
+            for i, fila_editada in edited_df.iterrows():
                 original = df_resultado.iloc[i]
                 if (
                     str(fila_editada["Cantidad"]) != str(original["Cantidad"])
                     or str(fila_editada["Fecha caducidad"])[:10] != str(original["Fecha caducidad"])[:10]
                 ):
-                    hoja = libro.worksheet("TRecibo")
+                    hoja = st.session_state["libro"].worksheet("TRecibo")
                     lpn = original["LPN"]
-                    fila_original = df_recibo[df_recibo["LPN"] == lpn].index
+                    fila_original = st.session_state["df_recibo"][st.session_state["df_recibo"]["LPN"] == lpn].index
                     if not fila_original.empty:
                         idx_real = fila_original[0] + 2
-                        hoja.update_cell(idx_real, df_recibo.columns.get_loc("Cantidad") + 1, str(fila_editada["Cantidad"]))
-                        hoja.update_cell(idx_real, df_recibo.columns.get_loc("Fecha caducidad") + 1, pd.to_datetime(fila_editada["Fecha caducidad"]).strftime("%Y-%m-%d"))
+                        hoja.update_cell(idx_real, st.session_state["df_recibo"].columns.get_loc("Cantidad") + 1, str(fila_editada["Cantidad"]))
+                        hoja.update_cell(idx_real, st.session_state["df_recibo"].columns.get_loc("Fecha caducidad") + 1, pd.to_datetime(fila_editada["Fecha caducidad"]).strftime("%Y-%m-%d"))
                         actualizados += 1
             if actualizados > 0:
                 st.success(f"✅ {actualizados} registro(s) actualizado(s) correctamente.")
