@@ -24,7 +24,6 @@ def construir_ubicacion(row):
 def mostrar_consulta_sku(conectar_sit_hh):
     st.title("🔍 Consulta de SKU por código SAP")
 
-    # Inicializar estado
     if "datos_sku" not in st.session_state:
         st.session_state["datos_sku"] = None
     if "df_recibo" not in st.session_state:
@@ -84,12 +83,10 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
         df_resultado = df_resultado.reset_index(drop=True)
 
-        # Guardar en sesión
         st.session_state["datos_sku"] = df_resultado
         st.session_state["df_recibo"] = df_recibo
         st.session_state["libro"] = libro
 
-    # Mostrar tabla si hay datos
     if st.session_state["datos_sku"] is not None:
         df_resultado = st.session_state["datos_sku"]
         st.subheader("📋 Ubicaciones del producto")
@@ -125,7 +122,6 @@ def mostrar_consulta_sku(conectar_sit_hh):
             else:
                 st.info("ℹ️ No se detectaron cambios para guardar.")
 
-        # Opción de descarga
         st.markdown("### 📁 Exportar resultados")
         formato = st.selectbox("Seleccione el formato de descarga", ["CSV", "PDF"])
 
@@ -138,30 +134,53 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 mime="text/csv"
             )
         elif formato == "PDF":
-            import io
-            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-            from reportlab.lib import colors
-            from reportlab.lib.pagesizes import letter
+            try:
+                import io
+                from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+                from reportlab.lib import colors
+                from reportlab.lib.pagesizes import letter
+                from reportlab.lib.styles import getSampleStyleSheet
+                from reportlab.pdfgen import canvas
 
-            buffer = io.BytesIO()
-            doc = SimpleDocTemplate(buffer, pagesize=letter)
-            data = [edited_df.columns.tolist()] + edited_df.astype(str).values.tolist()
-            table = Table(data)
-            table.setStyle(TableStyle([
-                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-            ]))
-            doc.build([table])
-            pdf = buffer.getvalue()
-            buffer.close()
+                def footer(canvas, doc):
+                    page_num = canvas.getPageNumber()
+                    fecha = datetime.today().strftime("%d/%m/%Y")
+                    texto = f"Powered by Smart Intelligence OnePlus · Generado automáticamente · {fecha} · Página {page_num} de {doc.pageCount}"
+                    canvas.saveState()
+                    canvas.setFont("Helvetica", 8)
+                    canvas.drawString(40, 30, texto)
+                    canvas.restoreState()
 
-            st.download_button(
-                label="⬇️ Descargar PDF",
-                data=pdf,
-                file_name="ubicaciones_sku.pdf",
-                mime="application/pdf"
-            )
+                buffer = io.BytesIO()
+                doc = SimpleDocTemplate(buffer, pagesize=letter)
+                styles = getSampleStyleSheet()
+                elementos = []
+
+                titulo = Paragraph("WMS Smart Intelligence OnePlus", styles["Title"])
+                subtitulo = Paragraph("Reporte de Ubicaciones SKU", styles["Heading2"])
+                elementos.extend([titulo, subtitulo, Spacer(1, 12)])
+
+                data = [edited_df.columns.tolist()] + edited_df.astype(str).values.tolist()
+                table = Table(data)
+                table.setStyle(TableStyle([
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                ]))
+                elementos.append(table)
+
+                doc.build(elementos, onFirstPage=footer, onLaterPages=footer)
+                pdf = buffer.getvalue()
+                buffer.close()
+
+                st.download_button(
+                    label="⬇️ Descargar PDF",
+                    data=pdf,
+                    file_name="ubicaciones_sku.pdf",
+                    mime="application/pdf"
+                )
+            except ModuleNotFoundError:
+                st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
