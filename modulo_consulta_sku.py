@@ -98,6 +98,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 "sap", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "Fecha registro", "⚠️ Vencimiento"
             ]],
             use_container_width=True,
+            height=500,
             hide_index=True,
             disabled=["sap", "LPN", "Ubicación", "Fecha registro", "⚠️ Vencimiento"],
             key="sku_editor"
