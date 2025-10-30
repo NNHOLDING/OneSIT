@@ -22,12 +22,9 @@ def construir_ubicacion(row):
     return f"{pasillo}-{tramo}-{nivel}-{posicion}"
 
 def mostrar_consulta_sku(conectar_sit_hh):
-    st.title("🔍 Consulta avanzada de SKU")
+    st.title("🔍 Consulta de SKU por código SAP")
 
     codigos_sap_input = st.text_input("Ingrese uno o varios códigos SAP separados por coma").strip()
-    cantidad_minima = st.number_input("Cantidad mínima", min_value=0, value=0)
-    fecha_caducidad_min = st.date_input("Fecha de caducidad mínima", value=datetime.today())
-
     buscar = st.button("🔎 Buscar")
 
     if buscar and codigos_sap_input:
@@ -73,30 +70,24 @@ def mostrar_consulta_sku(conectar_sit_hh):
         df_resultado["Fecha caducidad"] = pd.to_datetime(df_resultado["Fecha caducidad"], errors="coerce")
         df_resultado["Ubicación"] = df_resultado.apply(construir_ubicacion, axis=1)
 
-        df_filtrado = df_resultado[
-            (df_resultado["Cantidad"] >= cantidad_minima) &
-            (df_resultado["Fecha caducidad"] >= pd.to_datetime(fecha_caducidad_min))
-        ]
-
-        if df_filtrado.empty:
-            st.warning("⚠️ No hay resultados que cumplan con los filtros aplicados.")
-            return
-
         hoy = datetime.today()
-        df_filtrado["⚠️ Vencimiento"] = df_filtrado["Fecha caducidad"].apply(
+        df_resultado["⚠️ Vencimiento"] = df_resultado["Fecha caducidad"].apply(
             lambda x: "Próximo" if pd.notnull(x) and x <= hoy + timedelta(days=30) else ""
         )
 
+        df_resultado = df_resultado.reset_index(drop=True)
+
         st.subheader("📋 Ubicaciones del producto")
-        df_filtrado = df_filtrado.reset_index(drop=True)
-        st.dataframe(df_filtrado[[
+        st.dataframe(df_resultado[[
             "sap", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "Fecha registro", "⚠️ Vencimiento"
         ]].sort_values(by="Ubicación"))
 
-        seleccion = st.selectbox("Selecciona una ubicación para editar", options=df_filtrado.index.tolist())
+        opciones = df_resultado["Ubicación"] + " | LPN: " + df_resultado["LPN"]
+        seleccion = st.selectbox("Selecciona una ubicación para editar", options=opciones)
 
-        if st.button("✏️ Editar ubicación seleccionada"):
-            fila = df_filtrado.loc[seleccion]
+        if seleccion:
+            index = opciones[opciones == seleccion].index[0]
+            fila = df_resultado.loc[index]
 
             st.markdown("### 🛠️ Formulario de edición")
             with st.form("form_edicion"):
