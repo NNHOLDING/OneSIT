@@ -78,34 +78,39 @@ def mostrar_consulta_sku(conectar_sit_hh):
         df_resultado = df_resultado.reset_index(drop=True)
 
         st.subheader("📋 Ubicaciones del producto")
-        selected = st.data_editor(
+        selected_row = st.data_editor(
             df_resultado[[
                 "sap", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "Fecha registro", "⚠️ Vencimiento"
             ]],
-            num_rows="dynamic",
             use_container_width=True,
             hide_index=True,
+            num_rows="dynamic",
+            column_order=["sap", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "Fecha registro", "⚠️ Vencimiento"],
+            key="sku_editor",
             disabled=["sap", "LPN", "Ubicación", "Fecha registro", "⚠️ Vencimiento"],
-            key="editor",
-            column_config={
-                "Cantidad": st.column_config.NumberColumn("Cantidad", min_value=0),
-                "Fecha caducidad": st.column_config.DateColumn("Fecha caducidad")
-            )
         )
 
-        if "editor" in st.session_state and st.button("💾 Guardar cambios"):
-            cambios = st.session_state["editor"]
-            for i, fila_editada in enumerate(cambios):
-                original = df_resultado.iloc[i]
-                if (
-                    str(fila_editada["Cantidad"]) != str(original["Cantidad"])
-                    or str(fila_editada["Fecha caducidad"])[:10] != str(original["Fecha caducidad"])[:10]
-                ):
-                    hoja = libro.worksheet("TRecibo")
-                    lpn = original["LPN"]
-                    fila_original = df_recibo[df_recibo["LPN"] == lpn].index
-                    if not fila_original.empty:
-                        idx = fila_original[0] + 2
-                        hoja.update_cell(idx, df_recibo.columns.get_loc("Cantidad") + 1, str(fila_editada["Cantidad"]))
-                        hoja.update_cell(idx, df_recibo.columns.get_loc("Fecha caducidad") + 1, pd.to_datetime(fila_editada["Fecha caducidad"]).strftime("%Y-%m-%d"))
-            st.success("✅ Cambios guardados correctamente.")
+        if "sku_editor" in st.session_state:
+            selected_index = st.session_state["sku_editor"]["edited_rows"]
+            if selected_index:
+                idx = list(selected_index.keys())[0]
+                fila = df_resultado.iloc[idx]
+
+                if st.button("✏️ Editar fila seleccionada"):
+                    with st.modal("🛠️ Editar ubicación"):
+                        st.text_input("Código SAP", value=fila["sap"], disabled=True)
+                        st.text_input("LPN", value=fila["LPN"], disabled=True)
+                        st.text_input("Ubicación", value=fila["Ubicación"], disabled=True)
+                        cantidad_editada = st.number_input("Cantidad", value=int(fila["Cantidad"]), min_value=0)
+                        fecha_editada = st.date_input("Fecha de caducidad", value=fila["Fecha caducidad"].date() if pd.notnull(fila["Fecha caducidad"]) else datetime.today())
+                        if st.form_submit_button("💾 Guardar cambios"):
+                            hoja = libro.worksheet("TRecibo")
+                            lpn = fila["LPN"]
+                            fila_original = df_recibo[df_recibo["LPN"] == lpn].index
+                            if not fila_original.empty:
+                                idx_real = fila_original[0] + 2
+                                hoja.update_cell(idx_real, df_recibo.columns.get_loc("Cantidad") + 1, str(cantidad_editada))
+                                hoja.update_cell(idx_real, df_recibo.columns.get_loc("Fecha caducidad") + 1, fecha_editada.strftime("%Y-%m-%d"))
+                                st.success("✅ Cambios guardados correctamente.")
+                            else:
+                                st.error("❌ No se pudo encontrar la fila original para actualizar.")
