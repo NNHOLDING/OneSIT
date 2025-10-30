@@ -124,3 +124,44 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 st.success(f"✅ {actualizados} registro(s) actualizado(s) correctamente.")
             else:
                 st.info("ℹ️ No se detectaron cambios para guardar.")
+
+        # Opción de descarga
+        st.markdown("### 📁 Exportar resultados")
+        formato = st.selectbox("Seleccione el formato de descarga", ["CSV", "PDF"])
+
+        if formato == "CSV":
+            csv = edited_df.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="⬇️ Descargar CSV",
+                data=csv,
+                file_name="ubicaciones_sku.csv",
+                mime="text/csv"
+            )
+        elif formato == "PDF":
+            import io
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import letter
+
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            data = [edited_df.columns.tolist()] + edited_df.astype(str).values.tolist()
+            table = Table(data)
+            table.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+            ]))
+            doc.build([table])
+            pdf = buffer.getvalue()
+            buffer.close()
+
+            st.download_button(
+                label="⬇️ Descargar PDF",
+                data=pdf,
+                file_name="ubicaciones_sku.pdf",
+                mime="application/pdf"
+            )
