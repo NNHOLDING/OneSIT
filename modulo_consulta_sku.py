@@ -14,13 +14,11 @@ def cargar_hoja(libro, nombre_hoja):
         return pd.DataFrame()
 
 def construir_ubicacion(row):
-    pasillo = str(row['Pasillo']).strip().upper()
-    if not pasillo.startswith("P"):
-        pasillo = f"P{pasillo.zfill(2)}"
-    tramo = str(row['Tramo']).strip()
-    nivel = str(row['Nivel']).strip()
-    posicion = str(row['Posición']).strip()
-    return f"Pasillo {pasillo} - Tramo {tramo} - Nivel {nivel} - Posición {posicion}"
+    pasillo = f"P{str(row['Pasillo']).strip().zfill(2)}"
+    tramo = str(row['Tramo']).strip().zfill(2)
+    nivel = str(row['Nivel']).strip().zfill(2)
+    posicion = str(row['Posición']).strip().zfill(2)
+    return f"{pasillo}-{tramo}-{nivel}-{posicion}"
 
 def mostrar_consulta_sku(conectar_sit_hh):
     st.title("🔍 Consulta de SKU por código SAP")
