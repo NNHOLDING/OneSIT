@@ -168,16 +168,21 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 fecha_actual = datetime.today().strftime("%d/%m/%Y")
                 usuario = st.session_state.get("nombre_empleado", "Usuario desconocido")
 
-                titulo = Paragraph("📦 <b>Reporte de Ubicaciones por Código SAP</b>", centered_title)
-                subtitulo1 = Paragraph("<i>Sistema WMS · Smart Intelligence OnePlus</i>", centered_subtitle)
-                subtitulo2 = Paragraph(f"<i>Generado el: {fecha_actual}</i>", centered_subtitle)
-                subtitulo3 = Paragraph("<i>Site: Bodega Sigma Alajuela CRC</i>", centered_subtitle)
-                subtitulo4 = Paragraph(f"<i>Generado por: {usuario}</i>", centered_subtitle)
-
-                elementos.extend([titulo, subtitulo1, subtitulo2, subtitulo3, subtitulo4, Spacer(1, 12)])
+                elementos.extend([
+                    Paragraph("📦 <b>Reporte de Ubicaciones por Código SAP</b>", centered_title),
+                    Paragraph("<i>Sistema WMS · Smart Intelligence OnePlus</i>", centered_subtitle),
+                    Paragraph(f"<i>Generado el: {fecha_actual}</i>", centered_subtitle),
+                    Paragraph("<i>Site: Bodega Sigma Alajuela CRC</i>", centered_subtitle),
+                    Paragraph(f"<i>Generado por: {usuario}</i>", centered_subtitle),
+                    Spacer(1, 12)
+                ])
 
                 data = [edited_df.columns.tolist()] + edited_df.astype(str).values.tolist()
                 table = Table(data)
                 table.setStyle(TableStyle([
                     ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                    ("TEXTCOLOR
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+                    ("GRID", (0, 
