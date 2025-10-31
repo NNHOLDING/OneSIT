@@ -88,32 +88,18 @@ def mostrar_consulta_sku(conectar_sit_hh):
         st.session_state["libro"] = libro
 
     if st.session_state["datos_sku"] is not None:
-    df_resultado = st.session_state["datos_sku"]
-    st.subheader("📋 Ubicaciones del producto")
-    edited_df = st.data_editor(
-        df_resultado[[
-            "sap", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
-        ]],
-        use_container_width=True,
-        height=500,
-        hide_index=True,
-        disabled=["sap", "Descripcion sku", "LPN", "Ubicación", "Fecha registro", "⚠️ Vencimiento"],
-        column_config={
-            "sap": st.column_config.TextColumn("Código SAP", width="medium"),
-            "Descripcion sku": st.column_config.TextColumn("Descripción SKU", width="large"),
-            "LPN": st.column_config.TextColumn("LPN", width="medium"),
-            "Ubicación": st.column_config.TextColumn("Ubicación", width="medium"),
-            "Cantidad": st.column_config.NumberColumn("Cantidad", format="%d", width="small"),
-            "Fecha caducidad": st.column_config.DateColumn("Fecha de Caducidad", width="medium"),
-            "lote": st.column_config.TextColumn("Lote", width="medium"),
-            "Fecha registro": st.column_config.DateColumn("Fecha de Registro", width="medium"),
-            "⚠️ Vencimiento": st.column_config.TextColumn("⚠️ Vencimiento", width="small")
-        },
-        column_order=[
-            "sap", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
-        ],
-        key="sku_editor"
-    )
+        df_resultado = st.session_state["datos_sku"]
+        st.subheader("📋 Ubicaciones del producto")
+        edited_df = st.data_editor(
+            df_resultado[[
+                "sap", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
+            ]],
+            use_container_width=True,
+            height=500,
+            hide_index=True,
+            disabled=["sap", "Descripcion sku", "LPN", "Ubicación", "Fecha registro", "⚠️ Vencimiento"],
+            key="sku_editor"
+        )
 
         if st.button("💾 Guardar cambios"):
             actualizados = 0
