@@ -126,7 +126,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 st.success(f"✅ {actualizados} registro(s) actualizado(s) correctamente.")
             else:
                 st.info("ℹ️ No se detectaron cambios para guardar.")
-             st.markdown("### 📁 Exportar resultados")
+                st.markdown("### 📁 Exportar resultados")
         formato = st.selectbox("Seleccione el formato de descarga", ["CSV", "PDF"])
 
         if formato == "CSV":
@@ -200,6 +200,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
             except ModuleNotFoundError:
                 st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
+
 
 
 
