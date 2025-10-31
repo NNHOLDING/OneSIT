@@ -1,12 +1,6 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
-import io
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.pdfgen import canvas
 
 def cargar_hoja(libro, nombre_hoja):
     try:
@@ -133,23 +127,3 @@ def mostrar_consulta_sku(conectar_sit_hh):
             else:
                 st.info("ℹ️ No se detectaron cambios para guardar.")
 
-        st.markdown("### 📁 Exportar resultados")
-        formato = st.selectbox("Seleccione el formato de descarga", ["CSV", "PDF"])
-
-        if formato == "CSV":
-            csv = edited_df.to_csv(index=False).encode("utf-8")
-            st.download_button(
-                label="⬇️ Descargar CSV",
-                data=csv,
-                file_name="ubicaciones_sku.csv",
-                mime="text/csv"
-            )
-        elif formato == "PDF":
-            try:
-                def footer(canvas, doc):
-                    page_num = canvas.getPageNumber()
-                    fecha = datetime.today().strftime("%d/%m/%Y")
-                    texto = f"Powered by Smart Intelligence OnePlus · Generado automáticamente · {fecha} · Página {page_num}"
-                    canvas.saveState()
-                    canvas.setFont("Helvetica", 8)
-                   
