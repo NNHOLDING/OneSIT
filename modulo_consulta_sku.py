@@ -180,5 +180,4 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 data = [edited_df.columns.tolist()] + edited_df.astype(str).values.tolist()
                 table = Table(data)
                 table.setStyle(TableStyle([
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesm
+                    ("BACKGROUND", (0, 0), (-1, 0),
