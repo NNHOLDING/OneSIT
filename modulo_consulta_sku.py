@@ -88,29 +88,32 @@ def mostrar_consulta_sku(conectar_sit_hh):
         st.session_state["libro"] = libro
 
     if st.session_state["datos_sku"] is not None:
-        df_resultado = st.session_state["datos_sku"]
-        st.subheader("📋 Ubicaciones del producto")
-        edited_df = st.data_editor(
-            df_resultado[[
-                "sap", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
-            ]],
-            use_container_width=True,
-            height=500,
-            hide_index=True,
-            disabled=["sap", "Descripcion sku", "LPN", "Ubicación", "Fecha registro", "⚠️ Vencimiento"],
-            column_config={
-                "sap": st.column_config.TextColumn("Código SAP", width="medium"),
-                "Descripcion sku": st.column_config.TextColumn("Descripción SKU", width="large"),
-                "LPN": st.column_config.TextColumn("LPN", width="medium"),
-                "Ubicación": st.column_config.TextColumn("Ubicación", width="medium"),
-                "Cantidad": st.column_config.NumberColumn("Cantidad", format="%d", width="small"),
-                "Fecha caducidad": st.column_config.DateColumn("Fecha de Caducidad", width="medium"),
-                "lote": st.column_config.TextColumn("Lote", width="medium"),
-                "Fecha registro": st.column_config.DateColumn("Fecha de Registro", width="medium"),
-                "⚠️ Vencimiento": st.column_config.TextColumn("⚠️ Vencimiento", width="small")
-            },
-            key="sku_editor"
-        )
+    df_resultado = st.session_state["datos_sku"]
+    st.subheader("📋 Ubicaciones del producto")
+    edited_df = st.data_editor(
+        df_resultado[[
+            "sap", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
+        ]],
+        use_container_width=True,
+        height=500,
+        hide_index=True,
+        disabled=["sap", "Descripcion sku", "LPN", "Ubicación", "Fecha registro", "⚠️ Vencimiento"],
+        column_config={
+            "sap": st.column_config.TextColumn("Código SAP", width="medium"),
+            "Descripcion sku": st.column_config.TextColumn("Descripción SKU", width="large"),
+            "LPN": st.column_config.TextColumn("LPN", width="medium"),
+            "Ubicación": st.column_config.TextColumn("Ubicación", width="medium"),
+            "Cantidad": st.column_config.NumberColumn("Cantidad", format="%d", width="small"),
+            "Fecha caducidad": st.column_config.DateColumn("Fecha de Caducidad", width="medium"),
+            "lote": st.column_config.TextColumn("Lote", width="medium"),
+            "Fecha registro": st.column_config.DateColumn("Fecha de Registro", width="medium"),
+            "⚠️ Vencimiento": st.column_config.TextColumn("⚠️ Vencimiento", width="small")
+        },
+        column_order=[
+            "sap", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
+        ],
+        key="sku_editor"
+    )
 
         if st.button("💾 Guardar cambios"):
             actualizados = 0
@@ -137,8 +140,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 st.success(f"✅ {actualizados} registro(s) actualizado(s) correctamente.")
             else:
                 st.info("ℹ️ No se detectaron cambios para guardar.")
-            st.markdown("### 📁 Exportar resultados")
-
+                st.markdown("### 📁 Exportar resultados")
         formato = st.selectbox("Seleccione el formato de descarga", ["CSV", "PDF"])
 
         if formato == "CSV":
@@ -184,5 +186,38 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
                 elementos.extend([titulo, Spacer(1, 6), subtitulo, Spacer(1, 6), subtitulo2, Spacer(1, 12)])
 
-                pdf_df = edited_df.rename(columns={
-                    "sap": "Código
+                # Renombrar columna 'sap' a 'Código SAP' solo para el PDF
+                pdf_df = edited_df.rename(columns={"sap": "Código SAP"})
+                data = [pdf_df.columns.tolist()] + pdf_df.astype(str).values.tolist()
+
+                table = Table(data)
+                table.setStyle(TableStyle([
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                ]))
+                elementos.append(table)
+
+                doc.build(elementos, onFirstPage=footer, onLaterPages=footer)
+                pdf = buffer.getvalue()
+                buffer.close()
+
+                st.download_button(
+                    label="⬇️ Descargar PDF",
+                    data=pdf,
+                    file_name="ubicaciones_sku.pdf",
+                    mime="application/pdf"
+                )
+
+            except ModuleNotFoundError:
+                st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
+
+
+
+
+
+
+
