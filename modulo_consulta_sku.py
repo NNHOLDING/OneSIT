@@ -24,12 +24,12 @@ def construir_ubicacion(row):
 def mostrar_consulta_sku(conectar_sit_hh):
     st.title("🔍 Consulta de SKU por código SAP")
 
-    if "datos_sku" not in st.session_state:
-        st.session_state["datos_sku"] = None
-    if "df_recibo" not in st.session_state:
-        st.session_state["df_recibo"] = None
-    if "libro" not in st.session_state:
-        st.session_state["libro"] = None
+        if "datos_sku" not in st.session_state:
+            st.session_state["datos_sku"] = None
+        if "df_recibo" not in st.session_state:
+            st.session_state["df_recibo"] = None
+        if "libro" not in st.session_state:
+            st.session_state["libro"] = None
 
     codigos_sap_input = st.text_input("Ingrese uno o varios códigos SAP separados por coma").strip()
 
@@ -266,3 +266,4 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
             except ModuleNotFoundError:
                 st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
+
