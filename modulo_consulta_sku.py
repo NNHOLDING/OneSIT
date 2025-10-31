@@ -152,24 +152,4 @@ def mostrar_consulta_sku(conectar_sit_hh):
                     texto = f"Powered by Smart Intelligence OnePlus · Generado automáticamente · {fecha} · Página {page_num}"
                     canvas.saveState()
                     canvas.setFont("Helvetica", 8)
-                    canvas.drawString(40, 30, texto)
-                    canvas.restoreState()
-
-                buffer = io.BytesIO()
-                doc = SimpleDocTemplate(buffer, pagesize=letter)
-                styles = getSampleStyleSheet()
-
-                centered_title = ParagraphStyle(name="CenteredTitle", parent=styles["Title"], alignment=1)
-                centered_subtitle = ParagraphStyle(name="CenteredSubtitle", parent=styles["Heading2"], alignment=1)
-
-                elementos = []
-
-                fecha_actual = datetime.today().strftime("%d/%m/%Y")
-                titulo = Paragraph("📦 Reporte de Ubicaciones por Código SAP", centered_title)
-                subtitulo = Paragraph(f"Sistema WMS · Smart Intelligence OnePlus<br/>Generado el: {fecha_actual}", centered_subtitle)
-                subtitulo2 = Paragraph("Site: Bodega Sigma Alajuela CRC", centered_subtitle)
-
-                elementos.extend([titulo, Spacer(1, 6), subtitulo, Spacer(1, 6), subtitulo2, Spacer(1, 12)])
-
-                data = [edited_df.columns.tolist()] + edited_df.astype(str).values.tolist()
-               
+                   
