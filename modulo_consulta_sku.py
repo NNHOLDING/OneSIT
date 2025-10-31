@@ -98,7 +98,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
         st.subheader("📋 Ubicaciones del producto")
         edited_df = st.data_editor(
             df_resultado[[
-                "sap", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
+                "Código SAP", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
             ]],
             use_container_width=True,
             height=500,
@@ -170,7 +170,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 subtitulo2 = Paragraph("Site: Bodega Sigma Alajuela CRC", centered_subtitle)
 
                 elementos.extend([titulo, Spacer(1, 6), subtitulo, Spacer(1, 6), subtitulo2, Spacer(1, 12)])
-
+                edited_df = edited_df.rename(columns={"sap": "Código SAP"})
                 data = [edited_df.columns.tolist()] + edited_df.astype(str).values.tolist()
                 table = Table(data)
                 table.setStyle(TableStyle([
@@ -195,3 +195,4 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 )
             except ModuleNotFoundError:
                 st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
+
