@@ -92,12 +92,12 @@ def mostrar_consulta_sku(conectar_sit_hh):
         st.subheader("📋 Ubicaciones del producto")
         edited_df = st.data_editor(
             df_resultado[[
-                "sap", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "Fecha registro", "⚠️ Vencimiento"
+                "sap", "Descripcion sku", "LPN", "Ubicación", "Cantidad", "Fecha caducidad", "lote", "Fecha registro", "⚠️ Vencimiento"
             ]],
             use_container_width=True,
             height=500,
             hide_index=True,
-            disabled=["sap", "LPN", "Ubicación", "Fecha registro", "⚠️ Vencimiento"],
+            disabled=["sap", "Descripcion sku", "LPN", "Ubicación", "Fecha registro", "⚠️ Vencimiento"],
             key="sku_editor"
         )
 
@@ -105,17 +105,22 @@ def mostrar_consulta_sku(conectar_sit_hh):
             actualizados = 0
             for i, fila_editada in edited_df.iterrows():
                 original = df_resultado.iloc[i]
-                if (
-                    str(fila_editada["Cantidad"]) != str(original["Cantidad"])
-                    or str(fila_editada["Fecha caducidad"])[:10] != str(original["Fecha caducidad"])[:10]
-                ):
+                cambios = []
+                if str(fila_editada["Cantidad"]) != str(original["Cantidad"]):
+                    cambios.append(("Cantidad", fila_editada["Cantidad"]))
+                if str(fila_editada["Fecha caducidad"])[:10] != str(original["Fecha caducidad"])[:10]:
+                    cambios.append(("Fecha caducidad", pd.to_datetime(fila_editada["Fecha caducidad"]).strftime("%Y-%m-%d")))
+                if str(fila_editada["lote"]).strip() != str(original["lote"]).strip():
+                    cambios.append(("lote", fila_editada["lote"]))
+
+                if cambios:
                     hoja = st.session_state["libro"].worksheet("TRecibo")
                     lpn = original["LPN"]
                     fila_original = st.session_state["df_recibo"][st.session_state["df_recibo"]["LPN"] == lpn].index
                     if not fila_original.empty:
                         idx_real = fila_original[0] + 2
-                        hoja.update_cell(idx_real, st.session_state["df_recibo"].columns.get_loc("Cantidad") + 1, str(fila_editada["Cantidad"]))
-                        hoja.update_cell(idx_real, st.session_state["df_recibo"].columns.get_loc("Fecha caducidad") + 1, pd.to_datetime(fila_editada["Fecha caducidad"]).strftime("%Y-%m-%d"))
+                        for campo, valor in cambios:
+                            hoja.update_cell(idx_real, st.session_state["df_recibo"].columns.get_loc(campo) + 1, str(valor))
                         actualizados += 1
             if actualizados > 0:
                 st.success(f"✅ {actualizados} registro(s) actualizado(s) correctamente.")
