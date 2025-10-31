@@ -138,7 +138,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 mime="text/csv"
             )
 
-        elif formato == "PDF":
+                elif formato == "PDF":
             try:
                 import io
                 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -176,7 +176,11 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 pdf_df = edited_df.rename(columns={"sap": "Código SAP"})
                 data = [pdf_df.columns.tolist()] + pdf_df.astype(str).values.tolist()
 
-                table = Table(data)
+                # Ajustar ancho de columnas y permitir división entre páginas
+                num_cols = len(data[0])
+                col_width = doc.width / num_cols
+                table = Table(data, colWidths=[col_width] * num_cols, repeatRows=1)
+
                 table.setStyle(TableStyle([
                     ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
@@ -200,8 +204,3 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
             except ModuleNotFoundError:
                 st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
-
-
-
-
-
