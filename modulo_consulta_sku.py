@@ -188,4 +188,4 @@ def mostrar_consulta_sku(conectar_sit_hh):
                     mime="application/pdf"
                 )
             except ModuleNotFoundError:
-                st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por
+                st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
