@@ -59,7 +59,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
             st.warning("⚠️ No se encontraron registros para los códigos SAP ingresados.")
             return
 
-        df_ubicadas = df_ubicaciones[df_ubicaciones["Estado"].str.strip().str.lower() == "ocupado"]
+        df_ubicadas = df_ubicaciones[df_ubicaciones["Estado"].str.strip().str.lower() == "No disponible"]
         df_resultado = pd.merge(
             df_sku,
             df_ubicadas,
@@ -200,6 +200,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
             except ModuleNotFoundError:
                 st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
+
 
 
 
