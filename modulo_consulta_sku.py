@@ -48,6 +48,10 @@ def mostrar_consulta_sku(conectar_sit_hh):
         df_recibo = cargar_hoja(libro, "TRecibo")
         df_ubicaciones = cargar_hoja(libro, "Ubicaciones")
 
+        # ✅ Limpieza de encabezados
+        df_recibo.columns = df_recibo.columns.str.strip()
+        df_ubicaciones.columns = df_ubicaciones.columns.str.strip()
+
         if df_recibo.empty or df_ubicaciones.empty:
             st.warning("⚠️ Las hojas necesarias están vacías o mal formateadas.")
             return
@@ -59,7 +63,12 @@ def mostrar_consulta_sku(conectar_sit_hh):
             st.warning("⚠️ No se encontraron registros para los códigos SAP ingresados.")
             return
 
-        df_ubicadas = df_ubicaciones[df_ubicaciones["Estado"].str.strip().str.lower() == "No disponible"]
+        # ✅ Filtro corregido para incluir "ocupado" y "no disponible"
+        df_ubicadas = df_ubicaciones[
+            df_ubicaciones["Estado"].str.strip().str.lower().isin(["ocupado", "no disponible"])
+        ]
+
+        # ✅ Unión corregida usando "LPN_Asignado"
         df_resultado = pd.merge(
             df_sku,
             df_ubicadas,
@@ -125,8 +134,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
             if actualizados > 0:
                 st.success(f"✅ {actualizados} registro(s) actualizado(s) correctamente.")
             else:
-                st.info("ℹ️ No se detectaron cambios para guardar.")
-                st.markdown("### 📁 Exportar resultados")
+                st.info("ℹ️ No se detectaron cambios para guardar.")                st.markdown("### 📁 Exportar resultados")
         formato = st.selectbox("Seleccione el formato de descarga", ["CSV", "PDF"])
 
         if formato == "CSV":
@@ -200,6 +208,7 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
             except ModuleNotFoundError:
                 st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
+
 
 
 
