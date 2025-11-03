@@ -48,6 +48,9 @@ def mostrar_consulta_sku(conectar_sit_hh):
         df_recibo = cargar_hoja(libro, "TRecibo")
         df_ubicaciones = cargar_hoja(libro, "Ubicaciones")
 
+        df_recibo.columns = df_recibo.columns.str.strip()
+        df_ubicaciones.columns = df_ubicaciones.columns.str.strip()
+
         if df_recibo.empty or df_ubicaciones.empty:
             st.warning("⚠️ Las hojas necesarias están vacías o mal formateadas.")
             return
@@ -59,7 +62,11 @@ def mostrar_consulta_sku(conectar_sit_hh):
             st.warning("⚠️ No se encontraron registros para los códigos SAP ingresados.")
             return
 
-        df_ubicadas = df_ubicaciones[df_ubicaciones["Estado"].str.strip().str.lower() == "ocupado"]
+        # ✅ Corrección: incluir estados "ocupado" y "no disponible"
+        df_ubicadas = df_ubicaciones[
+            df_ubicaciones["Estado"].str.strip().str.lower().isin(["ocupado", "no disponible"])
+        ]
+
         df_resultado = pd.merge(
             df_sku,
             df_ubicadas,
@@ -126,7 +133,8 @@ def mostrar_consulta_sku(conectar_sit_hh):
                 st.success(f"✅ {actualizados} registro(s) actualizado(s) correctamente.")
             else:
                 st.info("ℹ️ No se detectaron cambios para guardar.")
-                st.markdown("### 📁 Exportar resultados")
+
+        st.markdown("### 📁 Exportar resultados")
         formato = st.selectbox("Seleccione el formato de descarga", ["CSV", "PDF"])
 
         if formato == "CSV":
@@ -172,7 +180,6 @@ def mostrar_consulta_sku(conectar_sit_hh):
 
                 elementos.extend([titulo, Spacer(1, 6), subtitulo, Spacer(1, 6), subtitulo2, Spacer(1, 12)])
 
-                # Renombrar columna 'sap' a 'Código SAP' solo para el PDF
                 pdf_df = edited_df.rename(columns={"sap": "Código SAP"})
                 data = [pdf_df.columns.tolist()] + pdf_df.astype(str).values.tolist()
 
@@ -181,30 +188,4 @@ def mostrar_consulta_sku(conectar_sit_hh):
                     ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
                     ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                ]))
-                elementos.append(table)
-
-                doc.build(elementos, onFirstPage=footer, onLaterPages=footer)
-                pdf = buffer.getvalue()
-                buffer.close()
-
-                st.download_button(
-                    label="⬇️ Descargar PDF",
-                    data=pdf,
-                    file_name="ubicaciones_sku.pdf",
-                    mime="application/pdf"
-                )
-
-            except ModuleNotFoundError:
-                st.error("⚠️ La opción PDF requiere el módulo 'reportlab'. Por favor instálalo con `pip install reportlab` o contacta al administrador del sistema.")
-
-
-
-
-
-
-
-
+                    ("FONTNAME", (0, 0), (-1, 0),
