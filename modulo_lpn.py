@@ -84,8 +84,8 @@ def mostrar_formulario_lpn():
     # 📦 GRILLA CON FILTROS Y PAGINACIÓN (visible para todos)
     show_disponibles(libro)
 
-    # 🧾 FORMULARIO DE GENERACIÓN (solo para Admin)
-    if st.session_state.get("rol_handheld") == "admin":
+    # 🧾 FORMULARIO DE GENERACIÓN (Admin y Supervisor)
+    if st.session_state.get("rol_handheld") in ["admin", "supervisor"]:
         with st.form("form_lpn"):
             tipo_etiqueta = st.selectbox("Tipo de etiqueta", ["Etiquetas IB", "Etiquetas OB"])
             cantidad = st.number_input("Cantidad a generar", min_value=1, step=1)
@@ -105,4 +105,4 @@ def mostrar_formulario_lpn():
                 except Exception as e:
                     st.error(f"Error al generar LPNs: {e}")
     else:
-        st.info("Solo los administradores pueden generar nuevos LPNs.")
+        st.info("Solo administradores y supervisores pueden generar nuevos LPNs.")
