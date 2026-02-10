@@ -206,6 +206,7 @@ if st.session_state.logueado_handheld:
         mostrar_formulario_bloqueo(conectar_sit_hh())
     elif modulo == "🔍 Consulta de SKU":
         mostrar_consulta_sku(conectar_sit_hh)
+    
     elif modulo == "📑 Reporte TRecibo":
     mostrar_reporte(conectar_sit_hh)
 
@@ -224,6 +225,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
