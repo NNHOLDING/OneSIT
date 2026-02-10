@@ -26,6 +26,8 @@ from panel_ocupacion_nave import mostrar_panel_ocupacion
 from modulo_bloqueo_ubicaciones import mostrar_formulario_bloqueo
 from modulo_consulta_sku import mostrar_consulta_sku
 from modulo_reporte import mostrar_reporte
+from defaults import defaults
+
 
 
 # Configuración de página
@@ -230,4 +232,5 @@ st.markdown("""
 """, unsafe_allow_html=True)
         
     
+
 
