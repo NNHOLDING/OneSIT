@@ -104,52 +104,14 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🏠 Pantalla de inicio
+# 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
     st.markdown("""
-        <style>
-        .home-container {
-            background-color: rgba(128,128,128,0.5); /* gris 50% */
-            padding: 60px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .home-title {
-            font-size: 36px;
-            font-weight: bold;
-            color: #ffffff;
-            margin-bottom: 20px;
-        }
-        .home-line {
-            border-top: 3px solid #00f0ff; /* azul neón */
-            width: 100%;
-            margin: 0 auto;
-        }
-        </style>
-
-        <div class="home-container">
-            <div class="home-title">WMS Smart Intelligence Tools (home)</div>
-            <div class="home-line"></div>
+        <div style='text-align: center;'>
+        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
         </div>
     """, unsafe_allow_html=True)
 
-    # 👇 Aquí continúa tu menú lateral y lógica de módulos
-    rol = st.session_state.rol_handheld
-    if rol == "admin":
-        opciones_menu = modulos_admin
-    elif rol == "supervisor":
-        opciones_menu = modulos_supervisor
-    else:
-        opciones_menu = modulos_usuario
-
-    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
-
-    # Luego tu lógica de cada módulo según la selección
-    if modulo == "🏷️ Generación de LPNs":
-        mostrar_formulario_lpn()
-    elif modulo == "📑 Reporte TRecibo":
-        mostrar_reporte(conectar_sit_hh)
-    # ... y así sucesivamente
     modulos_admin = [
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
@@ -166,6 +128,7 @@ if st.session_state.logueado_handheld:
         "🔍 Consulta de SKU",  # ← nuevo módulo
         "📑 Reporte TRecibo",
     ]
+
     modulos_usuario = [
         "📦 Registro de Handhelds",
         "🕒 Productividad",
@@ -175,17 +138,26 @@ if st.session_state.logueado_handheld:
         "🧪 Prueba de Ubicación",
         "📑 Reporte TRecibo",
     ]
-    modulos_supervisor = [
-    "📦 Registro de Handhelds",
-    "🕒 Productividad",
-    "📝 Gestión de Jornada",
-    "🚨 Registro de Errores",
-    "🏷️ Generación de LPNs",
-    "📑 Reporte TRecibo",
-]
 
+    modulos_supervisor = [
+        "📦 Registro de Handhelds",
+        "🕒 Productividad",
+        "📝 Gestión de Jornada",
+        "🚨 Registro de Errores",
+        "📑 Reporte TRecibo",
+    ]
 
     # Selección dinámica según rol
+    rol = st.session_state.rol_handheld
+    if rol == "admin":
+        opciones_menu = modulos_admin
+    elif rol == "supervisor":
+        opciones_menu = modulos_supervisor
+    else:
+        opciones_menu = modulos_usuario
+
+    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
+        # Selección dinámica según rol
     rol = st.session_state.rol_handheld
     if rol == "admin":
         opciones_menu = modulos_admin
@@ -288,6 +260,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
         
     
+
 
 
 
