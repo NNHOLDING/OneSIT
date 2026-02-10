@@ -26,6 +26,7 @@ from panel_ocupacion_nave import mostrar_panel_ocupacion
 from modulo_bloqueo_ubicaciones import mostrar_formulario_bloqueo
 from modulo_consulta_sku import mostrar_consulta_sku
 from modulo_reporte import mostrar_reporte
+from defaults import defaults
 
 # Configuración de página
 st.set_page_config(
@@ -123,7 +124,7 @@ if st.session_state.logueado_handheld:
         "📦 Panel de Ocupación Nave",
         "🚫 Bloqueo de Ubicaciones",
         "🔍 Consulta de SKU",
-        "📑 Reporte LPN",
+        "📑 Reporte TRecibo",
     ]
     modulos_usuario = [
         "📦 Registro de Handhelds",
@@ -242,5 +243,6 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
