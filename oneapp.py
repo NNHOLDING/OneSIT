@@ -25,6 +25,8 @@ from panel_visual_ubicaciones import mostrar_panel_visual
 from panel_ocupacion_nave import mostrar_panel_ocupacion
 from modulo_bloqueo_ubicaciones import mostrar_formulario_bloqueo
 from modulo_consulta_sku import mostrar_consulta_sku
+from modulo_reporte import mostrar_reporte
+
 
 # Configuración de página
 st.set_page_config(
@@ -122,6 +124,7 @@ if st.session_state.logueado_handheld:
         "📦 Panel de Ocupación Nave",  # ← nuevo módulo
         "🚫 Bloqueo de Ubicaciones",  # ← nuevo módulo
         "🔍 Consulta de SKU",  # ← nuevo módulo
+        "📑 Reporte TRecibo",
     ]
     modulos_usuario = [
         "📦 Registro de Handhelds",
@@ -129,7 +132,8 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🌡️ Registro de Temperatura",
         "🏷️ Generación de LPNs",
-        "🧪 Prueba de Ubicación"
+        "🧪 Prueba de Ubicación",
+        "📑 Reporte TRecibo",
     ]
 
     opciones_menu = modulos_admin if st.session_state.rol_handheld == "admin" else modulos_usuario
@@ -202,6 +206,9 @@ if st.session_state.logueado_handheld:
         mostrar_formulario_bloqueo(conectar_sit_hh())
     elif modulo == "🔍 Consulta de SKU":
         mostrar_consulta_sku(conectar_sit_hh)
+    elif modulo == "📑 Reporte TRecibo":
+    mostrar_reporte(conectar_sit_hh)
+
 
     # 🚪 Cierre de sesión
     st.markdown("---")
@@ -217,6 +224,7 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
 
 
 
