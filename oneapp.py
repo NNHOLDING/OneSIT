@@ -26,9 +26,6 @@ from panel_ocupacion_nave import mostrar_panel_ocupacion
 from modulo_bloqueo_ubicaciones import mostrar_formulario_bloqueo
 from modulo_consulta_sku import mostrar_consulta_sku
 from modulo_reporte import mostrar_reporte
-from defaults import defaults
-
-
 
 # Configuración de página
 st.set_page_config(
@@ -124,11 +121,10 @@ if st.session_state.logueado_handheld:
         "🏷️ Generación de LPNs",
         "📥 Almacenamiento LPN ",
         "📦 Panel de Ocupación Nave",  # ← nuevo módulo
-        "🚫 Bloqueo de Ubicaciones",  # ← nuevo módulo
-        "🔍 Consulta de SKU",  # ← nuevo módulo
+        "🚫 Bloqueo de Ubicaciones",   # ← nuevo módulo
+        "🔍 Consulta de SKU",          # ← nuevo módulo
         "📑 Reporte TRecibo",
     ]
-
     modulos_usuario = [
         "📦 Registro de Handhelds",
         "🕒 Productividad",
@@ -139,35 +135,8 @@ if st.session_state.logueado_handheld:
         "📑 Reporte TRecibo",
     ]
 
-    modulos_supervisor = [
-        "📦 Registro de Handhelds",
-        "🕒 Productividad",
-        "📝 Gestión de Jornada",
-        "🚨 Registro de Errores",
-        "📑 Reporte TRecibo",
-    ]
-
-    # Selección dinámica según rol
-    rol = st.session_state.rol_handheld
-    if rol == "admin":
-        opciones_menu = modulos_admin
-    elif rol == "supervisor":
-        opciones_menu = modulos_supervisor
-    else:
-        opciones_menu = modulos_usuario
-
+    opciones_menu = modulos_admin if st.session_state.rol_handheld == "admin" else modulos_usuario
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
-        # Selección dinámica según rol
-    rol = st.session_state.rol_handheld
-    if rol == "admin":
-        opciones_menu = modulos_admin
-    elif rol == "supervisor":
-        opciones_menu = modulos_supervisor
-    else:
-        opciones_menu = modulos_usuario
-
-    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
-
 
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
@@ -230,7 +199,7 @@ if st.session_state.logueado_handheld:
         st.markdown("---")
         st.subheader("🧭 Opciones avanzadas")
         mostrar_panel_visual(conectar_sit_hh())
-
+    
     elif modulo == "📦 Panel de Ocupación Nave":
         mostrar_panel_ocupacion(conectar_sit_hh())
 
@@ -258,12 +227,3 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-        
-    
-
-
-
-
-
-
-
