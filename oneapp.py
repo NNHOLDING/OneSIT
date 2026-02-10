@@ -195,7 +195,7 @@ if st.session_state.logueado_handheld:
     elif modulo == "🏷️ Generación de LPNs":
         mostrar_formulario_lpn()
 
-        elif modulo == "📥 Almacenamiento LPN ":
+    elif modulo == "📥 Almacenamiento LPN ":
         mostrar_formulario_almacenamiento_lpn()
         st.markdown("---")
         st.subheader("🧭 Opciones avanzadas")
@@ -230,3 +230,4 @@ st.markdown("""
 """, unsafe_allow_html=True)
         
     
+
