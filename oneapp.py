@@ -105,9 +105,7 @@ if not st.session_state.logueado_handheld:
             st.error("Credenciales incorrectas o usuario no válido.")
 
 # 🏠 Pantalla de inicio
-if st.session_state.logueado_handheld and "home_mostrado" not in st.session_state:
-    st.session_state.home_mostrado = True  # Para mostrar la pantalla solo una vez
-
+if st.session_state.logueado_handheld:
     st.markdown("""
         <style>
         .home-container {
@@ -135,8 +133,23 @@ if st.session_state.logueado_handheld and "home_mostrado" not in st.session_stat
         </div>
     """, unsafe_allow_html=True)
 
-    st.stop()  # Detiene la ejecución para que solo se muestre la pantalla de inicio
+    # 👇 Aquí continúa tu menú lateral y lógica de módulos
+    rol = st.session_state.rol_handheld
+    if rol == "admin":
+        opciones_menu = modulos_admin
+    elif rol == "supervisor":
+        opciones_menu = modulos_supervisor
+    else:
+        opciones_menu = modulos_usuario
 
+    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
+
+    # Luego tu lógica de cada módulo según la selección
+    if modulo == "🏷️ Generación de LPNs":
+        mostrar_formulario_lpn()
+    elif modulo == "📑 Reporte TRecibo":
+        mostrar_reporte(conectar_sit_hh)
+    # ... y así sucesivamente
     modulos_admin = [
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
@@ -275,6 +288,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
         
     
+
 
 
 
