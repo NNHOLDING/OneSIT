@@ -195,22 +195,23 @@ if st.session_state.logueado_handheld:
     elif modulo == "🏷️ Generación de LPNs":
         mostrar_formulario_lpn()
 
-    elif modulo == "📥 Almacenamiento LPN ":
+        elif modulo == "📥 Almacenamiento LPN ":
         mostrar_formulario_almacenamiento_lpn()
         st.markdown("---")
         st.subheader("🧭 Opciones avanzadas")
         mostrar_panel_visual(conectar_sit_hh())
+
     elif modulo == "📦 Panel de Ocupación Nave":
         mostrar_panel_ocupacion(conectar_sit_hh())
+
     elif modulo == "🚫 Bloqueo de Ubicaciones":
         mostrar_formulario_bloqueo(conectar_sit_hh())
+
     elif modulo == "🔍 Consulta de SKU":
         mostrar_consulta_sku(conectar_sit_hh)
-    elif modulo == "📑 Reporte TRecibo":
-    mostrar_reporte(conectar_sit_hh)
-        
-    
 
+    elif modulo == "📑 Reporte TRecibo":
+        mostrar_reporte(conectar_sit_hh)
 
     # 🚪 Cierre de sesión
     st.markdown("---")
@@ -219,6 +220,7 @@ if st.session_state.logueado_handheld:
         from defaults import defaults
         for key in defaults.keys():
             st.session_state[key] = False
+
 # 🧾 Footer institucional
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
@@ -226,10 +228,5 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
+        
+    
