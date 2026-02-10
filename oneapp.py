@@ -137,9 +137,26 @@ if st.session_state.logueado_handheld:
         "🧪 Prueba de Ubicación",
         "📑 Reporte TRecibo",
     ]
+    modulos_supervisor = [
+    "📦 Registro de Handhelds",
+    "🕒 Productividad",
+    "📝 Gestión de Jornada",
+    "🚨 Registro de Errores",
+    "📑 Reporte TRecibo",
+]
 
-    opciones_menu = modulos_admin if st.session_state.rol_handheld == "admin" else modulos_usuario
+
+    # Selección dinámica según rol
+    rol = st.session_state.rol_handheld
+    if rol == "admin":
+        opciones_menu = modulos_admin
+    elif rol == "supervisor":
+        opciones_menu = modulos_supervisor
+    else:
+        opciones_menu = modulos_usuario
+
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
+
 
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
@@ -232,5 +249,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
         
     
+
 
 
