@@ -104,13 +104,38 @@ if not st.session_state.logueado_handheld:
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
 
-# 🧭 Interfaz principal
-if st.session_state.logueado_handheld:
+# 🏠 Pantalla de inicio
+if st.session_state.logueado_handheld and "home_mostrado" not in st.session_state:
+    st.session_state.home_mostrado = True  # Para mostrar la pantalla solo una vez
+
     st.markdown("""
-        <div style='text-align: center;'>
-        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
+        <style>
+        .home-container {
+            background-color: rgba(128,128,128,0.5); /* gris 50% */
+            padding: 60px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .home-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        .home-line {
+            border-top: 3px solid #00f0ff; /* azul neón */
+            width: 100%;
+            margin: 0 auto;
+        }
+        </style>
+
+        <div class="home-container">
+            <div class="home-title">WMS Smart Intelligence Tools (home)</div>
+            <div class="home-line"></div>
         </div>
     """, unsafe_allow_html=True)
+
+    st.stop()  # Detiene la ejecución para que solo se muestre la pantalla de inicio
 
     modulos_admin = [
         "📦 Registro de Handhelds",
@@ -250,6 +275,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
         
     
+
 
 
 
