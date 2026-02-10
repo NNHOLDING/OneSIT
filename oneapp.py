@@ -414,7 +414,7 @@ if st.session_state.logueado_handheld:
     elif modulo == "🧪 Prueba de Ubicación":
         mostrar_prueba_ubicacion()
 
-        elif modulo == "🏷️ Generación de LPNs":
+    elif modulo == "🏷️ Generación de LPNs":
         mostrar_formulario_lpn()
 
     elif modulo == "📥 Almacenamiento LPN ":
@@ -450,3 +450,4 @@ st.markdown("""
         Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
+
