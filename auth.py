@@ -30,7 +30,8 @@ def validar_login(usuario, contraseña):
     if not fila.empty:
         fila = fila.iloc[0]
         if fila["password"] == contraseña:
-            rol = "admin" if fila.get("bodega", "").lower() == "admin" else "estandar"
+            # Usar columna "rol" si existe, de lo contrario asignar "estandar"
+            rol = fila.get("rol", "estandar").strip().lower()
             return rol, fila["nombreempleado"]
 
     return None, None
