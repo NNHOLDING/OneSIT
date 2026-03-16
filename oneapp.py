@@ -34,40 +34,42 @@ st.set_page_config(
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
     layout="centered"
 )
-# --- Estilos globales corporativos ---
+# --- Estilos corporativos unificados ---
 st.markdown("""
 <style>
 /* Fondo general */
 body {
-    background-color: #f4f6f9;
+    background-color: #e6e6e6; /* Plata */
     font-family: "Segoe UI", sans-serif;
+    color: #333333; /* Texto principal gris oscuro */
 }
 
-/* Fondo del área principal (panel derecho) */
+/* Área principal (panel derecho) */
 [data-testid="stAppViewContainer"] {
     background-color: #e6e6e6; /* Plata */
 }
 
-/* Fondo de la barra superior */
+/* Barra superior */
 [data-testid="stHeader"] {
     background-color: #d9d9d9; /* Gris claro */
 }
 
-/* Sidebar oscuro */
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background-color: #002b36;
+    background-color: #002b36; /* Azul oscuro corporativo */
     color: #ffffff;
 }
 [data-testid="stSidebar"] h1, 
 [data-testid="stSidebar"] h2, 
 [data-testid="stSidebar"] h3, 
-[data-testid="stSidebar"] label {
+[data-testid="stSidebar"] label, 
+[data-testid="stSidebar"] .stMarkdown {
     color: #ffffff !important;
 }
 
 /* Contenedor central */
 .main {
-    background-color: #f9f9f9; /* Blanco/gris muy claro */
+    background-color: #ffffff; /* Blanco */
     border-radius: 8px;
     padding: 25px;
     box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
@@ -75,8 +77,13 @@ body {
 
 /* Títulos */
 h1, h2, h3 {
-    color: #006699;
+    color: #006699; /* Azul corporativo */
     font-weight: 600;
+}
+
+/* Texto general */
+p, label, span, div {
+    color: #333333; /* Gris oscuro */
 }
 
 /* Botones */
@@ -86,6 +93,7 @@ h1, h2, h3 {
     border-radius: 6px;
     padding: 8px 16px;
     font-weight: 500;
+    border: none;
 }
 .stButton>button:hover {
     background-color: #004466;
