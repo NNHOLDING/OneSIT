@@ -34,7 +34,68 @@ st.set_page_config(
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
     layout="centered"
 )
+# --- Estilos globales tipo Oracle Cloud ---
+st.markdown("""
+<style>
+/* Fondo general */
+body {
+    background-color: #f4f6f9;
+    font-family: "Segoe UI", sans-serif;
+}
 
+/* Contenedor principal */
+.main {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Títulos */
+h1, h2, h3 {
+    color: #006699;
+    font-weight: 600;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #002b36;
+    color: #ffffff;
+}
+[data-testid="stSidebar"] h1, 
+[data-testid="stSidebar"] h2, 
+[data-testid="stSidebar"] h3, 
+[data-testid="stSidebar"] label {
+    color: #ffffff !important;
+}
+
+/* Botones */
+.stButton>button {
+    background-color: #006699;
+    color: white;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 500;
+}
+.stButton>button:hover {
+    background-color: #004466;
+}
+
+/* Cards */
+.card {
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 10px 0;
+    box-shadow: 0px 1px 6px rgba(0,0,0,0.08);
+}
+.metric {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333333;
+}
+</style>
+""", unsafe_allow_html=True)
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 # Verificar estado de mantenimiento
