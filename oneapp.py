@@ -34,7 +34,7 @@ st.set_page_config(
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
     layout="centered"
 )
-# --- Estilos globales tipo Oracle Cloud ---
+# --- Estilos globales corporativos ---
 st.markdown("""
 <style>
 /* Fondo general */
@@ -43,21 +43,17 @@ body {
     font-family: "Segoe UI", sans-serif;
 }
 
-/* Contenedor principal */
-.main {
-    background-color: #ffffff;
-    border-radius: 8px;
-    padding: 25px;
-    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+/* Fondo del área principal (panel derecho) */
+[data-testid="stAppViewContainer"] {
+    background-color: #e6e6e6; /* Plata */
 }
 
-/* Títulos */
-h1, h2, h3 {
-    color: #006699;
-    font-weight: 600;
+/* Fondo de la barra superior */
+[data-testid="stHeader"] {
+    background-color: #d9d9d9; /* Gris claro */
 }
 
-/* Sidebar */
+/* Sidebar oscuro */
 [data-testid="stSidebar"] {
     background-color: #002b36;
     color: #ffffff;
@@ -67,6 +63,20 @@ h1, h2, h3 {
 [data-testid="stSidebar"] h3, 
 [data-testid="stSidebar"] label {
     color: #ffffff !important;
+}
+
+/* Contenedor central */
+.main {
+    background-color: #f9f9f9; /* Blanco/gris muy claro */
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Títulos */
+h1, h2, h3 {
+    color: #006699;
+    font-weight: 600;
 }
 
 /* Botones */
