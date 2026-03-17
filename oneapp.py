@@ -41,7 +41,7 @@ st.set_page_config(
 )
 # Aplica estilos corporativos
 aplicar_estilos()
- mostrar_inicio()
+ 
 
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
@@ -170,6 +170,8 @@ if st.session_state.logueado_handheld:
         opciones_menu = modulos_usuario
 
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
+    if modulo == "🏠 Inicio":
+    mostrar_inicio()
 
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
