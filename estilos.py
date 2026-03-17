@@ -46,8 +46,8 @@ def aplicar_estilos():
     [data-testid="stAppViewContainer"] label,
     [data-testid="stAppViewContainer"] .stMarkdown {
         color: #000000 !important; /* Negro */
-        font-size: 1.4em !important; /* ✅ Labels más grandes */
-        font-weight: 700 !important; /* ✅ Más gruesas */
+        font-size: 1.6em !important; /* ✅ Labels aún más grandes */
+        font-weight: 800 !important; /* ✅ Más gruesas */
     }
 
     /* Botones */
@@ -105,6 +105,7 @@ def aplicar_estilos():
         background-color: transparent !important;
         color: #c0c0c0 !important;
         border: none !important;
+        font-size: 1.2em !important; /* ✅ Texto dentro de inputs más grande */
     }
     input:focus, textarea:focus {
         outline: none !important;
