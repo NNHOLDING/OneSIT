@@ -41,7 +41,7 @@ st.markdown("""
 body {
     background-color: #e6e6e6; /* Plata */
     font-family: "Segoe UI", sans-serif;
-    color: #333333; /* Texto principal gris oscuro */
+    color: #333333;
 }
 
 /* Área principal (panel derecho) */
@@ -77,13 +77,13 @@ body {
 
 /* Títulos */
 h1, h2, h3 {
-    color: #006699; /* Azul corporativo */
+    color: #006699;
     font-weight: 600;
 }
 
 /* Texto general */
 p, label, span, div {
-    color: #333333; /* Gris oscuro */
+    color: #333333;
 }
 
 /* Botones */
@@ -111,6 +111,24 @@ p, label, span, div {
     font-size: 22px;
     font-weight: bold;
     color: #333333;
+}
+
+/* Selectores (dropdowns, multiselect) */
+.stSelectbox, .stMultiSelect, .stTextInput, .stNumberInput {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border: 1px solid #cccccc !important;
+    border-radius: 6px !important;
+}
+
+/* Tablas y dataframes */
+[data-testid="stDataFrame"] {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+}
+[data-testid="stTable"] {
+    background-color: #ffffff !important;
+    color: #333333 !important;
 }
 </style>
 """, unsafe_allow_html=True)
