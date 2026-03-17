@@ -257,8 +257,16 @@ if st.session_state.logueado_handheld:
 # 🧾 Footer institucional
 st.markdown("""
     <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
-    <div style="text-align: center; color: gray; font-size: 0.9em; margin-top: 20px;">
-        Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025, Todos los derechos reservados
+    <div style="
+        text-align: center; 
+        background-color: rgba(255, 255, 255, 0.8); 
+        padding: 10px; 
+        border-radius: 8px; 
+        color: #000000; 
+        font-size: 1em; 
+        margin-top: 20px;">
+        <strong>Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025</strong><br>
+        Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
 
