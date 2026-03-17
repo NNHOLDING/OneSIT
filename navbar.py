@@ -1,4 +1,11 @@
+import streamlit as st
+
 def mostrar_navbar():
+    # Inicializar selección
+    if "modulo_seleccionado" not in st.session_state:
+        st.session_state.modulo_seleccionado = "Inicio"
+
+    # Estilos del navbar
     st.markdown("""
     <style>
     .navbar {
@@ -6,7 +13,7 @@ def mostrar_navbar():
         background-color: #006699;
         display: flex;
         justify-content: center;
-        flex-wrap: wrap;
+        padding: 0;
         margin-bottom: 20px;
     }
     .dropdown {
@@ -30,50 +37,57 @@ def mostrar_navbar():
         box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
         z-index: 1;
     }
-    .dropdown-content a {
-        color: black;
+    .dropdown-content button {
+        background: none;
+        border: none;
+        color: #000;
         padding: 12px 16px;
-        text-decoration: none;
-        display: block;
+        text-align: left;
+        width: 100%;
+        cursor: pointer;
     }
-    .dropdown-content a:hover {
+    .dropdown-content button:hover {
         background-color: #ddd;
     }
     .dropdown:hover .dropdown-content {
         display: block;
     }
     </style>
-
-    <div class="navbar">
-      <div class="dropdown">
-        <button class="dropbtn">Dispositivos ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=handheld">📦 Registro de Handhelds</a>
-          <a href="?mod=temp">🌡️ Registro de Temperatura</a>
-          <a href="?mod=prueba">🧪 Prueba de registro</a>
-          <a href="?mod=jornadas">📝 Registro de Jornadas</a>
-          <a href="?mod=errores">🚨 Registro de Errores</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Panel Administrativo ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=admin">📋 Panel Administrativo</a>
-          <a href="?mod=cert">📊 Panel de Certificaciones</a>
-          <a href="?mod=gestion">📝 Gestión de Jornada</a>
-          <a href="?mod=prod">🕒 Productividad</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Almacenamiento ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=lpn">🏷️ Generación de LPNs</a>
-          <a href="?mod=ocupacion">📦 Panel de Ocupación Nave</a>
-          <a href="?mod=sku">🔍 Consulta de SKU</a>
-          <a href="?mod=trecibo">📑 Reporte TRecibo</a>
-        </div>
-      </div>
-    </div>
     """, unsafe_allow_html=True)
+
+    # Navbar
+    st.markdown('<div class="navbar">', unsafe_allow_html=True)
+
+    # Inicio
+    if st.button("Inicio", key="nav_inicio"):
+        st.session_state.modulo_seleccionado = "Inicio"
+
+    # Dropdown Dispositivos
+    st.markdown('<div class="dropdown"><button class="dropbtn">Dispositivos ▼</button><div class="dropdown-content">', unsafe_allow_html=True)
+    for i, mod in enumerate([
+        "📦 Registro de Handhelds",
+        "🌡️ Registro de Temperatura",
+        "🧪 Prueba de registro",
+        "📝 Registro de Jornadas",
+        "🚨 Registro de Errores"
+    ]):
+        if st.button(mod, key=f"disp_{i}"):
+            st.session_state.modulo_seleccionado = mod
+    st.markdown('</div></div>', unsafe_allow_html=True)
+
+    # Dropdown Panel Administrativo
+    st.markdown('<div class="dropdown"><button class="dropbtn">Panel Administrativo ▼</button><div class="dropdown-content">', unsafe_allow_html=True)
+    for i, mod in enumerate([
+        "📋 Panel Administrativo",
+        "📊 Panel de Certificaciones",
+        "📝 Gestión de Jornada",
+        "🕒 Productividad"
+    ]):
+        if st.button(mod, key=f"admin_{i}"):
+            st.session_state.modulo_seleccionado = mod
+    st.markdown('</div></div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Mostrar módulo seleccionado
+    st.write(f"📌 Módulo actual: {st.session_state.modulo_seleccionado}")
