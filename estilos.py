@@ -31,23 +31,23 @@ def aplicar_estilos():
 
     /* Títulos principales */
     [data-testid="stAppViewContainer"] h1 {
-        color: #000000 !important; /* Negro */
+        color: #000000 !important;
         font-weight: 700;
     }
 
     /* Subtítulos */
     [data-testid="stAppViewContainer"] h2,
     [data-testid="stAppViewContainer"] h3 {
-        color: #006699 !important; /* Azul corporativo */
+        color: #006699 !important;
         font-weight: 600;
     }
 
     /* Labels y markdown en panel derecho */
     [data-testid="stAppViewContainer"] label,
     [data-testid="stAppViewContainer"] .stMarkdown {
-        color: #000000 !important; /* Negro */
-        font-size: 1.6em !important; /* ✅ Labels aún más grandes */
-        font-weight: 800 !important; /* ✅ Más gruesas */
+        color: #000000 !important;
+        font-size: 1.6em !important; /* Labels grandes */
+        font-weight: 800 !important;
     }
 
     /* Botones */
@@ -105,11 +105,56 @@ def aplicar_estilos():
         background-color: transparent !important;
         color: #c0c0c0 !important;
         border: none !important;
-        font-size: 1.2em !important; /* ✅ Texto dentro de inputs más grande */
+        font-size: 1.2em !important; /* Texto más grande en inputs */
     }
     input:focus, textarea:focus {
         outline: none !important;
         border-bottom: 1px solid #006699 !important;
+    }
+
+    /* Navbar horizontal */
+    .navbar {
+        overflow: hidden;
+        background-color: #006699;
+        display: flex;
+        justify-content: center;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+    .navbar a, .dropdown .dropbtn {
+        font-size: 16px;
+        color: white;
+        text-align: center;
+        padding: 14px 20px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .navbar a:hover, .dropdown:hover .dropbtn {
+        background-color: #004466;
+    }
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+    .dropdown-content a {
+        color: #000000;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+    .dropdown-content a:hover {
+        background-color: #ddd;
+    }
+    .dropdown:hover .dropdown-content {
+        display: block;
     }
     </style>
     """, unsafe_allow_html=True)
