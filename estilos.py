@@ -39,7 +39,7 @@ def aplicar_estilos():
     [data-testid="stAppViewContainer"] h2,
     [data-testid="stAppViewContainer"] h3 {
         color: #006699 !important; /* Azul corporativo */
-        font-weight: 600;
+        font-weight: 800;
     }
 
     /* Labels y markdown en panel derecho */
