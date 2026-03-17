@@ -27,6 +27,8 @@ from modulo_bloqueo_ubicaciones import mostrar_formulario_bloqueo
 from modulo_consulta_sku import mostrar_consulta_sku
 from modulo_reporte import mostrar_reporte
 from defaults import defaults
+from estilos import aplicar_estilos
+
 
 # Configuración de página
 st.set_page_config(
@@ -34,6 +36,8 @@ st.set_page_config(
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
     layout="centered"
 )
+# Aplica estilos corporativos
+aplicar_estilos()
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
