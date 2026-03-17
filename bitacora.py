@@ -1,7 +1,11 @@
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
+import pytz
 import streamlit as st
+
+# Definir la zona horaria de Costa Rica
+cr_timezone = pytz.timezone("America/Costa_Rica")
 
 def conectar_logenvios():
     scope = ["https://www.googleapis.com/auth/spreadsheets",
@@ -12,6 +16,8 @@ def conectar_logenvios():
 
 def registrar_log(usuario, nombre_usuario, modulo, accion, dispositivo="Web"):
     hoja = conectar_logenvios()
-    fecha = datetime.now().strftime("%Y-%m-%d")
-    hora = datetime.now().strftime("%H:%M:%S")
+    # ✅ Fecha y hora en Costa Rica
+    ahora = datetime.now(cr_timezone)
+    fecha = ahora.strftime("%Y-%m-%d")
+    hora = ahora.strftime("%H:%M:%S")
     hoja.append_row([fecha, hora, usuario, nombre_usuario, modulo, accion, dispositivo])
