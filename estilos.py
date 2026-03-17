@@ -5,7 +5,7 @@ def aplicar_estilos():
     <style>
     /* Sidebar corporativo */
     [data-testid="stSidebar"] {
-        background-color: #002b36 !important; /* Azul corporativo */
+        background-color: #002b36 !important; /* Azul oscuro corporativo */
         color: #ffffff !important;
     }
     [data-testid="stSidebar"] h1,
@@ -23,17 +23,15 @@ def aplicar_estilos():
 
     /* Contenedor central */
     .main {
-        background-color: #f5f5f5 !important; /* Gris claro */
+        background-color: #f5f5f5 !important; /* Gris claro suave */
         border-radius: 8px;
         padding: 25px;
         box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
     }
 
-    /* Títulos y subtítulos SOLO en panel derecho */
-    [data-testid="stAppViewContainer"] h1,
-    [data-testid="stAppViewContainer"] h2,
-    [data-testid="stAppViewContainer"] h3 {
-        color: #000000 !important; /* Negro */
+    /* Títulos */
+    h1, h2, h3 {
+        color: #006699; /* Azul corporativo */
         font-weight: 600;
     }
 
@@ -64,33 +62,25 @@ def aplicar_estilos():
     div[data-baseweb="select"] * {
         color: #c0c0c0 !important; /* Fuente plata */
     }
-
-    /* Opciones desplegables */
     ul[role="listbox"] {
         background-color: #ffffff !important;
-        border: 1px solid #cccccc !important;
     }
     ul[role="listbox"] li {
-        background-color: #ffffff !important;
-        color: #c0c0c0 !important; /* Plata */
-    }
-    ul[role="listbox"] li:hover {
-        background-color: #f2f2f2 !important;
-        color: #c0c0c0 !important;
+        color: #c0c0c0 !important; /* Fuente plata en opciones */
     }
 
     /* Tablas y grillas */
     [data-testid="stDataFrame"] table {
         background-color: #ffffff !important;
-        color: #c0c0c0 !important;
+        color: #c0c0c0 !important; /* Fuente plata */
     }
     [data-testid="stDataFrame"] th {
         background-color: #f2f2f2 !important;
-        color: #c0c0c0 !important;
+        color: #c0c0c0 !important; /* Encabezados plata */
     }
     [data-testid="stDataFrame"] td {
         background-color: #ffffff !important;
-        color: #c0c0c0 !important;
+        color: #c0c0c0 !important; /* Celdas plata */
     }
     </style>
     """, unsafe_allow_html=True)
