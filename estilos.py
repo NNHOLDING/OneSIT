@@ -92,5 +92,14 @@ def aplicar_estilos():
         background-color: #ffffff !important;
         color: #c0c0c0 !important;
     }
+
+    /* Cajas de texto (inputs) */
+    input, textarea {
+        background-color: #ffffff !important;
+        color: #c0c0c0 !important; /* Fuente plata */
+        border: 1px solid #cccccc !important;
+        border-radius: 6px !important;
+        padding: 6px 10px !important;
+    }
     </style>
     """, unsafe_allow_html=True)
