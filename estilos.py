@@ -16,12 +16,12 @@ def aplicar_estilos():
         color: #ffffff !important;
     }
 
-    /* Panel derecho (área principal) */
+    /* Panel derecho */
     [data-testid="stAppViewContainer"] {
-        background-color: #d0d0d0 !important; /* Gris medio, más sobrio */
+        background-color: #d0d0d0 !important; /* Gris medio */
     }
 
-    /* Contenedor central dentro del panel */
+    /* Contenedor central */
     .main {
         background-color: #f5f5f5 !important; /* Gris claro suave */
         border-radius: 8px;
@@ -51,6 +51,36 @@ def aplicar_estilos():
     }
     .stButton>button:hover {
         background-color: #004466;
+    }
+
+    /* Selectores */
+    div[data-baseweb="select"] {
+        background-color: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        border-radius: 6px !important;
+    }
+    div[data-baseweb="select"] * {
+        color: #c0c0c0 !important; /* Fuente plata */
+    }
+    ul[role="listbox"] {
+        background-color: #ffffff !important;
+    }
+    ul[role="listbox"] li {
+        color: #c0c0c0 !important; /* Fuente plata en opciones */
+    }
+
+    /* Tablas y grillas */
+    [data-testid="stDataFrame"] table {
+        background-color: #ffffff !important;
+        color: #c0c0c0 !important; /* Fuente plata */
+    }
+    [data-testid="stDataFrame"] th {
+        background-color: #f2f2f2 !important;
+        color: #c0c0c0 !important; /* Encabezados plata */
+    }
+    [data-testid="stDataFrame"] td {
+        background-color: #ffffff !important;
+        color: #c0c0c0 !important; /* Celdas plata */
     }
     </style>
     """, unsafe_allow_html=True)
