@@ -204,7 +204,37 @@ if st.session_state.logueado_handheld:
     elif modulo == "📑 Reporte TRecibo":
         mostrar_reporte(conectar_sit_hh)
 
-    # 🚪 Cierre de sesión
+        # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
-    if st.button("Salir", key="bot
+    if st.button("Salir", key="boton_salir"):
+        # Registrar cierre de sesión en LogEnvios
+        registrar_log(
+            st.session_state.codigo_empleado,
+            st.session_state.nombre_empleado,
+            "Login",
+            "Cierre de sesión"
+        )
+
+        # Reiniciar variables de sesión
+        from defaults import defaults
+        for key in defaults.keys():
+            st.session_state[key] = False
+
+        st.rerun()  # Reinicia la app para volver al login
+
+# 🧾 Footer institucional
+st.markdown("""
+    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
+    <div style="
+        text-align: center; 
+        background-color: rgba(255, 255, 255, 0.8); 
+        padding: 10px; 
+        border-radius: 8px; 
+        color: #000000; 
+        font-size: 1em; 
+        margin-top: 20px;">
+        <strong>Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025</strong><br>
+        Todos los derechos reservados
+    </div>
+""", unsafe_allow_html=True)
