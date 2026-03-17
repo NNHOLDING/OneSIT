@@ -47,7 +47,7 @@ def aplicar_estilos():
     [data-testid="stAppViewContainer"] .stMarkdown {
         color: #000000 !important; /* Negro */
         font-size: 1.1em !important; /* ✅ Aumentar tamaño de labels */
-        font-weight: 600 !important; /* Opcional: hacerlas más visibles */
+        font-weight: 800 !important; /* Opcional: hacerlas más visibles */
     }
 
     /* Botones */
