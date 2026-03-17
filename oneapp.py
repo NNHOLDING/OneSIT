@@ -240,19 +240,19 @@ if st.session_state.logueado_handheld:
         mostrar_reporte(conectar_sit_hh)
 
    # 🚪 Cierre de sesión
-st.markdown("---")
-st.markdown("### 🚪 Cerrar sesión")
-if st.button("Salir", key="boton_salir"):
-    # Registrar cierre de sesión en LogEnvios
-    registrar_log(st.session_state.codigo_empleado,
-                  st.session_state.nombre_empleado,
-                  "Login",
-                  "Cierre de sesión")
-
-    # Reiniciar variables de sesión
-    from defaults import defaults
-    for key in defaults.keys():
-        st.session_state[key] = False
+    st.markdown("---")
+    st.markdown("### 🚪 Cerrar sesión")
+    if st.button("Salir", key="boton_salir"):
+        # Registrar cierre de sesión en LogEnvios
+        registrar_log(st.session_state.codigo_empleado,
+                      st.session_state.nombre_empleado,
+                      "Login",
+                      "Cierre de sesión")
+    
+        # Reiniciar variables de sesión
+        from defaults import defaults
+        for key in defaults.keys():
+            st.session_state[key] = False
 
 # 🧾 Footer institucional
 st.markdown("""
