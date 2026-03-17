@@ -74,14 +74,40 @@ def aplicar_estilos():
         padding: 6px 10px !important;
     }
 
-    /* Forzar color del texto dentro de los selectores */
-    .stSelectbox div[data-baseweb="select"] div {
+    /* Texto dentro del selectbox */
+    div[data-baseweb="select"] {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+        border: 1px solid #cccccc !important;
+        border-radius: 6px !important;
+    }
+    div[data-baseweb="select"] div {
+        color: #333333 !important;
+    }
+    div[data-baseweb="select"] span {
+        color: #333333 !important;
+    }
+
+    /* Opciones desplegables */
+    ul[role="listbox"] {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+    }
+    ul[role="listbox"] li {
         color: #333333 !important;
     }
 
     /* Tablas y dataframes */
     [data-testid="stDataFrame"], [data-testid="stTable"] {
         background-color: #ffffff !important;
+        color: #333333 !important;
+    }
+    [data-testid="stDataFrame"] table, [data-testid="stTable"] table {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+    }
+    [data-testid="stDataFrame"] th, [data-testid="stTable"] th {
+        background-color: #f2f2f2 !important;
         color: #333333 !important;
     }
     </style>
