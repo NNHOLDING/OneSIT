@@ -96,6 +96,7 @@ if not st.session_state.logueado_handheld:
     st.title("🔐 Smart Intelligence Tools")
     usuario = st.text_input("Usuario (Código o Admin)")
     contraseña = st.text_input("Contraseña", type="password")
+
     if st.button("Ingresar"):
         rol, nombre = validar_login(usuario, contraseña)
         if rol:
@@ -104,13 +105,13 @@ if not st.session_state.logueado_handheld:
             st.session_state.nombre_empleado = nombre
             st.session_state.codigo_empleado = usuario
             st.success(f"Bienvenido, {nombre}")
+
+            # ✅ Registrar login en LogEnvios SOLO si el login fue exitoso
+            registrar_log(usuario, nombre, "Login", "Inicio de sesión")
+
             st.rerun()
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
-# Registrar login en LogEnvios
-    registrar_log(usuario, nombre, "Login", "Inicio de sesión")
-    st.rerun()
-
 # 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
     st.markdown("""
