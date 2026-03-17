@@ -5,30 +5,30 @@ def aplicar_estilos():
     <style>
     /* Fondo general */
     body {
-        background-color: #e6e6e6; /* Plata */
+        background-color: #e6e6e6;
         font-family: "Segoe UI", sans-serif;
         color: #333333;
     }
 
-    /* Área principal (panel derecho) */
+    /* Área principal */
     [data-testid="stAppViewContainer"] {
-        background-color: #e6e6e6; /* Plata */
+        background-color: #e6e6e6;
     }
 
     /* Barra superior */
     [data-testid="stHeader"] {
-        background-color: #d9d9d9; /* Gris claro */
+        background-color: #d9d9d9;
     }
 
     /* Sidebar */
     [data-testid="stSidebar"] {
-        background-color: #002b36; /* Azul oscuro corporativo */
+        background-color: #002b36;
         color: #ffffff;
     }
-    [data-testid="stSidebar"] h1, 
-    [data-testid="stSidebar"] h2, 
-    [data-testid="stSidebar"] h3, 
-    [data-testid="stSidebar"] label, 
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] label,
     [data-testid="stSidebar"] .stMarkdown {
         color: #ffffff !important;
     }
@@ -66,11 +66,17 @@ def aplicar_estilos():
     }
 
     /* Selectores y entradas */
-    .stSelectbox, .stMultiSelect, .stTextInput, .stNumberInput {
+    input, select, textarea {
         background-color: #ffffff !important;
         color: #333333 !important;
         border: 1px solid #cccccc !important;
         border-radius: 6px !important;
+        padding: 6px 10px !important;
+    }
+
+    /* Forzar color del texto dentro de los selectores */
+    .stSelectbox div[data-baseweb="select"] div {
+        color: #333333 !important;
     }
 
     /* Tablas y dataframes */
