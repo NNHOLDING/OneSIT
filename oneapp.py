@@ -28,6 +28,7 @@ from modulo_consulta_sku import mostrar_consulta_sku
 from modulo_reporte import mostrar_reporte
 from defaults import defaults
 from estilos import aplicar_estilos
+from bitacora import registrar_evento
 
 
 # Configuración de página
