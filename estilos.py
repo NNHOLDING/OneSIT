@@ -46,6 +46,8 @@ def aplicar_estilos():
     [data-testid="stAppViewContainer"] label,
     [data-testid="stAppViewContainer"] .stMarkdown {
         color: #000000 !important; /* Negro */
+        font-size: 1.1em !important; /* ✅ Aumentar tamaño de labels */
+        font-weight: 600 !important; /* Opcional: hacerlas más visibles */
     }
 
     /* Botones */
@@ -63,11 +65,11 @@ def aplicar_estilos():
 
     /* Selectores */
     div[data-baseweb="select"] {
-        background-color: transparent !important; /* Fondo transparente */
-        border: none !important;                 /* Sin borde tipo botón */
+        background-color: transparent !important;
+        border: none !important;
     }
     div[data-baseweb="select"] * {
-        color: #c0c0c0 !important; /* Fuente plata */
+        color: #c0c0c0 !important;
     }
 
     /* Opciones desplegables */
@@ -77,7 +79,7 @@ def aplicar_estilos():
     }
     ul[role="listbox"] li {
         background-color: #ffffff !important;
-        color: #c0c0c0 !important; /* Plata */
+        color: #c0c0c0 !important;
     }
     ul[role="listbox"] li:hover {
         background-color: #f2f2f2 !important;
@@ -100,13 +102,13 @@ def aplicar_estilos():
 
     /* Cajas de texto (inputs) */
     input, textarea {
-        background-color: transparent !important; /* Fondo transparente */
-        color: #c0c0c0 !important;               /* Fuente plata */
-        border: none !important;                 /* Sin borde tipo botón */
+        background-color: transparent !important;
+        color: #c0c0c0 !important;
+        border: none !important;
     }
     input:focus, textarea:focus {
         outline: none !important;
-        border-bottom: 1px solid #006699 !important; /* Línea azul corporativa al enfocar */
+        border-bottom: 1px solid #006699 !important;
     }
     </style>
     """, unsafe_allow_html=True)
