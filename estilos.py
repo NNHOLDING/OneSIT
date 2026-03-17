@@ -42,6 +42,12 @@ def aplicar_estilos():
         font-weight: 600;
     }
 
+    /* Labels y markdown en panel derecho */
+    [data-testid="stAppViewContainer"] label,
+    [data-testid="stAppViewContainer"] .stMarkdown {
+        color: #000000 !important; /* Negro */
+    }
+
     /* Botones */
     .stButton>button {
         background-color: #006699;
@@ -91,6 +97,19 @@ def aplicar_estilos():
     [data-testid="stDataFrame"] td {
         background-color: #ffffff !important;
         color: #c0c0c0 !important;
+    }
+
+    /* Cajas de texto */
+    input, textarea {
+        background-color: #ffffff !important;
+        color: #c0c0c0 !important; /* Fuente plata */
+        border: 1px solid #cccccc !important;
+        border-radius: 6px !important;
+        padding: 6px 10px !important;
+    }
+    input:focus, textarea:focus {
+        outline: none !important;
+        border: 1px solid #006699 !important; /* Borde azul corporativo al enfocar */
     }
     </style>
     """, unsafe_allow_html=True)
