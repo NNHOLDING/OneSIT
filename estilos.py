@@ -74,27 +74,27 @@ def aplicar_estilos():
         padding: 6px 10px !important;
     }
 
-    /* Texto dentro del selectbox */
+    /* Selectbox (BaseWeb) */
     div[data-baseweb="select"] {
         background-color: #ffffff !important;
-        color: #333333 !important;
         border: 1px solid #cccccc !important;
         border-radius: 6px !important;
     }
-    div[data-baseweb="select"] div {
-        color: #333333 !important;
-    }
-    div[data-baseweb="select"] span {
+    div[data-baseweb="select"] * {
         color: #333333 !important;
     }
 
     /* Opciones desplegables */
     ul[role="listbox"] {
         background-color: #ffffff !important;
-        color: #333333 !important;
+        border: 1px solid #cccccc !important;
     }
     ul[role="listbox"] li {
         color: #333333 !important;
+        background-color: #ffffff !important;
+    }
+    ul[role="listbox"] li:hover {
+        background-color: #f2f2f2 !important;
     }
 
     /* Tablas y dataframes */
@@ -108,6 +108,10 @@ def aplicar_estilos():
     }
     [data-testid="stDataFrame"] th, [data-testid="stTable"] th {
         background-color: #f2f2f2 !important;
+        color: #333333 !important;
+    }
+    [data-testid="stDataFrame"] td, [data-testid="stTable"] td {
+        background-color: #ffffff !important;
         color: #333333 !important;
     }
     </style>
