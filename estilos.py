@@ -29,10 +29,15 @@ def aplicar_estilos():
         box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
     }
 
-    /* Títulos */
+    /* Títulos y subtítulos */
     h1, h2, h3 {
-        color: #006699;
+        color: #000000 !important; /* Negro */
         font-weight: 600;
+    }
+
+    /* Texto general */
+    p, label, span, div {
+        color: #333333;
     }
 
     /* Botones */
@@ -58,14 +63,14 @@ def aplicar_estilos():
         color: #c0c0c0 !important; /* Fuente plata */
     }
 
-    /* Opciones desplegables al abrir selector */
+    /* Opciones desplegables */
     ul[role="listbox"] {
         background-color: #ffffff !important;
         border: 1px solid #cccccc !important;
     }
     ul[role="listbox"] li {
         background-color: #ffffff !important;
-        color: #c0c0c0 !important; /* Fuente plata en todas las opciones */
+        color: #c0c0c0 !important; /* Plata */
     }
     ul[role="listbox"] li:hover {
         background-color: #f2f2f2 !important;
@@ -75,7 +80,7 @@ def aplicar_estilos():
     /* Tablas y grillas */
     [data-testid="stDataFrame"] table {
         background-color: #ffffff !important;
-        color: #c0c0c0 !important; /* Fuente plata */
+        color: #c0c0c0 !important;
     }
     [data-testid="stDataFrame"] th {
         background-color: #f2f2f2 !important;
