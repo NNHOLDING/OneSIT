@@ -30,7 +30,8 @@ from defaults import defaults
 from estilos import aplicar_estilos
 from bitacora import registrar_log
 
-
+# Importar navbar
+from navbar import mostrar_navbar
 
 # Configuración de página
 st.set_page_config(
@@ -38,10 +39,9 @@ st.set_page_config(
     page_icon="https://github.com/NNHOLDING/marcas_sit/raw/main/sitfavicon.ico",
     layout="centered"
 )
+
 # Aplica estilos corporativos
 aplicar_estilos()
-aplicar_estilos()
-
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
@@ -114,6 +114,7 @@ if not st.session_state.logueado_handheld:
             st.rerun()
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
+
 # 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
     st.markdown("""
@@ -122,51 +123,13 @@ if st.session_state.logueado_handheld:
         </div>
     """, unsafe_allow_html=True)
 
-    modulos_admin = [
-        "📦 Registro de Handhelds",
-        "📋 Panel Administrativo",
-        "📊 Panel de Certificaciones",
-        "🕒 Productividad",
-        "📝 Gestión de Jornada",
-        "🚨 Registro de Errores",
-        "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación",
-        "🏷️ Generación de LPNs",
-        "📥 Almacenamiento LPN ",
-        "📦 Panel de Ocupación Nave",
-        "🚫 Bloqueo de Ubicaciones",
-        "🔍 Consulta de SKU",
-        "📑 Reporte TRecibo",
-    ]
-    modulos_usuario = [
-        "📦 Registro de Handhelds",
-        "🕒 Productividad",
-        "📝 Gestión de Jornada",
-        "🌡️ Registro de Temperatura",
-        "🏷️ Generación de LPNs",
-        "🧪 Prueba de Ubicación",
-        "📑 Reporte TRecibo",
-    ]
-    modulos_supervisor = [
-        "📦 Registro de Handhelds",
-        "🕒 Productividad",
-        "📝 Gestión de Jornada",
-        "🚨 Registro de Errores",
-        "🏷️ Generación de LPNs",
-        "📑 Reporte TRecibo",
-    ]
+    # Mostrar navbar en lugar del sidebar
+    mostrar_navbar()
 
-    # Selección dinámica según rol
-    rol = st.session_state.rol_handheld
-    if rol == "admin":
-        opciones_menu = modulos_admin
-    elif rol == "supervisor":
-        opciones_menu = modulos_supervisor
-    else:
-        opciones_menu = modulos_usuario
+    # Capturar módulo seleccionado
+    modulo = st.session_state.modulo_seleccionado
 
-    modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
-
+    # ------------------- Ejemplo de lógica -------------------
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
@@ -241,37 +204,8 @@ if st.session_state.logueado_handheld:
     elif modulo == "📑 Reporte TRecibo":
         mostrar_reporte(conectar_sit_hh)
 
-   # 🚪 Cierre de sesión
+    # 🚪 Cierre de sesión
     st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
     if st.button("Salir", key="boton_salir"):
-        # Registrar cierre de sesión en LogEnvios
-        registrar_log(st.session_state.codigo_empleado,
-                      st.session_state.nombre_empleado,
-                      "Login",
-                      "Cierre de sesión")
-    
-        # Reiniciar variables de sesión
-        from defaults import defaults
-        for key in defaults.keys():
-            st.session_state[key] = False
-
-# 🧾 Footer institucional
-st.markdown("""
-    <hr style="margin-top: 50px; border: none; border-top: 1px solid #ccc;" />
-    <div style="
-        text-align: center; 
-        background-color: rgba(255, 255, 255, 0.8); 
-        padding: 10px; 
-        border-radius: 8px; 
-        color: #000000; 
-        font-size: 1em; 
-        margin-top: 20px;">
-        <strong>Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025</strong><br>
-        Todos los derechos reservados
-    </div>
-""", unsafe_allow_html=True)
-
-
-
-
+        # Registrar cierre de sesión
