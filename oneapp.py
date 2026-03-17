@@ -29,6 +29,7 @@ from modulo_reporte import mostrar_reporte
 from defaults import defaults
 from estilos import aplicar_estilos
 from bitacora import registrar_log
+from inicio import mostrar_inicio
 
 
 
@@ -123,6 +124,7 @@ if st.session_state.logueado_handheld:
     """, unsafe_allow_html=True)
 
     modulos_admin = [
+        "🏠 Inicio",
         "📦 Registro de Handhelds",
         "📋 Panel Administrativo",
         "📊 Panel de Certificaciones",
@@ -139,6 +141,7 @@ if st.session_state.logueado_handheld:
         "📑 Reporte TRecibo",
     ]
     modulos_usuario = [
+        "🏠 Inicio",
         "📦 Registro de Handhelds",
         "🕒 Productividad",
         "📝 Gestión de Jornada",
@@ -148,6 +151,7 @@ if st.session_state.logueado_handheld:
         "📑 Reporte TRecibo",
     ]
     modulos_supervisor = [
+        "🏠 Inicio",
         "📦 Registro de Handhelds",
         "🕒 Productividad",
         "📝 Gestión de Jornada",
