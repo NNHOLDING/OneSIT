@@ -170,9 +170,8 @@ if st.session_state.logueado_handheld:
         opciones_menu = modulos_usuario
 
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
-        if modulo == "🏠 Inicio":
+    if modulo == "🏠 Inicio":
         mostrar_inicio()
-
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
