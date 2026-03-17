@@ -29,8 +29,10 @@ def aplicar_estilos():
         box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
     }
 
-    /* Títulos y subtítulos */
-    h1, h2, h3 {
+    /* Títulos y subtítulos SOLO en panel derecho */
+    [data-testid="stAppViewContainer"] h1,
+    [data-testid="stAppViewContainer"] h2,
+    [data-testid="stAppViewContainer"] h3 {
         color: #000000 !important; /* Negro */
         font-weight: 600;
     }
