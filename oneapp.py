@@ -267,7 +267,7 @@ st.markdown("""
         color: #000000; 
         font-size: 1em; 
         margin-top: 20px;">
-        <strong>Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2025</strong><br>
+        <strong>Powered by NN HOLDING SOLUTIONS, Ever Be Better &copy; 2016-2026</strong><br>
         Todos los derechos reservados
     </div>
 """, unsafe_allow_html=True)
