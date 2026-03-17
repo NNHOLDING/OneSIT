@@ -39,15 +39,15 @@ def aplicar_estilos():
     [data-testid="stAppViewContainer"] h2,
     [data-testid="stAppViewContainer"] h3 {
         color: #006699 !important; /* Azul corporativo */
-        font-weight: 800;
+        font-weight: 600;
     }
 
     /* Labels y markdown en panel derecho */
     [data-testid="stAppViewContainer"] label,
     [data-testid="stAppViewContainer"] .stMarkdown {
         color: #000000 !important; /* Negro */
-        font-size: 1.1em !important; /* ✅ Aumentar tamaño de labels */
-        font-weight: 900 !important; /* Opcional: hacerlas más visibles */
+        font-size: 1.4em !important; /* ✅ Labels más grandes */
+        font-weight: 700 !important; /* ✅ Más gruesas */
     }
 
     /* Botones */
