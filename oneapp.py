@@ -42,26 +42,7 @@ st.set_page_config(
 aplicar_estilos()
 aplicar_estilos()
 
-# Renderizar navbar en el panel principal
-st.markdown("""
-<div class="navbar">
-  <a href="?mod=home">Inicio</a>
-  <div class="dropdown">
-    <button class="dropbtn">Módulo LPN ▼</button>
-    <div class="dropdown-content">
-      <a href="?mod=lpn_gen">Generación de LPNs</a>
-      <a href="?mod=lpn_store">Almacenamiento de LPNs</a>
-    </div>
-  </div>
-  <div class="dropdown">
-    <button class="dropbtn">Handhelds ▼</button>
-    <div class="dropdown-content">
-      <a href="?mod=hh_reg">Registro de Handhelds</a>
-      <a href="?mod=hh_jornadas">Jornadas</a>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 # Verificar estado de mantenimiento
