@@ -63,9 +63,8 @@ def aplicar_estilos():
 
     /* Selectores */
     div[data-baseweb="select"] {
-        background-color: #ffffff !important;
-        border: 1px solid #cccccc !important;
-        border-radius: 6px !important;
+        background-color: transparent !important; /* Fondo transparente */
+        border: none !important;                 /* Sin borde tipo botón */
     }
     div[data-baseweb="select"] * {
         color: #c0c0c0 !important; /* Fuente plata */
@@ -99,17 +98,15 @@ def aplicar_estilos():
         color: #c0c0c0 !important;
     }
 
-    /* Cajas de texto */
+    /* Cajas de texto (inputs) */
     input, textarea {
-        background-color: #ffffff !important;
-        color: #c0c0c0 !important; /* Fuente plata */
-        border: 1px solid #cccccc !important;
-        border-radius: 6px !important;
-        padding: 6px 10px !important;
+        background-color: transparent !important; /* Fondo transparente */
+        color: #c0c0c0 !important;               /* Fuente plata */
+        border: none !important;                 /* Sin borde tipo botón */
     }
     input:focus, textarea:focus {
         outline: none !important;
-        border: 1px solid #006699 !important; /* Borde azul corporativo al enfocar */
+        border-bottom: 1px solid #006699 !important; /* Línea azul corporativa al enfocar */
     }
     </style>
     """, unsafe_allow_html=True)
