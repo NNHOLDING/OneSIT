@@ -28,6 +28,7 @@ from modulo_consulta_sku import mostrar_consulta_sku
 from modulo_reporte import mostrar_reporte
 from defaults import defaults
 from estilos import aplicar_estilos
+from bitacora import registrar_log
 
 
 
@@ -106,6 +107,9 @@ if not st.session_state.logueado_handheld:
             st.rerun()
         else:
             st.error("Credenciales incorrectas o usuario no válido.")
+# Registrar login en LogEnvios
+    registrar_log(usuario, nombre, "Login", "Inicio de sesión")
+    st.rerun()
 
 # 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
