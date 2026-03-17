@@ -41,7 +41,7 @@ st.set_page_config(
 )
 # Aplica estilos corporativos
 aplicar_estilos()
-aplicar_estilos()
+ mostrar_inicio()
 
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
