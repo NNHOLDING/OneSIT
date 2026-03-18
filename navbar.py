@@ -1,22 +1,6 @@
 import streamlit as st
 
 def mostrar_navbar():
-    st.markdown("""
-    <style>
-    .navbar {
-        display: flex;
-        justify-content: center;
-        background-color: #006699;
-        padding: 10px;
-        margin-bottom: 20px;
-    }
-    .navbar label {
-        color: white;
-        font-weight: 600;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
     opciones = [
         "🏠 Inicio",
         "📦 Registro de Handhelds",
