@@ -31,6 +31,7 @@ from estilos import aplicar_estilos
 from bitacora import registrar_log
 from inicio import mostrar_inicio
 from navbar import mostrar_navbar
+import streamlit as st
 
 
 
@@ -43,8 +44,8 @@ st.set_page_config(
 # Aplica estilos corporativos
 aplicar_estilos()
  
-# Mostrar navbar y obtener la selección
-modulo = mostrar_navbar()   # devuelve un string
+# Mostrar navbar y obtener selección (devuelve un string)
+modulo = mostrar_navbar()
 
 # Mostrar el módulo elegido
 if modulo == "🏠 Inicio":
@@ -85,6 +86,7 @@ elif modulo == "📜 Bitácora":
     st.write("📜 Bitácora de eventos")
 elif modulo == "📑 Reportes Generales":
     st.write("📑 Reportes generales")
+
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 # Verificar estado de mantenimiento
