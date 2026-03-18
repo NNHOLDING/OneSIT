@@ -51,7 +51,7 @@ modulo = mostrar_navbar()
 if modulo == "🏠 Inicio":
     mostrar_inicio()
 elif modulo == "📦 Registro de Handhelds":
-    registrar_handheld(...)
+    registrar_handheld(conectar_sit_hh)   # ajusta según la firma real de tu función
 elif modulo == "🌡️ Registro de Temperatura":
     mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)
 elif modulo == "🧪 Prueba de Ubicación":
@@ -86,7 +86,6 @@ elif modulo == "📜 Bitácora":
     st.write("📜 Bitácora de eventos")
 elif modulo == "📑 Reportes Generales":
     st.write("📑 Reportes generales")
-
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 # Verificar estado de mantenimiento
