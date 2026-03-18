@@ -47,45 +47,6 @@ aplicar_estilos()
 # Mostrar navbar y obtener selección (devuelve un string)
 # modulo = mostrar_navbar()
 
-# Mostrar el módulo elegido
-if modulo == "🏠 Inicio":
-    mostrar_inicio()
-elif modulo == "📦 Registro de Handhelds":
-    registrar_handheld(conectar_sit_hh)   # ajusta según la firma real de tu función
-elif modulo == "🌡️ Registro de Temperatura":
-    mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)
-elif modulo == "🧪 Prueba de Ubicación":
-    mostrar_prueba_ubicacion()
-elif modulo == "📝 Gestión de Jornada":
-    mostrar_jornadas(conectar_sit_hh)
-elif modulo == "🚨 Registro de Errores":
-    mostrar_formulario_errores()
-elif modulo == "📋 Panel Administrativo":
-    mostrar_panel_administrativo(conectar_sit_hh, cr_timezone)
-elif modulo == "📊 Panel de Certificaciones":
-    mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone)
-elif modulo == "🕒 Productividad":
-    mostrar_panel_alisto(conectar_sit_hh)
-elif modulo == "🏷️ Generación de LPNs":
-    mostrar_formulario_lpn()
-elif modulo == "📥 Almacenamiento LPN":
-    mostrar_formulario_almacenamiento_lpn()
-elif modulo == "📦 Panel de Ocupación Nave":
-    mostrar_panel_ocupacion(conectar_sit_hh())
-elif modulo == "🔍 Consulta de SKU":
-    mostrar_consulta_sku(conectar_sit_hh)
-elif modulo == "📑 Reporte TRecibo":
-    mostrar_reporte(conectar_sit_hh)
-elif modulo == "🚫 Bloqueo de Ubicaciones":
-    mostrar_formulario_bloqueo(conectar_sit_hh())
-elif modulo == "🛠️ Mantenimiento":
-    st.warning("🛠️ Sitio en mantenimiento")
-elif modulo == "📖 Ayuda":
-    st.info("📖 Aquí iría el manual de usuario")
-elif modulo == "📜 Bitácora":
-    st.write("📜 Bitácora de eventos")
-elif modulo == "📑 Reportes Generales":
-    st.write("📑 Reportes generales")
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 # Verificar estado de mantenimiento
@@ -210,11 +171,9 @@ if st.session_state.logueado_handheld:
         opciones_menu = modulos_supervisor
     else:
         opciones_menu = modulos_usuario
-    # Mostrar navbar con las opciones del rol
+
+
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
-
-
-    # modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
     if modulo == "🏠 Inicio":
         mostrar_inicio()
     if modulo == "📦 Registro de Handhelds":
