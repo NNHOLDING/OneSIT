@@ -43,11 +43,54 @@ st.set_page_config(
 # Aplica estilos corporativos
 aplicar_estilos()
  
-# Aplica estilos NAVBAR
-mostrar_navbar()
-# Capturar el parámetro de la URL para saber qué módulo mostrar
-query_params = st.query_params
-modulo = query_params.get("mod", "inicio")
+# Mostrar navbar y obtener todas las selecciones
+selecciones = mostrar_navbar()
+
+# Revisar cada selección y mostrar el módulo correspondiente
+modulo = None
+for valor in selecciones.values():
+    if valor:  # si hay algo seleccionado
+        modulo = valor
+
+# Mostrar el módulo elegido
+if modulo == "🏠 Inicio":
+    mostrar_inicio()
+elif modulo == "📦 Registro de Handhelds":
+    registrar_handheld(...)
+elif modulo == "🌡️ Registro de Temperatura":
+    mostrar_formulario_temperatura(conectar_sit_hh, cr_timezone)
+elif modulo == "🧪 Prueba de Ubicación":
+    mostrar_prueba_ubicacion()
+elif modulo == "📝 Gestión de Jornada":
+    mostrar_jornadas(conectar_sit_hh)
+elif modulo == "🚨 Registro de Errores":
+    mostrar_formulario_errores()
+elif modulo == "📋 Panel Administrativo":
+    mostrar_panel_administrativo(conectar_sit_hh, cr_timezone)
+elif modulo == "📊 Panel de Certificaciones":
+    mostrar_panel_certificaciones(conectar_sit_hh, cr_timezone)
+elif modulo == "🕒 Productividad":
+    mostrar_panel_alisto(conectar_sit_hh)
+elif modulo == "🏷️ Generación de LPNs":
+    mostrar_formulario_lpn()
+elif modulo == "📥 Almacenamiento LPN":
+    mostrar_formulario_almacenamiento_lpn()
+elif modulo == "📦 Panel de Ocupación Nave":
+    mostrar_panel_ocupacion(conectar_sit_hh())
+elif modulo == "🔍 Consulta de SKU":
+    mostrar_consulta_sku(conectar_sit_hh)
+elif modulo == "📑 Reporte TRecibo":
+    mostrar_reporte(conectar_sit_hh)
+elif modulo == "🚫 Bloqueo de Ubicaciones":
+    mostrar_formulario_bloqueo(conectar_sit_hh())
+elif modulo == "🛠️ Mantenimiento":
+    st.warning("🛠️ Sitio en mantenimiento")
+elif modulo == "📖 Ayuda":
+    st.info("📖 Aquí iría el manual de usuario")
+elif modulo == "📜 Bitácora":
+    st.write("📜 Bitácora de eventos")
+elif modulo == "📑 Reportes Generales":
+    st.write("📑 Reportes generales")
 
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
