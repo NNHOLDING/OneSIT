@@ -30,6 +30,7 @@ from defaults import defaults
 from estilos import aplicar_estilos
 from bitacora import registrar_log
 from inicio import mostrar_inicio
+from navbar import mostrar_navbar
 
 
 
@@ -42,7 +43,10 @@ st.set_page_config(
 # Aplica estilos corporativos
 aplicar_estilos()
  
-
+# Aplica estilos NAVBAR
+mostrar_navbar()
+query_params = st.experimental_get_query_params()
+modulo = query_params.get("mod", ["inicio"])[0]
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
