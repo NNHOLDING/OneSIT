@@ -3,19 +3,31 @@ import streamlit as st
 def mostrar_navbar():
     st.markdown("""
     <style>
-    .navbar {
+    .nav-container {
+        display: flex;
+        justify-content: center;
         background-color: #006699;
         padding: 10px;
-        margin-bottom: 20px;
         border-radius: 5px;
+        margin-bottom: 20px;
     }
-    .navbar label {
+    .nav-button {
+        background-color: #004466;
         color: white;
         font-weight: 600;
+        border: none;
+        padding: 8px 16px;
+        margin: 0 5px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .nav-button:hover {
+        background-color: #0088cc;
     }
     </style>
     """, unsafe_allow_html=True)
 
+    # Definir las opciones del menú
     opciones = [
         "🏠 Inicio",
         "📦 Registro de Handhelds",
@@ -38,10 +50,15 @@ def mostrar_navbar():
         "📑 Reportes Generales"
     ]
 
-    seleccion = st.radio(
-        "Menú principal",
-        opciones,
-        horizontal=True,
-        key="navbar"
-    )
+    # Crear columnas para cada opción
+    cols = st.columns(len(opciones))
+    seleccion = None
+    for i, opcion in enumerate(opciones):
+        if cols[i].button(opcion, key=f"nav_{i}"):
+            seleccion = opcion
+
+    # Si no se ha hecho clic aún, por defecto mostrar Inicio
+    if not seleccion:
+        seleccion = "🏠 Inicio"
+
     return seleccion
