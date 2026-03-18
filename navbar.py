@@ -4,120 +4,62 @@ def mostrar_navbar():
     st.markdown("""
     <style>
     .navbar {
-        overflow: hidden;
-        background-color: #006699;
         display: flex;
         justify-content: center;
-        flex-wrap: wrap;
+        background-color: #006699;
+        padding: 10px;
         margin-bottom: 20px;
     }
-    .dropdown {
-        position: relative;
-        display: inline-block;
+    .navbar div {
+        margin: 0 10px;
     }
-    .dropbtn {
-        font-size: 16px;
+    .navbar label {
         color: white;
-        padding: 14px 20px;
-        border: none;
-        background: none;
         font-weight: 600;
-        cursor: pointer;
-    }
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #f9f9f9;
-        min-width: 220px;
-        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-        z-index: 1;
-    }
-    .dropdown-content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-    }
-    .dropdown-content a:hover {
-        background-color: #ddd;
-    }
-    .dropdown:hover .dropdown-content {
-        display: block;
     }
     </style>
-
-    <div class="navbar">
-      <div class="dropdown">
-        <button class="dropbtn">Dispositivos ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=handheld">📦 Registro de Handhelds</a>
-          <a href="?mod=temp">🌡️ Registro de Temperatura</a>
-          <a href="?mod=prueba">🧪 Prueba de Ubicación</a>
-          <a href="?mod=jornadas">📝 Gestión de Jornada</a>
-          <a href="?mod=errores">🚨 Registro de Errores</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Panel Administrativo ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=admin">📋 Panel Administrativo</a>
-          <a href="?mod=cert">📊 Panel de Certificaciones</a>
-          <a href="?mod=prod">🕒 Productividad</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Almacenamiento ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=lpn">🏷️ Generación de LPNs</a>
-          <a href="?mod=almacen">📥 Almacenamiento LPN</a>
-          <a href="?mod=ocupacion">📦 Panel de Ocupación Nave</a>
-          <a href="?mod=sku">🔍 Consulta de SKU</a>
-          <a href="?mod=trecibo">📑 Reporte TRecibo</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Bloqueo ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=bloqueo">🚫 Bloqueo de Ubicaciones</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Mantenimiento ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=mantenimiento">🛠️ Estado de Mantenimiento</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Ayuda ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=ayuda">📖 Manual de Usuario</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Desarrollador ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=bitacora">📜 Bitácora</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Reportes ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=reportes">📑 Reportes Generales</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Misceláneos ▼</button>
-        <div class="dropdown-content">
-          <a href="?mod=inicio">🏠 Inicio</a>
-        </div>
-      </div>
-    </div>
     """, unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    with col1:
+        opcion_dispositivo = st.selectbox("Dispositivos", [
+            "🏠 Inicio",
+            "📦 Registro de Handhelds",
+            "🌡️ Registro de Temperatura",
+            "🧪 Prueba de Ubicación",
+            "📝 Gestión de Jornada",
+            "🚨 Registro de Errores"
+        ], key="nav_dispositivos")
+
+    with col2:
+        opcion_admin = st.selectbox("Panel Administrativo", [
+            "📋 Panel Administrativo",
+            "📊 Panel de Certificaciones",
+            "🕒 Productividad"
+        ], key="nav_admin")
+
+    with col3:
+        opcion_almacen = st.selectbox("Almacenamiento", [
+            "🏷️ Generación de LPNs",
+            "📥 Almacenamiento LPN",
+            "📦 Panel de Ocupación Nave",
+            "🔍 Consulta de SKU",
+            "📑 Reporte TRecibo"
+        ], key="nav_almacen")
+
+    with col4:
+        opcion_extra = st.selectbox("Bloqueo / Mantenimiento", [
+            "🚫 Bloqueo de Ubicaciones",
+            "🛠️ Mantenimiento"
+        ], key="nav_extra")
+
+    with col5:
+        opcion_misc = st.selectbox("Otros", [
+            "📖 Ayuda",
+            "📜 Bitácora",
+            "📑 Reportes Generales"
+        ], key="nav_misc")
+
+    # Retornar la última opción seleccionada
+    return opcion_dispositivo or opcion_admin or opcion_almacen or opcion_extra or opcion_misc
