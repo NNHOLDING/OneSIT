@@ -12,7 +12,6 @@ def mostrar_inicio():
             text-transform: uppercase;
             text-align: center;
             margin-top: 60px;
-            /* Borde blanco grueso alrededor */
             text-shadow: 
                 -4px -4px 0 #ffffff,  
                  4px -4px 0 #ffffff,
