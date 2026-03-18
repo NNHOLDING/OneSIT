@@ -3,62 +3,64 @@ import streamlit as st
 def mostrar_navbar():
     st.markdown("""
     <style>
-    .nav-container {
+    .navbar {
         display: flex;
-        justify-content: center;
+        justify-content: space-around;
         background-color: #006699;
         padding: 10px;
         border-radius: 5px;
         margin-bottom: 20px;
     }
-    .nav-button {
-        background-color: #004466;
+    .navbar h4 {
         color: white;
+        margin: 0;
         font-weight: 600;
-        border: none;
-        padding: 8px 16px;
-        margin: 0 5px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    .nav-button:hover {
-        background-color: #0088cc;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # Definir las opciones del menú
-    opciones = [
-        "🏠 Inicio",
-        "📦 Registro de Handhelds",
-        "🌡️ Registro de Temperatura",
-        "🧪 Prueba de Ubicación",
-        "📝 Gestión de Jornada",
-        "🚨 Registro de Errores",
-        "📋 Panel Administrativo",
-        "📊 Panel de Certificaciones",
-        "🕒 Productividad",
-        "🏷️ Generación de LPNs",
-        "📥 Almacenamiento LPN",
-        "📦 Panel de Ocupación Nave",
-        "🔍 Consulta de SKU",
-        "📑 Reporte TRecibo",
-        "🚫 Bloqueo de Ubicaciones",
-        "🛠️ Mantenimiento",
-        "📖 Ayuda",
-        "📜 Bitácora",
-        "📑 Reportes Generales"
-    ]
+    # Primer nivel: secciones
+    seccion = st.radio(
+        "Secciones",
+        ["Dispositivos", "Administrativo", "Almacenamiento", "Otros"],
+        horizontal=True,
+        key="nav_seccion"
+    )
 
-    # Crear columnas para cada opción
-    cols = st.columns(len(opciones))
-    seleccion = None
-    for i, opcion in enumerate(opciones):
-        if cols[i].button(opcion, key=f"nav_{i}"):
-            seleccion = opcion
+    # Segundo nivel: opciones según sección
+    if seccion == "Dispositivos":
+        opcion = st.selectbox("Opciones", [
+            "🏠 Inicio",
+            "📦 Registro de Handhelds",
+            "🌡️ Registro de Temperatura",
+            "🧪 Prueba de Ubicación",
+            "📝 Gestión de Jornada",
+            "🚨 Registro de Errores"
+        ], key="nav_dispositivos")
 
-    # Si no se ha hecho clic aún, por defecto mostrar Inicio
-    if not seleccion:
-        seleccion = "🏠 Inicio"
+    elif seccion == "Administrativo":
+        opcion = st.selectbox("Opciones", [
+            "📋 Panel Administrativo",
+            "📊 Panel de Certificaciones",
+            "🕒 Productividad"
+        ], key="nav_admin")
 
-    return seleccion
+    elif seccion == "Almacenamiento":
+        opcion = st.selectbox("Opciones", [
+            "🏷️ Generación de LPNs",
+            "📥 Almacenamiento LPN",
+            "📦 Panel de Ocupación Nave",
+            "🔍 Consulta de SKU",
+            "📑 Reporte TRecibo"
+        ], key="nav_almacen")
+
+    else:  # Otros
+        opcion = st.selectbox("Opciones", [
+            "🚫 Bloqueo de Ubicaciones",
+            "🛠️ Mantenimiento",
+            "📖 Ayuda",
+            "📜 Bitácora",
+            "📑 Reportes Generales"
+        ], key="nav_misc")
+
+    return opcion
