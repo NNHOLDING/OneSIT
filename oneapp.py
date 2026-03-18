@@ -43,14 +43,8 @@ st.set_page_config(
 # Aplica estilos corporativos
 aplicar_estilos()
  
-# Mostrar navbar y obtener todas las selecciones
-selecciones = mostrar_navbar()
-
-# Revisar cada selección y mostrar el módulo correspondiente
-modulo = None
-for valor in selecciones.values():
-    if valor:  # si hay algo seleccionado
-        modulo = valor
+# Mostrar navbar y obtener la selección
+modulo = mostrar_navbar()   # devuelve un string
 
 # Mostrar el módulo elegido
 if modulo == "🏠 Inicio":
@@ -91,8 +85,6 @@ elif modulo == "📜 Bitácora":
     st.write("📜 Bitácora de eventos")
 elif modulo == "📑 Reportes Generales":
     st.write("📑 Reportes generales")
-
-
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 # Verificar estado de mantenimiento
