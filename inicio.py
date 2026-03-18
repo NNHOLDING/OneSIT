@@ -24,7 +24,7 @@ def mostrar_inicio():
         <div class="sega-text">WMS SIT</div>
     """, unsafe_allow_html=True)
 
-    # Imagen desde Google Drive
+    # Imagen desde Google Drive (enlace directo con uc?id=)
     st.markdown(
         """
         <div style='text-align: center; margin-top: 30px;'>
