@@ -214,7 +214,7 @@ if st.session_state.logueado_handheld:
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
 
 
-    #modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
+    # modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
     if modulo == "🏠 Inicio":
         mostrar_inicio()
     if modulo == "📦 Registro de Handhelds":
