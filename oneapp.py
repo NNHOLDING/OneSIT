@@ -210,6 +210,8 @@ if st.session_state.logueado_handheld:
         opciones_menu = modulos_supervisor
     else:
         opciones_menu = modulos_usuario
+    # Mostrar navbar con las opciones del rol
+        modulo = mostrar_navbar(opciones_menu)   # <-- aquí pasas la lista
 
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
     if modulo == "🏠 Inicio":
