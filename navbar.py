@@ -22,10 +22,8 @@ def mostrar_navbar():
 
     col1, col2, col3, col4, col5 = st.columns(5)
 
-    seleccion = None
-
     with col1:
-        seleccion = st.selectbox("Dispositivos", [
+        opcion_dispositivo = st.selectbox("Dispositivos", [
             "🏠 Inicio",
             "📦 Registro de Handhelds",
             "🌡️ Registro de Temperatura",
@@ -35,40 +33,39 @@ def mostrar_navbar():
         ], key="nav_dispositivos")
 
     with col2:
-        seleccion_admin = st.selectbox("Panel Administrativo", [
+        opcion_admin = st.selectbox("Panel Administrativo", [
             "📋 Panel Administrativo",
             "📊 Panel de Certificaciones",
             "🕒 Productividad"
         ], key="nav_admin")
-        if seleccion_admin:
-            seleccion = seleccion_admin
 
     with col3:
-        seleccion_almacen = st.selectbox("Almacenamiento", [
+        opcion_almacen = st.selectbox("Almacenamiento", [
             "🏷️ Generación de LPNs",
             "📥 Almacenamiento LPN",
             "📦 Panel de Ocupación Nave",
             "🔍 Consulta de SKU",
             "📑 Reporte TRecibo"
         ], key="nav_almacen")
-        if seleccion_almacen:
-            seleccion = seleccion_almacen
 
     with col4:
-        seleccion_extra = st.selectbox("Bloqueo / Mantenimiento", [
+        opcion_extra = st.selectbox("Bloqueo / Mantenimiento", [
             "🚫 Bloqueo de Ubicaciones",
             "🛠️ Mantenimiento"
         ], key="nav_extra")
-        if seleccion_extra:
-            seleccion = seleccion_extra
 
     with col5:
-        seleccion_misc = st.selectbox("Otros", [
+        opcion_misc = st.selectbox("Otros", [
             "📖 Ayuda",
             "📜 Bitácora",
             "📑 Reportes Generales"
         ], key="nav_misc")
-        if seleccion_misc:
-            seleccion = seleccion_misc
 
-    return seleccion
+    # Retornar todas las opciones en un diccionario
+    return {
+        "dispositivo": opcion_dispositivo,
+        "admin": opcion_admin,
+        "almacen": opcion_almacen,
+        "extra": opcion_extra,
+        "misc": opcion_misc
+    }
