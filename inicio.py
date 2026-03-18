@@ -23,5 +23,5 @@ def mostrar_inicio():
         <div class="sega-text">WMS SIT</div>
     """, unsafe_allow_html=True)
 
-    # Mostrar imagen con st.image
-    st.image("https://drive.google.com/uc?id=16GzGshAuMkqElN2Y2iFfXcZ5gsElYxg9", width=600)
+    # Imagen desde GitHub (enlace raw)
+    st.image("https://raw.githubusercontent.com/NNHOLDING/OneSIT/main/electric-stacker-4-1-1024x683.jpg", width=600)
