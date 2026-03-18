@@ -45,7 +45,7 @@ st.set_page_config(
 aplicar_estilos()
  
 # Mostrar navbar y obtener selección (devuelve un string)
-modulo = mostrar_navbar()
+# modulo = mostrar_navbar()
 
 # Mostrar el módulo elegido
 if modulo == "🏠 Inicio":
