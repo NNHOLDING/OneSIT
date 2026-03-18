@@ -45,8 +45,10 @@ aplicar_estilos()
  
 # Aplica estilos NAVBAR
 mostrar_navbar()
-query_params = st.experimental_get_query_params()
-modulo = query_params.get("mod", ["inicio"])[0]
+# Capturar el parámetro de la URL para saber qué módulo mostrar
+query_params = st.query_params
+modulo = query_params.get("mod", "inicio")
+
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
