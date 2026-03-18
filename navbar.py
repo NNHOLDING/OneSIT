@@ -22,8 +22,10 @@ def mostrar_navbar():
 
     col1, col2, col3, col4, col5 = st.columns(5)
 
+    seleccion = None
+
     with col1:
-        opcion_dispositivo = st.selectbox("Dispositivos", [
+        seleccion = st.selectbox("Dispositivos", [
             "🏠 Inicio",
             "📦 Registro de Handhelds",
             "🌡️ Registro de Temperatura",
@@ -33,33 +35,40 @@ def mostrar_navbar():
         ], key="nav_dispositivos")
 
     with col2:
-        opcion_admin = st.selectbox("Panel Administrativo", [
+        seleccion_admin = st.selectbox("Panel Administrativo", [
             "📋 Panel Administrativo",
             "📊 Panel de Certificaciones",
             "🕒 Productividad"
         ], key="nav_admin")
+        if seleccion_admin:
+            seleccion = seleccion_admin
 
     with col3:
-        opcion_almacen = st.selectbox("Almacenamiento", [
+        seleccion_almacen = st.selectbox("Almacenamiento", [
             "🏷️ Generación de LPNs",
             "📥 Almacenamiento LPN",
             "📦 Panel de Ocupación Nave",
             "🔍 Consulta de SKU",
             "📑 Reporte TRecibo"
         ], key="nav_almacen")
+        if seleccion_almacen:
+            seleccion = seleccion_almacen
 
     with col4:
-        opcion_extra = st.selectbox("Bloqueo / Mantenimiento", [
+        seleccion_extra = st.selectbox("Bloqueo / Mantenimiento", [
             "🚫 Bloqueo de Ubicaciones",
             "🛠️ Mantenimiento"
         ], key="nav_extra")
+        if seleccion_extra:
+            seleccion = seleccion_extra
 
     with col5:
-        opcion_misc = st.selectbox("Otros", [
+        seleccion_misc = st.selectbox("Otros", [
             "📖 Ayuda",
             "📜 Bitácora",
             "📑 Reportes Generales"
         ], key="nav_misc")
+        if seleccion_misc:
+            seleccion = seleccion_misc
 
-    # Retornar la última opción seleccionada
-    return opcion_dispositivo or opcion_admin or opcion_almacen or opcion_extra or opcion_misc
+    return seleccion
