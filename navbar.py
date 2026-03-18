@@ -1,6 +1,21 @@
 import streamlit as st
 
 def mostrar_navbar():
+    st.markdown("""
+    <style>
+    .navbar {
+        background-color: #006699;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    .navbar label {
+        color: white;
+        font-weight: 600;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     opciones = [
         "🏠 Inicio",
         "📦 Registro de Handhelds",
@@ -23,5 +38,10 @@ def mostrar_navbar():
         "📑 Reportes Generales"
     ]
 
-    seleccion = st.selectbox("Menú principal", opciones, key="navbar")
+    seleccion = st.radio(
+        "Menú principal",
+        opciones,
+        horizontal=True,
+        key="navbar"
+    )
     return seleccion
