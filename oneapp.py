@@ -123,7 +123,7 @@ if not st.session_state.logueado_handheld:
 # 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
     # Mostrar menú tipo hamburger
-        mostrar_menu(opciones_menu)
+    mostrar_menu(opciones_menu)
     st.markdown("""
         <div style='text-align: center;'>
         <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
