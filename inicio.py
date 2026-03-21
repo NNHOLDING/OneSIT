@@ -1,6 +1,6 @@
 import streamlit as st
 
-def mostrar_inicio(usuario="Usuario Demo"):
+def mostrar_inicio(usuario=" "):
     st.markdown(f"""
         <style>
         .user-label {{
