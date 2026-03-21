@@ -32,7 +32,7 @@ from bitacora import registrar_log
 from inicio import mostrar_inicio
 from navbar import mostrar_navbar
 import streamlit as st
-
+from usuario_info import mostrar_usuario_info
 
 
 # Configuración de página
@@ -176,6 +176,8 @@ if st.session_state.logueado_handheld:
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
     if modulo == "🏠 Inicio":
         mostrar_inicio()
+        mostrar_usuario_info()  # 👈 Aquí se muestra el panel con el usuario logeado
+
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
