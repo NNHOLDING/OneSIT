@@ -34,7 +34,7 @@ from navbar import mostrar_navbar
 import streamlit as st
 from usuario_info import mostrar_usuario_info
 from footer import mostrar_footer
-from menu import mostrar_menu
+
 
 
 # Configuración de página
@@ -122,16 +122,9 @@ if not st.session_state.logueado_handheld:
             st.error("Credenciales incorrectas o usuario no válido.")
 # 🧭 Interfaz principal
 if st.session_state.logueado_handheld:
-    # Opciones según rol (ejemplo)
-    opciones_menu = ["🏠 Inicio", "📦 Registro de Handhelds", "📋 Panel Administrativo", "🚪 Cerrar sesión"]
-
-    # Mostrar menú tipo hamburger
-    mostrar_menu(opciones_menu)
-
-    # Logo corporativo centrado
     st.markdown("""
         <div style='text-align: center;'>
-            <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
+        <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
         </div>
     """, unsafe_allow_html=True)
 
