@@ -33,8 +33,9 @@ def mostrar_inicio(usuario=" "):
                  0px  0px 8px #000000;
         }}
         </style>
-        <div class="user-label">👤 {usuario}</div>
-        <div class="sega-text">WMS SIT</div>
+        <div class="user-label" style="background-color:#d0d0d0;">
+        👤 {usuario}
+        </div>
     """, unsafe_allow_html=True)
 
     # Imagen desde GitHub (enlace raw)
