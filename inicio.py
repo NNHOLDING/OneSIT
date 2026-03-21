@@ -43,5 +43,5 @@ def mostrar_inicio(usuario, codigo=None, rol=None):
     # Imagen desde GitHub (enlace raw)
     st.image(
         "https://raw.githubusercontent.com/NNHOLDING/OneSIT/main/electric-stacker-4-1-1024x683.jpg",
-        width=600
+        width=700
     )
