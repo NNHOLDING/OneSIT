@@ -175,7 +175,8 @@ if st.session_state.logueado_handheld:
 
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
     if modulo == "🏠 Inicio":
-        mostrar_inicio()
+        # mostrar_inicio()
+        mostrar_inicio(st.session_state.nombre_empleado)
         mostrar_usuario_info()  # 👈 Aquí se muestra el panel con el usuario logeado
 
     if modulo == "📦 Registro de Handhelds":
