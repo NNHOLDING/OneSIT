@@ -274,19 +274,6 @@ if st.session_state.logueado_handheld:
         from defaults import defaults
         for key in defaults.keys():
             st.session_state[key] = False
-
-
-    # Logo corporativo centrado
-    st.markdown("""
-        <div style='text-align: center;'>
-            <img src='https://raw.githubusercontent.com/NNHOLDING/marcas_sit/main/28NN.PNG.jpg' width='250'>
-        </div>
-    """, unsafe_allow_html=True)
-
-
-    
-        
-
-
+       
 # 🧾 Footer institucional
 mostrar_footer()
