@@ -34,6 +34,7 @@ from navbar import mostrar_navbar
 import streamlit as st
 from usuario_info import mostrar_usuario_info
 from footer import mostrar_footer
+from logout import cerrar_sesion
 
 
 
@@ -258,14 +259,12 @@ if st.session_state.logueado_handheld:
         mostrar_reporte(conectar_sit_hh)
 
    # 🚪 Cierre de sesión
-    st.markdown("---")
+   st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
+
     if st.button("Salir", key="boton_salir"):
-        # Registrar cierre de sesión en LogEnvios
-        registrar_log(st.session_state.codigo_empleado,
-                      st.session_state.nombre_empleado,
-                      "Login",
-                      "Cierre de sesión")
+    cerrar_sesion()
+
     
         # Reiniciar variables de sesión
         from defaults import defaults
