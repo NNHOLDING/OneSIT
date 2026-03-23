@@ -1,6 +1,6 @@
 import streamlit as st
 from defaults import defaults
-from logenvios import registrar_log   # ajusta el import según dónde tengas registrar_log
+from logenvios import registrar_log   # ajusta según tu estructura real
 
 def cerrar_sesion():
     # Registrar cierre de sesión en LogEnvios
@@ -15,5 +15,5 @@ def cerrar_sesion():
     for key, value in defaults.items():
         st.session_state[key] = value
 
-    # Opcional: mostrar confirmación
+    # Mensaje de confirmación
     st.success("✅ Sesión cerrada correctamente")
