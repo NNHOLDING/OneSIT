@@ -264,11 +264,6 @@ if st.session_state.logueado_handheld:
     if st.button("Salir", key="boton_salir"):
         cerrar_sesion()
 
-    
-        # Reiniciar variables de sesión
-        from defaults import defaults
-        for key in defaults.keys():
-            st.session_state[key] = False
 
 # 🧾 Footer institucional
 mostrar_footer()
