@@ -1,8 +1,7 @@
-# 🚪 Cierre de sesión
-st.markdown("---")
-st.markdown("### 🚪 Cerrar sesión")
+import streamlit as st
+from defaults import defaults
 
-if st.button("Salir", key="boton_salir"):
+def cerrar_sesion(registrar_log):
     # Registrar cierre de sesión en LogEnvios
     registrar_log(
         st.session_state.codigo_empleado,
@@ -12,8 +11,8 @@ if st.button("Salir", key="boton_salir"):
     )
 
     # Reiniciar variables de sesión con los valores por defecto
-    from defaults import defaults
     for key, value in defaults.items():
         st.session_state[key] = value
 
+    # Mensaje de confirmación
     st.success("✅ Sesión cerrada correctamente")
