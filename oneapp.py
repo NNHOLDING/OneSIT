@@ -34,7 +34,7 @@ from navbar import mostrar_navbar
 import streamlit as st
 from usuario_info import mostrar_usuario_info
 from footer import mostrar_footer
-from logout import cerrar_sesion
+from cerrar_sesion import cerrar_sesion
 
 
 
