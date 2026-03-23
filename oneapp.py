@@ -259,11 +259,10 @@ if st.session_state.logueado_handheld:
         mostrar_reporte(conectar_sit_hh)
 
    # 🚪 Cierre de sesión
-   st.markdown("---")
+    st.markdown("---")
     st.markdown("### 🚪 Cerrar sesión")
-
     if st.button("Salir", key="boton_salir"):
-    cerrar_sesion()
+        cerrar_sesion()
 
     
         # Reiniciar variables de sesión
