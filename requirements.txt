@@ -20,6 +20,8 @@ reportlab
 xlsxwriter
 geopy
 geocoder
+streamlit-geolocation
+
 
 
 
