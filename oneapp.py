@@ -38,6 +38,7 @@ from registroins import panel_registro
 import geopandas as gpd
 from shapely.geometry import Point
 from exportar_ins import panel_exportar_ins
+from registroins import panel_registro
 
 
 
