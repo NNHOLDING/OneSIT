@@ -268,7 +268,7 @@ if st.session_state.logueado_handheld:
 
     elif modulo == "📑 Reporte TRecibo":
         mostrar_reporte(conectar_sit_hh)
-    elif opcion == "📤 Exportar Registros INS":
+    elif modulo == "📤 Exportar Registros INS":
         panel_exportar_ins()
     elif opcion == "📤 Exportar Registros INS":
         panel_exportar_ins()
