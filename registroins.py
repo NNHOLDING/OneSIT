@@ -51,20 +51,19 @@ def panel_registro():
             address = loc.raw.get("address", {})
             provincia = address.get("province", address.get("state", ""))
 
-        # Cantón y distrito con tus polígonos KML
+        # Cantón con archivo GeoJSON subido
         punto = Point(lon, lat)
-
-        # Cargar cantones desde KML
-        cantones = gpd.read_file("kml/cantones.kml").to_crs(epsg=4326)
+        cantones = gpd.read_file("geojson/cantones.geojson").to_crs(epsg=4326)
         match_canton = cantones[cantones.geometry.contains(punto)]
         if not match_canton.empty:
+            # Ajusta el nombre de columna según tu archivo
             canton = match_canton.iloc[0].get("NOM_CANT_1", "")
 
-        # Cargar distritos desde KML
-        distritos = gpd.read_file("kml/distritos.kml").to_crs(epsg=4326)
-        match_distrito = distritos[distritos.geometry.contains(punto)]
-        if not match_distrito.empty:
-            distrito = match_distrito.iloc[0].get("NOM_DIST", "")
+        # Si tienes provincias.geojson también puedes usarlo
+        # provincias = gpd.read_file("geojson/provincias.geojson").to_crs(epsg=4326)
+        # match_prov = provincias[provincias.geometry.contains(punto)]
+        # if not match_prov.empty:
+        #     provincia = match_prov.iloc[0].get("NOM_PROV", provincia)
 
         st.write(f"📍 Coordenadas detectadas: {lat}, {lon}")
         st.write(f"Provincia: {provincia}, Cantón: {canton}, Distrito: {distrito}")
