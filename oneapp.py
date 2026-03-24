@@ -35,6 +35,8 @@ import streamlit as st
 from usuario_info import mostrar_usuario_info
 from footer import mostrar_footer
 from registroins import panel_registro
+from streamlit_geolocation import geolocation
+
 
 
 # Configuración de página
