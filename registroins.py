@@ -5,7 +5,7 @@ import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 from geopy.geocoders import Nominatim
-from streamlit_geolocation import geolocation
+import geocoder
 
 # Configuración de zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
@@ -26,15 +26,12 @@ def panel_registro():
     hora = st.time_input("Hora", datetime.datetime.now(cr_timezone).time())
     numero_evento = st.text_input("Número de evento")
 
-    # Geolocalización desde navegador
-    location = geolocation()
-    lat, lon = None, None
-    provincia, canton, distrito = "", "", ""
-    if location:
-        lat = location["latitude"]
-        lon = location["longitude"]
+    # Geolocalización por IP (fallback)
+    g = geocoder.ip("me")
+    lat, lon = g.latlng if g.latlng else (None, None)
 
-        # Reverse geocoding
+    provincia, canton, distrito = "", "", ""
+    if lat and lon:
         geolocator = Nominatim(user_agent="geoapi")
         loc = geolocator.reverse(f"{lat}, {lon}")
         if loc:
