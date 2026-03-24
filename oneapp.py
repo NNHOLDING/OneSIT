@@ -35,6 +35,8 @@ import streamlit as st
 from usuario_info import mostrar_usuario_info
 from footer import mostrar_footer
 from registroins import panel_registro
+import geopandas as gpd
+from shapely.geometry import Point
 
 
 
