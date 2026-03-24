@@ -3,7 +3,7 @@ import streamlit as st
 import pytz
 import datetime
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 from geopy.geocoders import Nominatim
 import geocoder
 
@@ -11,10 +11,11 @@ import geocoder
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 def panel_registro():
-    # Conexión con Google Sheets
+    # Conexión con Google Sheets usando st.secrets
     scope = ["https://spreadsheets.google.com/feeds",
              "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+
+    creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
     client = gspread.authorize(creds)
     sheet = client.open_by_key("1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0").worksheet("INS")
 
@@ -33,7 +34,7 @@ def panel_registro():
         distrito = address.get("suburb", "")
 
     # Interfaz Streamlit
-    st.title("Registro de Eventos")
+    st.title("📝 Registro INS")
 
     fecha = st.date_input("Fecha", datetime.datetime.now(cr_timezone).date())
     hora = st.time_input("Hora", datetime.datetime.now(cr_timezone).time())
@@ -49,7 +50,7 @@ def panel_registro():
             provincia,
             canton,
             distrito,
-            "Sistema",
+            st.session_state.get("nombre_empleado", "Sistema"),
             f"{lat},{lon}"
         ])
-        st.success("La información fue almacenada exitosamente")
+        st.success("✅ La información fue almacenada exitosamente")
