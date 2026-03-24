@@ -6,8 +6,8 @@ from google.oauth2.service_account import Credentials
 from geopy.geocoders import Nominatim
 from streamlit_js_eval import streamlit_js_eval
 
-import geopandas as gpd
-from shapely.geometry import Point
+import json
+from shapely.geometry import shape, Point
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
@@ -51,19 +51,28 @@ def panel_registro():
             address = loc.raw.get("address", {})
             provincia = address.get("province", address.get("state", ""))
 
-        # Cantón con archivo GeoJSON subido
         punto = Point(lon, lat)
-        cantones = gpd.read_file("geojson/cantones.geojson").to_crs(epsg=4326)
-        match_canton = cantones[cantones.geometry.contains(punto)]
-        if not match_canton.empty:
-            # Ajusta el nombre de columna según tu archivo
-            canton = match_canton.iloc[0].get("NOM_CANT_1", "")
 
-        # Si tienes provincias.geojson también puedes usarlo
-        # provincias = gpd.read_file("geojson/provincias.geojson").to_crs(epsg=4326)
-        # match_prov = provincias[provincias.geometry.contains(punto)]
-        # if not match_prov.empty:
-        #     provincia = match_prov.iloc[0].get("NOM_PROV", provincia)
+        # Cantones desde GeoJSON
+        with open("geojson/cantones.geojson", "r", encoding="utf-8") as f:
+            cantones_data = json.load(f)
+
+        for feature in cantones_data["features"]:
+            geom = shape(feature["geometry"])
+            if geom.contains(punto):
+                canton = feature["properties"].get("NOM_CANT_1", "")
+                provincia = feature["properties"].get("NOM_PROV", provincia)
+                break
+
+        # Provincias desde GeoJSON (opcional)
+        with open("geojson/provincias.geojson", "r", encoding="utf-8") as f:
+            provincias_data = json.load(f)
+
+        for feature in provincias_data["features"]:
+            geom = shape(feature["geometry"])
+            if geom.contains(punto):
+                provincia = feature["properties"].get("NPROVINCIA", provincia)
+                break
 
         st.write(f"📍 Coordenadas detectadas: {lat}, {lon}")
         st.write(f"Provincia: {provincia}, Cantón: {canton}, Distrito: {distrito}")
