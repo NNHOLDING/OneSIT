@@ -166,14 +166,15 @@ if st.session_state.logueado_handheld:
     ]
     modulos_supervisor = [
         "🏠 Inicio",
-        "📦 Registro de Handhelds",
-        "🕒 Productividad",
-        "📝 Gestión de Jornada",
-        "🚨 Registro de Errores",
-        "🏷️ Generación de LPNs",
+         "🧪 Prueba de Ubicación",
+        #"📦 Registro de Handhelds",
+        #"🕒 Productividad",
+        #"📝 Gestión de Jornada",
+        #"🚨 Registro de Errores",
+        #"🏷️ Generación de LPNs",
         "📝 Registro INS",
         "📤 Exportar Registros INS",
-        "📑 Reporte TRecibo",
+        #"📑 Reporte TRecibo",
     ]
 
     # Selección dinámica según rol
