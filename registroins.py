@@ -1,4 +1,3 @@
-# registroins.py
 import streamlit as st
 import pytz
 import datetime
@@ -23,18 +22,25 @@ def panel_registro():
     hora = st.time_input("Hora", datetime.datetime.now(cr_timezone).time())
     numero_evento = st.text_input("Número de evento")
 
-    # Geolocalización desde el dispositivo vía JS
-    lat = streamlit_js_eval(
-        js_expressions="async () => {return new Promise(resolve => navigator.geolocation.getCurrentPosition(pos => resolve(pos.coords.latitude)));}",
-        key="lat"
-    )
-    lon = streamlit_js_eval(
-        js_expressions="async () => {return new Promise(resolve => navigator.geolocation.getCurrentPosition(pos => resolve(pos.coords.longitude)));}",
-        key="lon"
+    # Obtener coordenadas reales del dispositivo
+    ubicacion = streamlit_js_eval(
+        js_expressions="""
+        new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({latitude: pos.coords.latitude, longitude: pos.coords.longitude}),
+                (err) => reject(err)
+            );
+        })
+        """,
+        key="ubicacion"
     )
 
+    lat, lon = None, None
     provincia, canton, distrito = "", "", ""
-    if lat and lon:
+    if ubicacion and "latitude" in ubicacion and "longitude" in ubicacion:
+        lat = ubicacion["latitude"]
+        lon = ubicacion["longitude"]
+
         geolocator = Nominatim(user_agent="geoapi")
         loc = geolocator.reverse(f"{lat}, {lon}")
         if loc:
