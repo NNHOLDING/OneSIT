@@ -5,7 +5,7 @@ import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 from geopy.geocoders import Nominatim
-from streamlit_js_eval import streamlit_js_eval
+from streamlit_geolocation import geolocation
 
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
@@ -23,18 +23,14 @@ def panel_registro():
     hora = st.time_input("Hora", datetime.datetime.now(cr_timezone).time())
     numero_evento = st.text_input("Número de evento")
 
-    # Obtener coordenadas reales del dispositivo vía JS (watchPosition)
-    lat = streamlit_js_eval(
-        js_expressions="async () => {return new Promise(resolve => navigator.geolocation.watchPosition(pos => resolve(pos.coords.latitude)));}",
-        key="lat"
-    )
-    lon = streamlit_js_eval(
-        js_expressions="async () => {return new Promise(resolve => navigator.geolocation.watchPosition(pos => resolve(pos.coords.longitude)));}",
-        key="lon"
-    )
-
+    # Geolocalización desde el dispositivo
+    location = geolocation()
+    lat, lon = None, None
     provincia, canton, distrito = "", "", ""
-    if lat and lon:
+    if location:
+        lat = location["latitude"]
+        lon = location["longitude"]
+
         geolocator = Nominatim(user_agent="geoapi")
         loc = geolocator.reverse(f"{lat}, {lon}")
         if loc:
