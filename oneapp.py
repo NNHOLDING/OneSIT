@@ -183,6 +183,10 @@ if st.session_state.logueado_handheld:
         opciones_menu = modulos_supervisor
     else:
         opciones_menu = modulos_usuario
+    # Aquí defines la variable opcion con el selectbox
+        opcion = st.sidebar.selectbox("Menú", opciones_menu)
+
+
 
 
     modulo = st.sidebar.selectbox("🧩 Selecciona el módulo", opciones_menu)
