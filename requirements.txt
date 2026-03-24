@@ -18,6 +18,8 @@ google-auth-oauthlib
 plotly
 reportlab
 xlsxwriter
+geopy
+geocoder
 
 
 
