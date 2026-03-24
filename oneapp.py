@@ -260,7 +260,7 @@ if st.session_state.logueado_handheld:
     elif modulo == "📑 Reporte TRecibo":
         mostrar_reporte(conectar_sit_hh)
     elif modulo == "📝 Registro INS":
-    panel_registro()
+        panel_registro()
 
    # 🚪 Cierre de sesión
     st.markdown("---")
