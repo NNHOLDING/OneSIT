@@ -25,9 +25,15 @@ def panel_registro():
     hora = st.time_input("Hora", datetime.datetime.now(cr_timezone).time())
     numero_evento = st.text_input("Número de evento")
 
-    # Obtener coordenadas reales del dispositivo vía JS
-    lat = streamlit_js_eval(js_expressions="navigator.geolocation.getCurrentPosition(pos => pos.coords.latitude)", key="lat")
-    lon = streamlit_js_eval(js_expressions="navigator.geolocation.getCurrentPosition(pos => pos.coords.longitude)", key="lon")
+    # Obtener coordenadas reales del dispositivo vía JS (async)
+    lat = streamlit_js_eval(
+        js_expressions="async () => {return new Promise(resolve => navigator.geolocation.getCurrentPosition(pos => resolve(pos.coords.latitude)));}",
+        key="lat"
+    )
+    lon = streamlit_js_eval(
+        js_expressions="async () => {return new Promise(resolve => navigator.geolocation.getCurrentPosition(pos => resolve(pos.coords.longitude)));}",
+        key="lon"
+    )
 
     provincia, canton, distrito = "", "", ""
     if lat and lon:
@@ -40,6 +46,7 @@ def panel_registro():
             distrito = address.get("neighbourhood", address.get("suburb", ""))
 
         st.write(f"📍 Coordenadas detectadas: {lat}, {lon}")
+        st.write(f"Provincia: {provincia}, Cantón: {canton}, Distrito: {distrito}")
 
     if st.button("Guardar"):
         sheet.append_row([
