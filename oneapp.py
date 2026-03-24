@@ -272,8 +272,7 @@ if st.session_state.logueado_handheld:
         mostrar_reporte(conectar_sit_hh)
     elif modulo == "📤 Exportar Registros INS":
         panel_exportar_ins()
-    elif opcion == "📤 Exportar Registros INS":
-        panel_exportar_ins()
+    
 
    # 🚪 Cierre de sesión
     st.markdown("---")
