@@ -6,6 +6,9 @@ from google.oauth2.service_account import Credentials
 from geopy.geocoders import Nominatim
 from streamlit_js_eval import streamlit_js_eval
 
+import geopandas as gpd
+from shapely.geometry import Point
+
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 def panel_registro():
@@ -41,13 +44,26 @@ def panel_registro():
         lat = ubicacion["latitude"]
         lon = ubicacion["longitude"]
 
+        # Provincia con Nominatim (mantener igual)
         geolocator = Nominatim(user_agent="geoapi")
         loc = geolocator.reverse(f"{lat}, {lon}")
         if loc:
             address = loc.raw.get("address", {})
             provincia = address.get("province", address.get("state", ""))
-            canton = address.get("municipality", address.get("county", ""))
-            distrito = address.get("neighbourhood", address.get("suburb", ""))
+
+        # Cantón y distrito con tus polígonos
+        punto = Point(lon, lat)  # shapely usa (x=lon, y=lat)
+
+        # Cargar todos los distritos desde tu carpeta geojson
+        # Aquí asumo que tienes un archivo con todos los distritos, si no, puedes concatenar varios
+        distritos = gpd.read_file("geojson/CR_distritos.geojson")
+        distritos = distritos.to_crs(epsg=4326)
+
+        match = distritos[distritos.geometry.contains(punto)]
+        if not match.empty:
+            # Ajusta los nombres de columnas según tu geojson
+            canton = match.iloc[0].get("canton", "")
+            distrito = match.iloc[0].get("distrito", "")
 
         st.write(f"📍 Coordenadas detectadas: {lat}, {lon}")
         st.write(f"Provincia: {provincia}, Cantón: {canton}, Distrito: {distrito}")
