@@ -171,6 +171,7 @@ if st.session_state.logueado_handheld:
         "🚨 Registro de Errores",
         "🏷️ Generación de LPNs",
         "📝 Registro INS",
+        "📤 Exportar Registros INS",
         "📑 Reporte TRecibo",
     ]
 
@@ -265,6 +266,8 @@ if st.session_state.logueado_handheld:
         mostrar_reporte(conectar_sit_hh)
     elif modulo == "📝 Registro INS":
         panel_registro()
+    elif opcion == "📤 Exportar Registros INS":
+        panel_exportar_ins()
 
    # 🚪 Cierre de sesión
     st.markdown("---")
