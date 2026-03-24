@@ -34,10 +34,7 @@ from navbar import mostrar_navbar
 import streamlit as st
 from usuario_info import mostrar_usuario_info
 from footer import mostrar_footer
-
-
-
-
+from registroins import panel_registro
 
 
 # Configuración de página
@@ -148,6 +145,7 @@ if st.session_state.logueado_handheld:
         "📦 Panel de Ocupación Nave",
         "🚫 Bloqueo de Ubicaciones",
         "🔍 Consulta de SKU",
+        "📝 Registro INS",
         "📑 Reporte TRecibo",
     ]
     modulos_usuario = [
@@ -158,6 +156,7 @@ if st.session_state.logueado_handheld:
         "🌡️ Registro de Temperatura",
         "🏷️ Generación de LPNs",
         "🧪 Prueba de Ubicación",
+        "📝 Registro INS",
         "📑 Reporte TRecibo",
     ]
     modulos_supervisor = [
@@ -167,6 +166,7 @@ if st.session_state.logueado_handheld:
         "📝 Gestión de Jornada",
         "🚨 Registro de Errores",
         "🏷️ Generación de LPNs",
+        "📝 Registro INS",
         "📑 Reporte TRecibo",
     ]
 
@@ -259,6 +259,8 @@ if st.session_state.logueado_handheld:
 
     elif modulo == "📑 Reporte TRecibo":
         mostrar_reporte(conectar_sit_hh)
+    elif modulo == "📝 Registro INS":
+    panel_registro()
 
    # 🚪 Cierre de sesión
     st.markdown("---")
