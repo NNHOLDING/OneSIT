@@ -5,36 +5,36 @@ import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 from geopy.geocoders import Nominatim
-from streamlit_geolocation import geolocation
+from streamlit_js_eval import streamlit_js_eval
 
-# Configuración de zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 def panel_registro():
-    # Conexión con Google Sheets usando st.secrets
+    # Conexión con Google Sheets
     scope = ["https://spreadsheets.google.com/feeds",
              "https://www.googleapis.com/auth/drive"]
-
     creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
     client = gspread.authorize(creds)
     sheet = client.open_by_key("1PtUtGidnJkZZKW5CW4IzMkZ1tFk9dJLrGKe9vMwg0N0").worksheet("INS")
 
-    # Interfaz Streamlit
     st.title("📝 Registro INS")
 
     fecha = st.date_input("Fecha", datetime.datetime.now(cr_timezone).date())
     hora = st.time_input("Hora", datetime.datetime.now(cr_timezone).time())
     numero_evento = st.text_input("Número de evento")
 
-    # 👉 Geolocalización desde el dispositivo
-    location = geolocation()
-    lat, lon = None, None
-    provincia, canton, distrito = "", "", ""
-    if location:
-        lat = location["latitude"]
-        lon = location["longitude"]
+    # Geolocalización desde el dispositivo vía JS
+    lat = streamlit_js_eval(
+        js_expressions="async () => {return new Promise(resolve => navigator.geolocation.getCurrentPosition(pos => resolve(pos.coords.latitude)));}",
+        key="lat"
+    )
+    lon = streamlit_js_eval(
+        js_expressions="async () => {return new Promise(resolve => navigator.geolocation.getCurrentPosition(pos => resolve(pos.coords.longitude)));}",
+        key="lon"
+    )
 
-        # Reverse geocoding con Nominatim
+    provincia, canton, distrito = "", "", ""
+    if lat and lon:
         geolocator = Nominatim(user_agent="geoapi")
         loc = geolocator.reverse(f"{lat}, {lon}")
         if loc:
