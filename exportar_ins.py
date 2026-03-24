@@ -26,22 +26,28 @@ def panel_exportar_ins():
         data = sheet.get_all_records()
         df = pd.DataFrame(data)
 
-        # Convertir columna de fecha a datetime
-        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+        # Normalizar nombres de columnas a mayúsculas
+        df.columns = df.columns.str.strip().str.upper()
 
-        # Filtrar por rango de fechas
-        mask = (df["Fecha"].dt.date >= fecha_inicio) & (df["Fecha"].dt.date <= fecha_fin)
-        df_filtrado = df.loc[mask]
+        # Verificar que existe la columna FECHA
+        if "FECHA" in df.columns:
+            df["FECHA"] = pd.to_datetime(df["FECHA"], errors="coerce")
 
-        # Exportar a Excel
-        nombre_archivo = f"registros_INS_{fecha_inicio}_a_{fecha_fin}.xlsx"
-        df_filtrado.to_excel(nombre_archivo, index=False)
+            # Filtrar por rango de fechas
+            mask = (df["FECHA"].dt.date >= fecha_inicio) & (df["FECHA"].dt.date <= fecha_fin)
+            df_filtrado = df.loc[mask]
 
-        # Descargar en Streamlit
-        with open(nombre_archivo, "rb") as f:
-            st.download_button(
-                label="⬇️ Descargar Excel",
-                data=f,
-                file_name=nombre_archivo,
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+            # Exportar a Excel
+            nombre_archivo = f"registros_INS_{fecha_inicio}_a_{fecha_fin}.xlsx"
+            df_filtrado.to_excel(nombre_archivo, index=False)
+
+            # Descargar en Streamlit
+            with open(nombre_archivo, "rb") as f:
+                st.download_button(
+                    label="⬇️ Descargar Excel",
+                    data=f,
+                    file_name=nombre_archivo,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+        else:
+            st.error("⚠️ No se encontró la columna 'FECHA' en la hoja INS.")
