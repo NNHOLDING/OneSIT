@@ -267,6 +267,8 @@ if st.session_state.logueado_handheld:
 
     elif modulo == "🔍 Consulta de SKU":
         mostrar_consulta_sku(conectar_sit_hh)
+    elif modulo == "📑 Reporte TRecibo":
+        mostrar_reporte(conectar_sit_hh)
 
     elif modulo == "📑 Reporte TRecibo":
         mostrar_reporte(conectar_sit_hh)
