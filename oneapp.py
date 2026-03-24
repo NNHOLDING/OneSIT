@@ -270,9 +270,8 @@ if st.session_state.logueado_handheld:
         mostrar_consulta_sku(conectar_sit_hh)
     elif modulo == "📑 Reporte TRecibo":
         mostrar_reporte(conectar_sit_hh)
-
-    elif modulo == "📑 Reporte TRecibo":
-        mostrar_reporte(conectar_sit_hh)
+    elif modulo == "📝 Registro INS":
+        panel_registro()
     elif modulo == "📤 Exportar Registros INS":
         panel_exportar_ins()
     
