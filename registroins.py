@@ -54,7 +54,7 @@ def panel_registro():
         punto = Point(lon, lat)
 
         # Cantones desde GeoJSON
-        with open("geojson/cantones.geojson", "r", encoding="utf-8") as f:
+        with open("cantones.geojson", "r", encoding="utf-8") as f:
             cantones_data = json.load(f)
 
         for feature in cantones_data["features"]:
@@ -64,8 +64,18 @@ def panel_registro():
                 provincia = feature["properties"].get("NOM_PROV", provincia)
                 break
 
-        # Provincias desde GeoJSON (opcional)
-        with open("geojson/provincias.geojson", "r", encoding="utf-8") as f:
+        # Distritos desde GeoJSON
+        with open("distritos.geojson", "r", encoding="utf-8") as f:
+            distritos_data = json.load(f)
+
+        for feature in distritos_data["features"]:
+            geom = shape(feature["geometry"])
+            if geom.contains(punto):
+                distrito = feature["properties"].get("NOM_DIST", "")
+                break
+
+        # Provincias desde GeoJSON
+        with open("provincias.geojson", "r", encoding="utf-8") as f:
             provincias_data = json.load(f)
 
         for feature in provincias_data["features"]:
