@@ -5,6 +5,7 @@ import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 from geopy.geocoders import Nominatim
+from streamlit_js_eval import streamlit_js_eval
 
 # Configuración de zona horaria
 cr_timezone = pytz.timezone("America/Costa_Rica")
@@ -24,10 +25,9 @@ def panel_registro():
     hora = st.time_input("Hora", datetime.datetime.now(cr_timezone).time())
     numero_evento = st.text_input("Número de evento")
 
-    # Obtener coordenadas desde el navegador con JS
-    coords = st.experimental_get_query_params()
-    lat = coords.get("lat", [None])[0]
-    lon = coords.get("lon", [None])[0]
+    # Obtener coordenadas reales del dispositivo vía JS
+    lat = streamlit_js_eval(js_expressions="navigator.geolocation.getCurrentPosition(pos => pos.coords.latitude)", key="lat")
+    lon = streamlit_js_eval(js_expressions="navigator.geolocation.getCurrentPosition(pos => pos.coords.longitude)", key="lon")
 
     provincia, canton, distrito = "", "", ""
     if lat and lon:
@@ -39,20 +39,7 @@ def panel_registro():
             canton = address.get("municipality", address.get("county", ""))
             distrito = address.get("neighbourhood", address.get("suburb", ""))
 
-    st.markdown("""
-        <script>
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
-                const query = new URLSearchParams(window.location.search);
-                query.set("lat", lat);
-                query.set("lon", lon);
-                window.location.search = query.toString();
-            }
-        );
-        </script>
-    """, unsafe_allow_html=True)
+        st.write(f"📍 Coordenadas detectadas: {lat}, {lon}")
 
     if st.button("Guardar"):
         sheet.append_row([
