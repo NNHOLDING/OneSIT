@@ -18,8 +18,8 @@ def panel_registro():
         <style>
         /* Inputs de texto */
         .stTextInput input {
-            background-color: #000000 !important;   /* Fondo negro */
-            color: #FFFFFF !important;              /* Texto blanco */
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
             font-size: 18px !important;
         }
 
