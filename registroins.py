@@ -16,8 +16,20 @@ def panel_registro():
     st.markdown(
         """
         <style>
-        /* Inputs de texto, fecha y hora */
-        .stTextInput input, .stDateInput input, .stTimeInput input {
+        /* Inputs de texto */
+        .stTextInput input {
+            color: black !important;
+            font-size: 18px !important;
+        }
+
+        /* Inputs de fecha y hora */
+        .stDateInput input, .stTimeInput input {
+            color: black !important;
+            font-size: 18px !important;
+        }
+
+        /* Forzar color negro en los valores de tipo date y time */
+        input[type="time"], input[type="date"] {
             color: black !important;
             font-size: 18px !important;
         }
@@ -38,12 +50,6 @@ def panel_registro():
         ::placeholder {
             color: black !important;
             opacity: 1 !important;
-        }
-
-        /* Valor dentro del input de hora/fecha */
-        input[type="time"], input[type="date"] {
-            color: black !important;
-            font-size: 18px !important;
         }
         </style>
         """,
