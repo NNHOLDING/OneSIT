@@ -12,25 +12,28 @@ from shapely.geometry import shape, Point
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 def panel_registro():
-    # Ajustes de estilo para mejorar visibilidad en móviles (fuente azul marino)
+    # Ajustes de estilo para mejorar visibilidad en móviles (fondo oscuro + fuente clara)
     st.markdown(
         """
         <style>
         /* Inputs de texto */
         .stTextInput input {
-            color: #000080 !important;
+            background-color: #000000 !important;   /* Fondo negro */
+            color: #FFFFFF !important;              /* Texto blanco */
             font-size: 18px !important;
         }
 
         /* Inputs de fecha y hora */
         .stDateInput input, .stTimeInput input {
-            color: #000080 !important;
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
             font-size: 18px !important;
         }
 
-        /* Forzar color azul marino en los valores de tipo date y time */
+        /* Forzar color claro en los valores de tipo date y time */
         input[type="time"], input[type="date"] {
-            color: #000080 !important;
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
             font-size: 18px !important;
         }
 
@@ -41,24 +44,26 @@ def panel_registro():
         input[type="time"]::-webkit-datetime-edit-minute-field,
         input[type="time"]::-webkit-datetime-edit-second-field,
         input[type="time"]::-webkit-datetime-edit-ampm-field {
-            color: #000080 !important;
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
         }
 
         /* Selectbox */
         .stSelectbox div[data-baseweb="select"] {
-            color: #000080 !important;
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
             font-size: 18px !important;
         }
 
         /* Labels */
         label, .stSelectbox label, .stTextInput label, .stDateInput label, .stTimeInput label {
-            color: #000080 !important;
+            color: #FFFFFF !important;
             font-size: 18px !important;
         }
 
         /* Placeholder (texto inicial tenue) */
         ::placeholder {
-            color: #000080 !important;
+            color: #FFFFFF !important;
             opacity: 1 !important;
         }
         </style>
