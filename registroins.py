@@ -12,6 +12,33 @@ from shapely.geometry import shape, Point
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 def panel_registro():
+    # Ajustes de estilo para inputs y selectbox
+    st.markdown(
+        """
+        <style>
+        /* Forzar color negro y aumentar tamaño en inputs y selectbox */
+        .stTextInput input, .stDateInput input, .stTimeInput input,
+        .stSelectbox div[data-baseweb="select"] {
+            color: black !important;
+            font-size: 18px !important;
+        }
+
+        /* Labels de los widgets */
+        label, .stSelectbox label, .stTextInput label {
+            color: black !important;
+            font-size: 18px !important;
+        }
+
+        /* Placeholder (texto inicial tenue) */
+        ::placeholder {
+            color: black !important;
+            opacity: 1 !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
     # Conexión con Google Sheets
     scope = ["https://spreadsheets.google.com/feeds",
              "https://www.googleapis.com/auth/drive"]
@@ -44,7 +71,7 @@ def panel_registro():
         lat = ubicacion["latitude"]
         lon = ubicacion["longitude"]
 
-        # Provincia con Nominatim (mantener igual)
+        # Provincia con Nominatim
         geolocator = Nominatim(user_agent="geoapi")
         loc = geolocator.reverse(f"{lat}, {lon}")
         if loc:
