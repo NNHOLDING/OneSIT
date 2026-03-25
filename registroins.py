@@ -18,7 +18,7 @@ def panel_registro():
         <style>
         /* Inputs de texto */
         .stTextInput input {
-            color: #000080 !important;   /* Azul marino */
+            color: #000080 !important;
             font-size: 18px !important;
         }
 
@@ -32,6 +32,16 @@ def panel_registro():
         input[type="time"], input[type="date"] {
             color: #000080 !important;
             font-size: 18px !important;
+        }
+
+        /* Subcomponentes del input de hora en navegadores WebKit (iOS/Android) */
+        input[type="time"]::-webkit-datetime-edit,
+        input[type="time"]::-webkit-datetime-edit-text,
+        input[type="time"]::-webkit-datetime-edit-hour-field,
+        input[type="time"]::-webkit-datetime-edit-minute-field,
+        input[type="time"]::-webkit-datetime-edit-second-field,
+        input[type="time"]::-webkit-datetime-edit-ampm-field {
+            color: #000080 !important;
         }
 
         /* Selectbox */
