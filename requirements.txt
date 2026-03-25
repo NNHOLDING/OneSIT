@@ -22,7 +22,6 @@ geopy
 geocoder
 geopandas
 shapely
-streamlit-time-picker
 
 
 
