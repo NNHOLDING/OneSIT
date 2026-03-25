@@ -23,13 +23,20 @@ def panel_registro():
         unsafe_allow_html=True
     )
 
-    # Lista de horas en intervalos de 30 minutos
-    horas = [f"{h:02d}:{m:02d}" for h in range(0,24) for m in (0,30)]
-    hora_actual = datetime.datetime.now(cr_timezone).strftime("%H:%M")
-    hora = st.selectbox("Hora", horas, index=horas.index(hora_actual))
+    ahora = datetime.datetime.now(cr_timezone)
 
-    fecha = st.date_input("Fecha", datetime.datetime.now(cr_timezone).date())
+    # Carrete dinámico: selectbox de horas y minutos
+    horas = [f"{h:02d}" for h in range(0,24)]
+    minutos = [f"{m:02d}" for m in range(0,60)]
+
+    hora_sel = st.selectbox("Hora", horas, index=ahora.hour)
+    minuto_sel = st.selectbox("Minutos", minutos, index=ahora.minute)
+
+    # Combinar hora y minutos seleccionados
+    hora_final = f"{hora_sel}:{minuto_sel}"
+
+    fecha = st.date_input("Fecha", ahora.date())
     numero_evento = st.text_input("Número de evento")
 
     if st.button("Guardar"):
-        st.success(f"✅ Guardado: {fecha}, {hora}, {numero_evento}")
+        st.success(f"✅ Guardado: {fecha}, {hora_final}, {numero_evento}")
