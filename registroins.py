@@ -12,43 +12,43 @@ from shapely.geometry import shape, Point
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 def panel_registro():
-    # Ajustes de estilo para mejorar visibilidad en móviles
+    # Ajustes de estilo para mejorar visibilidad en móviles (fuente azul marino)
     st.markdown(
         """
         <style>
         /* Inputs de texto */
         .stTextInput input {
-            color: black !important;
+            color: #000080 !important;   /* Azul marino */
             font-size: 18px !important;
         }
 
         /* Inputs de fecha y hora */
         .stDateInput input, .stTimeInput input {
-            color: black !important;
+            color: #000080 !important;
             font-size: 18px !important;
         }
 
-        /* Forzar color negro en los valores de tipo date y time */
+        /* Forzar color azul marino en los valores de tipo date y time */
         input[type="time"], input[type="date"] {
-            color: black !important;
+            color: #000080 !important;
             font-size: 18px !important;
         }
 
         /* Selectbox */
         .stSelectbox div[data-baseweb="select"] {
-            color: black !important;
+            color: #000080 !important;
             font-size: 18px !important;
         }
 
         /* Labels */
         label, .stSelectbox label, .stTextInput label, .stDateInput label, .stTimeInput label {
-            color: black !important;
+            color: #000080 !important;
             font-size: 18px !important;
         }
 
         /* Placeholder (texto inicial tenue) */
         ::placeholder {
-            color: black !important;
+            color: #000080 !important;
             opacity: 1 !important;
         }
         </style>
