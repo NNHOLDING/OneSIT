@@ -12,19 +12,24 @@ from shapely.geometry import shape, Point
 cr_timezone = pytz.timezone("America/Costa_Rica")
 
 def panel_registro():
-    # Ajustes de estilo para inputs y selectbox
+    # Ajustes de estilo para mejorar visibilidad en móviles
     st.markdown(
         """
         <style>
-        /* Forzar color negro y aumentar tamaño en inputs y selectbox */
-        .stTextInput input, .stDateInput input, .stTimeInput input,
+        /* Inputs de texto, fecha y hora */
+        .stTextInput input, .stDateInput input, .stTimeInput input {
+            color: black !important;
+            font-size: 18px !important;
+        }
+
+        /* Selectbox */
         .stSelectbox div[data-baseweb="select"] {
             color: black !important;
             font-size: 18px !important;
         }
 
-        /* Labels de los widgets */
-        label, .stSelectbox label, .stTextInput label {
+        /* Labels */
+        label, .stSelectbox label, .stTextInput label, .stDateInput label, .stTimeInput label {
             color: black !important;
             font-size: 18px !important;
         }
@@ -33,6 +38,12 @@ def panel_registro():
         ::placeholder {
             color: black !important;
             opacity: 1 !important;
+        }
+
+        /* Valor dentro del input de hora/fecha */
+        input[type="time"], input[type="date"] {
+            color: black !important;
+            font-size: 18px !important;
         }
         </style>
         """,
