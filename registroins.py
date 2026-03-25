@@ -10,7 +10,7 @@ cr_timezone = pytz.timezone("America/Costa_Rica")
 def panel_registro():
     st.title("🕒 Registro INS con picker dinámico")
 
-    # Bloque de estilo para fondo oscuro y texto claro
+    # Estilo oscuro para el picker
     st.markdown(
         """
         <style>
