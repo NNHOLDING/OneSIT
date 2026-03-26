@@ -162,6 +162,7 @@ if st.session_state.logueado_handheld:
         "🌡️ Registro de Temperatura",
         "🏷️ Generación de LPNs",
         "🧪 Prueba de Ubicación",
+        🏷️ Generación de LPNs",
         "📝 Registro INS",
         "📑 Reporte TRecibo",
     ]
