@@ -160,7 +160,7 @@ if st.session_state.logueado_handheld:
         "🕒 Productividad",
         "📝 Gestión de Jornada",
         "🌡️ Registro de Temperatura",
-        "🏷️ Generación de LPNs",
+         "🏷️ Generación de LPNs",
         "🧪 Prueba de Ubicación",
         🏷️ Generación de LPNs",
         "📝 Registro INS",
