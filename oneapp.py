@@ -287,7 +287,10 @@ if st.session_state.logueado_handheld:
                       st.session_state.nombre_empleado,
                       "Login",
                       "Cierre de sesión")
-    
+     # Reiniciar variables de sesión
+    from defaults import defaults
+    for key in defaults.keys():
+        st.session_state[key] = False
               
 # 🧾 Footer institucional
 mostrar_footer()
