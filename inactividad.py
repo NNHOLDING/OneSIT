@@ -7,6 +7,7 @@ def script_inactividad(minutos=5):
     function resetTimer() {{
         clearTimeout(timeout);
         timeout = setTimeout(() => {{
+            // Guardar bandera en localStorage y recargar
             localStorage.setItem("expired", "true");
             window.location.reload();
         }}, {minutos*60000});
