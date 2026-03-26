@@ -174,10 +174,10 @@ if st.session_state.logueado_handheld:
         #"🕒 Productividad",
         #"📝 Gestión de Jornada",
         #"🚨 Registro de Errores",
-        #"🏷️ Generación de LPNs",
+        "🏷️ Generación de LPNs",
         "📝 Registro INS",
         "📤 Exportar Registros INS",
-        #"📑 Reporte TRecibo",
+        "📑 Reporte TRecibo",
     ]
 
     # Selección dinámica según rol
