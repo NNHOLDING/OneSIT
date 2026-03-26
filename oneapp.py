@@ -298,7 +298,7 @@ if st.session_state.logueado_handheld:
         script_inactividad(minutos=5)
 
     # Detectar expiración automática
-        query_params = st.experimental_get_query_params()
+        query_params = st.query_params
         if "expired" in query_params:
             cerrar_sesion()
             st.warning("⚠️ Sesión cerrada por inactividad")
