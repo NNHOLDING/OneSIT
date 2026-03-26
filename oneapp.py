@@ -295,13 +295,13 @@ if st.session_state.logueado_handheld:
             st.session_state[key] = False
 
     # Script de inactividad
-        script_inactividad(minutos=5)
+    script_inactividad(minutos=5)
 
     # Detectar expiración automática
-        query_params = st.query_params
-        if "expired" in query_params:
-            cerrar_sesion()
-            st.warning("⚠️ Sesión cerrada por inactividad")
+    query_params = st.query_params
+    if "expired" in query_params:
+        cerrar_sesion()
+        st.warning("⚠️ Sesión cerrada por inactividad")
 
        
 # 🧾 Footer institucional
