@@ -39,6 +39,8 @@ import geopandas as gpd
 from shapely.geometry import Point
 from exportar_ins import panel_exportar_ins
 from registroins import panel_registro
+from inactividad import cerrar_sesion, script_inactividad
+
 
 
 
@@ -291,6 +293,16 @@ if st.session_state.logueado_handheld:
         from defaults import defaults
         for key in defaults.keys():
             st.session_state[key] = False
+
+    # Script de inactividad
+        script_inactividad(minutos=5)
+
+    # Detectar expiración automática
+        query_params = st.experimental_get_query_params()
+        if "expired" in query_params:
+            cerrar_sesion()
+            st.warning("⚠️ Sesión cerrada por inactividad")
+
        
 # 🧾 Footer institucional
 mostrar_footer()
