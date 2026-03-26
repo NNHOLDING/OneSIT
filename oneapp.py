@@ -294,3 +294,5 @@ if st.session_state.logueado_handheld:
               
 # 🧾 Footer institucional
 mostrar_footer()
+
+    
