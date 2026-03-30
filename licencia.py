@@ -11,7 +11,7 @@ def validar_licencia(codigo_empleado):
         df = pd.DataFrame(datos[1:], columns=datos[0])
         df.columns = df.columns.str.strip().str.lower()
 
-        # 🔎 Mostrar columnas para depuración
+        # Mostrar columnas para depuración
         st.write("Columnas disponibles:", df.columns.tolist())
 
         fila = df[df["codigoempleado"].str.strip().str.lower() == codigo_empleado.strip().lower()]
@@ -23,7 +23,7 @@ def validar_licencia(codigo_empleado):
         tipo = fila["tpo licencia"].strip()
         expiracion = fila["expiracion licencia"].strip()
 
-        # 🔎 Mostrar valor crudo leído
+        # Mostrar valor crudo leído
         st.write("Valor leído de expiracion licencia:", repr(expiracion))
 
         if expiracion.lower() == "nunca":
@@ -32,9 +32,11 @@ def validar_licencia(codigo_empleado):
 
         # Intentar varios formatos de fecha
         fecha_exp = None
-        for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"):
+        formatos = ["%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"]
+        for fmt in formatos:
             try:
                 fecha_exp = datetime.strptime(expiracion, fmt)
+                st.write(f"Fecha interpretada correctamente con formato {fmt}: {fecha_exp}")
                 break
             except ValueError:
                 continue
@@ -44,6 +46,7 @@ def validar_licencia(codigo_empleado):
             return
 
         hoy = datetime.now()
+        st.write(f"Hoy es: {hoy.strftime('%d/%m/%Y %H:%M:%S')}")
 
         if fecha_exp < hoy:
             st.error(f"Licencia {tipo} expirada el {expiracion}")
