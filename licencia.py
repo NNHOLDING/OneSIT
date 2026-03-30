@@ -11,6 +11,9 @@ def validar_licencia(codigo_empleado):
         # Normalizar nombres de columnas
         df.columns = df.columns.str.strip().str.lower()
 
+        # 🔎 Depuración: imprime columnas para confirmar
+        print("Columnas disponibles:", df.columns.tolist())
+
         # Buscar fila del usuario
         fila = df[df["codigoempleado"].str.strip().str.lower() == codigo_empleado.strip().lower()]
         if fila.empty:
