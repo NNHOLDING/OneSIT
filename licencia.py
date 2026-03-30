@@ -1,49 +1,52 @@
 import pandas as pd
 from google_sheets import conectar_sit_hh
+import streamlit as st
 from datetime import datetime, timedelta
+from defaults import defaults
 
 def validar_licencia(codigo_empleado):
     try:
-        # Leer hoja usuarios
         hoja = conectar_sit_hh().worksheet("usuarios")
         datos = hoja.get_all_values()
         df = pd.DataFrame(datos[1:], columns=datos[0])
-        # Normalizar nombres de columnas
         df.columns = df.columns.str.strip().str.lower()
 
-        # 🔎 Depuración: imprime columnas para confirmar
-        print("Columnas disponibles:", df.columns.tolist())
+        # Depuración: mostrar columnas
+        st.write("Columnas disponibles:", df.columns.tolist())
 
-        # Buscar fila del usuario
         fila = df[df["codigoempleado"].str.strip().str.lower() == codigo_empleado.strip().lower()]
         if fila.empty:
-            return False, "Usuario no encontrado en hoja usuarios"
+            st.error("⛔ Usuario no encontrado en hoja usuarios")
+            return
 
         fila = fila.iloc[0]
         tipo = fila["tpo licencia"].strip()
         expiracion = fila["expiración licencia"].strip()
 
-        # Caso licencia sin expiración
         if expiracion.lower() == "nunca":
-            return True, f"Licencia {tipo} sin expiración"
+            st.success(f"Licencia {tipo} sin expiración")
+            return
 
-        # Parsear fecha
         try:
             fecha_exp = datetime.strptime(expiracion, "%d/%m/%Y")
             hoy = datetime.now()
 
             if fecha_exp < hoy:
-                return False, f"Licencia {tipo} expirada el {expiracion}"
+                st.error(f"Licencia {tipo} expirada el {expiracion}")
+                # 🚪 Forzar cierre de sesión
+                for key, value in defaults.items():
+                    st.session_state[key] = value
+                st.stop()
 
             elif fecha_exp <= hoy + timedelta(days=15):
                 dias_restantes = (fecha_exp - hoy).days
-                return True, f"⚠️ Licencia {tipo} próxima a expirar en {dias_restantes} días (vence el {expiracion})"
+                st.warning(f"⚠️ Licencia {tipo} próxima a expirar en {dias_restantes} días (vence el {expiracion})")
 
             else:
-                return True, f"Licencia {tipo} válida hasta {expiracion}"
+                st.success(f"Licencia {tipo} válida hasta {expiracion}")
 
         except ValueError:
-            return False, f"Formato de fecha inválido en licencia: {expiracion}"
+            st.error(f"Formato de fecha inválido en licencia: {expiracion}")
 
     except Exception as e:
-        return False, f"Error validando licencia: {e}"
+        st.error(f"Error validando licencia: {e}")
