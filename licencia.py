@@ -1,3 +1,4 @@
+from google_sheets import conectar_sit_hh
 def validar_licencia(codigo_empleado):
     try:
         hoja = conectar_sit_hh().worksheet("usuarios")
