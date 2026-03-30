@@ -1,12 +1,18 @@
+import pandas as pd
+import streamlit as st
+from datetime import datetime, timedelta
+from defaults import defaults
 from google_sheets import conectar_sit_hh
-import pandas as pd 
+
 def validar_licencia(codigo_empleado):
     try:
+        # Conectar a la hoja de usuarios
         hoja = conectar_sit_hh().worksheet("usuarios")
         datos = hoja.get_all_values()
         df = pd.DataFrame(datos[1:], columns=datos[0])
         df.columns = df.columns.str.strip().str.lower()
 
+        # Buscar fila del empleado
         fila = df[df["codigoempleado"].str.strip().str.lower() == codigo_empleado.strip().lower()]
         if fila.empty:
             return False, "⛔ Usuario no encontrado en hoja usuarios"
@@ -18,10 +24,11 @@ def validar_licencia(codigo_empleado):
         # Mostrar lectura de campos
         st.write("Licencia encontrada:", {"tipo": tipo, "expiracion": expiracion})
 
+        # Caso especial: licencia sin expiración
         if expiracion.lower() == "nunca":
             return True, f"Licencia {tipo} sin expiración"
 
-        # Intentar varios formatos
+        # Intentar varios formatos de fecha
         fecha_exp = None
         for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"):
             try:
@@ -34,7 +41,9 @@ def validar_licencia(codigo_empleado):
             return False, f"No se pudo interpretar la fecha: {expiracion}"
 
         hoy = datetime.now()
+        st.write(f"Hoy es: {hoy.strftime('%d/%m/%Y %H:%M:%S')}")
 
+        # Validación de vencimiento
         if fecha_exp < hoy:
             return False, f"Licencia {tipo} expirada el {expiracion}"
         elif fecha_exp <= hoy + timedelta(days=15):
