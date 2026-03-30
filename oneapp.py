@@ -216,6 +216,7 @@ if st.session_state.logueado_handheld:
                 st.session_state[key] = value
             st.stop()
 
+
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
         st.text_input("Nombre", value=st.session_state.nombre_empleado, disabled=True)
