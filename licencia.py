@@ -11,7 +11,9 @@ def validar_licencia(codigo_empleado):
         df = pd.DataFrame(datos[1:], columns=datos[0])
         df.columns = df.columns.str.strip().str.lower()
 
-        # Buscar fila del usuario
+        # 🔎 Mostrar columnas para depuración
+        st.write("Columnas disponibles:", df.columns.tolist())
+
         fila = df[df["codigoempleado"].str.strip().str.lower() == codigo_empleado.strip().lower()]
         if fila.empty:
             st.error("⛔ Usuario no encontrado en hoja usuarios")
@@ -19,32 +21,43 @@ def validar_licencia(codigo_empleado):
 
         fila = fila.iloc[0]
         tipo = fila["tpo licencia"].strip()
-        expiracion = fila["expiracion licencia"].strip()   # ✅ sin tilde
+        expiracion = fila["expiracion licencia"].strip()
+
+        # 🔎 Mostrar valor crudo leído
+        st.write("Valor leído de expiracion licencia:", repr(expiracion))
 
         if expiracion.lower() == "nunca":
             st.success(f"Licencia {tipo} sin expiración")
             return
 
-        try:
-            fecha_exp = datetime.strptime(expiracion, "%d/%m/%Y")
-            hoy = datetime.now()
+        # Intentar varios formatos de fecha
+        fecha_exp = None
+        for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"):
+            try:
+                fecha_exp = datetime.strptime(expiracion, fmt)
+                break
+            except ValueError:
+                continue
 
-            if fecha_exp < hoy:
-                st.error(f"Licencia {tipo} expirada el {expiracion}")
-                # 🚪 Forzar cierre de sesión
-                for key, value in defaults.items():
-                    st.session_state[key] = value
-                st.stop()
+        if fecha_exp is None:
+            st.error(f"No se pudo interpretar la fecha: {expiracion}")
+            return
 
-            elif fecha_exp <= hoy + timedelta(days=15):
-                dias_restantes = (fecha_exp - hoy).days
-                st.warning(f"⚠️ Licencia {tipo} próxima a expirar en {dias_restantes} días (vence el {expiracion})")
+        hoy = datetime.now()
 
-            else:
-                st.success(f"Licencia {tipo} válida hasta {expiracion}")
+        if fecha_exp < hoy:
+            st.error(f"Licencia {tipo} expirada el {expiracion}")
+            # 🚪 Forzar cierre de sesión
+            for key, value in defaults.items():
+                st.session_state[key] = value
+            st.stop()
 
-        except ValueError:
-            st.error(f"Formato de fecha inválido en licencia: {expiracion}")
+        elif fecha_exp <= hoy + timedelta(days=15):
+            dias_restantes = (fecha_exp - hoy).days
+            st.warning(f"⚠️ Licencia {tipo} próxima a expirar en {dias_restantes} días (vence el {expiracion})")
+
+        else:
+            st.success(f"Licencia {tipo} válida hasta {expiracion}")
 
     except Exception as e:
         st.error(f"Error validando licencia: {e}")
