@@ -11,6 +11,7 @@ def validar_licencia(codigo_empleado):
         df = pd.DataFrame(datos[1:], columns=datos[0])
         df.columns = df.columns.str.strip().str.lower()
 
+        # Buscar fila del usuario
         fila = df[df["codigoempleado"].str.strip().str.lower() == codigo_empleado.strip().lower()]
         if fila.empty:
             st.error("⛔ Usuario no encontrado en hoja usuarios")
