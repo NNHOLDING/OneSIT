@@ -39,6 +39,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 from exportar_ins import panel_exportar_ins
 from registroins import panel_registro
+from licencia import validar_licencia
 
 
 
@@ -199,6 +200,19 @@ if st.session_state.logueado_handheld:
         # mostrar_inicio()
         mostrar_inicio(st.session_state.nombre_empleado)
         mostrar_usuario_info()  # 👈 Aquí se muestra el panel con el usuario logeado
+    # ✅ Validación automática de licencia
+    valido, mensaje = validar_licencia(st.session_state.codigo_empleado)
+    if valido:
+        if "⚠️" in mensaje:
+            st.warning(mensaje)   # Aviso preventivo
+        else:
+            st.success(mensaje)   # Licencia válida
+    else:
+        st.error(mensaje)         # Licencia expirada
+        # 🚪 Forzar cierre de sesión
+        for key, value in defaults.items():
+            st.session_state[key] = value
+        st.stop()
 
     if modulo == "📦 Registro de Handhelds":
         st.title("📦 Registro de Handhelds")
