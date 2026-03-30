@@ -202,14 +202,16 @@ if st.session_state.logueado_handheld:
         mostrar_usuario_info()  # 👈 Aquí se muestra el panel con el usuario logeado
     # ✅ Validación automática de licencia
         valido, mensaje = validar_licencia(st.session_state.codigo_empleado)
+    # Mostrar siempre el mensaje que devuelve la función
         if valido:
             if "⚠️" in mensaje:
-                st.warning(mensaje)   # Aviso preventivo
+                st.warning(mensaje)   # Aviso preventivo de proximidad
             else:
                 st.success(mensaje)   # Licencia válida
         else:
             st.error(mensaje)         # Licencia expirada
             # 🚪 Forzar cierre de sesión
+            from defaults import defaults
             for key, value in defaults.items():
                 st.session_state[key] = value
             st.stop()
