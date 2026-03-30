@@ -11,9 +11,6 @@ def validar_licencia(codigo_empleado):
         df = pd.DataFrame(datos[1:], columns=datos[0])
         df.columns = df.columns.str.strip().str.lower()
 
-        # Depuración: mostrar columnas
-        st.write("Columnas disponibles:", df.columns.tolist())
-
         fila = df[df["codigoempleado"].str.strip().str.lower() == codigo_empleado.strip().lower()]
         if fila.empty:
             st.error("⛔ Usuario no encontrado en hoja usuarios")
@@ -21,7 +18,7 @@ def validar_licencia(codigo_empleado):
 
         fila = fila.iloc[0]
         tipo = fila["tpo licencia"].strip()
-        expiracion = fila["expiración licencia"].strip()
+        expiracion = fila["expiracion licencia"].strip()   # ✅ sin tilde
 
         if expiracion.lower() == "nunca":
             st.success(f"Licencia {tipo} sin expiración")
